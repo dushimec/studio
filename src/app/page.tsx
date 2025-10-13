@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { findCars } from '@/lib/data';
 import { CarCard } from '@/components/car-card';
@@ -7,22 +6,19 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
   const featuredCars = findCars().slice(0, 3);
 
   return (
     <div className="flex flex-col">
-      <section className="relative w-full h-screen">
-        {heroImage && (
-          <Image
-            src={heroImage.imageUrl}
-            alt={heroImage.description}
-            fill
-            className="object-cover"
-            priority
-            data-ai-hint={heroImage.imageHint}
-          />
-        )}
+      <section className="relative w-full h-screen overflow-hidden">
+        <video
+          src="https://videos.pexels.com/video-files/3846235/3846235-hd_1920_1080_25fps.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
+        />
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white">
           <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 animate-fade-in-up">
