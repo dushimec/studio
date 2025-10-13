@@ -7,14 +7,17 @@ import type { Car } from '@/lib/types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 // Fix for default icon path issue with webpack
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+}
 
 const userIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -44,11 +47,23 @@ type MapComponentProps = {
 
 function MapFlyTo({ position }: { position: [number, number] }) {
     const map = useMap();
-    map.flyTo(position, 13);
+    useEffect(() => {
+        map.flyTo(position, 13);
+    }, [map, position]);
     return null;
 }
 
 export default function MapComponent({ center, cars, locations, userLocation, nearestLocation }: MapComponentProps) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) {
+        return null; 
+    }
+
     return (
         <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: '600px', width: '100%' }}>
             {nearestLocation && <MapFlyTo position={nearestLocation.position} />}

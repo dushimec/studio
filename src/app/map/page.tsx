@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,7 +72,7 @@ export default function MapPage() {
       alert("Geolocation is not supported by this browser.");
     }
   };
-
+  
   const Map = useMemo(() => dynamic(() => import('@/components/map-component'), {
     loading: () => <div className="h-[600px] w-full bg-muted flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>,
     ssr: false
