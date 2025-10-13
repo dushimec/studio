@@ -7,7 +7,7 @@ import React from 'react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/logo';
 
 const navLinks = [
@@ -43,6 +43,7 @@ export default function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="pr-0">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
                 <div className="p-4">
                   <Logo />
                 </div>
