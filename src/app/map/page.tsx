@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { findCars } from '@/lib/data';
 import { Loader2, LocateFixed } from 'lucide-react';
+import { CarCard } from '@/components/car-card';
 
 // Fix for default icon path issue with webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -157,31 +158,21 @@ export default function MapPage() {
         </div>
       </Card>
       {nearestLocation && (
-        <Card className="mt-8">
-            <CardHeader>
-                <CardTitle>Nearest Location to You: {nearestLocation.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="mb-4">These cars are available at your nearest location:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {nearestLocation.carIds.map(carId => {
-                        const car = cars.find(c => c.id === carId);
-                        if (!car) return null;
-                        return (
-                            <Card key={car.id} className="p-4">
-                                <CardTitle className="text-lg">{car.name}</CardTitle>
-                                <CardContent className="p-0 mt-2">
-                                    <p>${car.pricePerDay}/day</p>
-                                     <Button asChild variant="secondary" className="mt-2 w-full">
-                                       <Link href={`/browse/${car.id}`}>Book Now</Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )
-                    })}
-                </div>
-            </CardContent>
-        </Card>
+        <div className="mt-8">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold">Nearest Location: {nearestLocation.name}</h2>
+              <p className="text-muted-foreground">These cars are available near you.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {nearestLocation.carIds.map(carId => {
+                    const car = cars.find(c => c.id === carId);
+                    if (!car) return null;
+                    return (
+                        <CarCard key={car.id} car={car} />
+                    )
+                })}
+            </div>
+        </div>
       )}
     </div>
   );
