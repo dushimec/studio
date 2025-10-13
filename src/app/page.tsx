@@ -1,9 +1,14 @@
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { HeroSearchForm } from '@/components/hero-search-form';
+import { findCars } from '@/lib/data';
+import { CarCard } from '@/components/car-card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
+  const featuredCars = findCars().slice(0, 3);
 
   return (
     <div className="flex flex-col">
@@ -58,6 +63,25 @@ export default function Home() {
                 <p className="text-muted-foreground">Pick up your car and hit the road. It's that simple.</p>
               </div>
            </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-24 bg-secondary/5">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold">Featured Vehicles</h2>
+            <p className="text-muted-foreground mt-2">Get a glimpse of our top-rated and most popular cars.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredCars.map((car) => (
+              <CarCard key={car.id} car={car} />
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <Button asChild size="lg">
+              <Link href="/browse">View All Cars</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>
