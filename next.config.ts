@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'spn-sta.spinny.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static0.carbuzzimages.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
