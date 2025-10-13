@@ -74,7 +74,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredCars.map((car) => (
-              <CarCard key={car.id} car={car} />
+              <CarCard key={car.id} car={car} generateImage={true} />
             ))}
           </div>
           <div className="text-center mt-12">
