@@ -41,6 +41,30 @@
       "description": "A winding road through a mountain pass at sunset.",
       "imageUrl": "https://picsum.photos/seed/hero/1920/1080",
       "imageHint": "winding road"
+    },
+    {
+      "id": "car-sedan-2",
+      "description": "A white sedan's interior dashboard view.",
+      "imageUrl": "https://picsum.photos/seed/car7/800/600",
+      "imageHint": "car interior"
+    },
+    {
+      "id": "car-hatchback-2",
+      "description": "A rear view of a silver hatchback.",
+      "imageUrl": "https://picsum.photos/seed/car8/800/600",
+      "imageHint": "silver hatchback"
+    },
+    {
+      "id": "car-convertible-2",
+      "description": "A yellow convertible with the top down.",
+      "imageUrl": "https://picsum.photos/seed/car9/800/600",
+      "imageHint": "yellow convertible"
+    },
+    {
+      "id": "car-truck-2",
+      "description": "A black truck on a dirt road.",
+      "imageUrl": "https://picsum.photos/seed/car10/800/600",
+      "imageHint": "black truck"
     }
   ]
 }
