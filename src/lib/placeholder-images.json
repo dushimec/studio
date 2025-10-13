@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "car-suv-1",
+      "description": "A modern white SUV on a scenic road.",
+      "imageUrl": "https://picsum.photos/seed/car1/800/600",
+      "imageHint": "white suv"
+    },
+    {
+      "id": "car-sedan-1",
+      "description": "A sleek black sedan in a city at night.",
+      "imageUrl": "https://picsum.photos/seed/car2/800/600",
+      "imageHint": "black sedan"
+    },
+    {
+      "id": "car-hatchback-1",
+      "description": "A compact red hatchback parked in a vibrant street.",
+      "imageUrl": "https://picsum.photos/seed/car3/800/600",
+      "imageHint": "red hatchback"
+    },
+    {
+      "id": "car-convertible-1",
+      "description": "A blue convertible on a coastal highway.",
+      "imageUrl": "https://picsum.photos/seed/car4/800/600",
+      "imageHint": "blue convertible"
+    },
+    {
+      "id": "car-truck-1",
+      "description": "A powerful silver truck in a rugged landscape.",
+      "imageUrl": "https://picsum.photos/seed/car5/800/600",
+      "imageHint": "silver truck"
+    },
+    {
+      "id": "car-suv-2",
+      "description": "A family-friendly gray SUV in a suburban setting.",
+      "imageUrl": "https://picsum.photos/seed/car6/800/600",
+      "imageHint": "gray suv"
+    },
+    {
+      "id": "hero-background",
+      "description": "A winding road through a mountain pass at sunset.",
+      "imageUrl": "https://picsum.photos/seed/hero/1920/1080",
+      "imageHint": "winding road"
+    }
+  ]
 }
