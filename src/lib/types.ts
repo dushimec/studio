@@ -20,3 +20,10 @@ export type Booking = {
   totalPrice: number;
   status: 'Upcoming' | 'Active' | 'Completed' | 'Cancelled';
 };
+
+export type Location = {
+    id: string;
+    name: string;
+    position: [number, number];
+    carIds: string[];
+};

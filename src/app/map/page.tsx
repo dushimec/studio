@@ -4,17 +4,12 @@ import { useState, useMemo, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { findCars } from '@/lib/data';
+import { findCars, findLocations } from '@/lib/data';
 import { Loader2, LocateFixed } from 'lucide-react';
 import { CarCard } from '@/components/car-card';
 import dynamic from 'next/dynamic';
+import type { Location } from '@/lib/types';
 
-const locations = [
-  { id: '1', name: 'Kigali International Airport', position: [-1.9639, 30.1344] as [number, number], carIds: ['1', '2'] },
-  { id: '2', name: 'Kigali City Center', position: [-1.9441, 30.0619] as [number, number], carIds: ['3', '4'] },
-  { id: '3', name: 'Gisenyi/Rubavu', position: [-1.7000, 29.2500] as [number, number], carIds: ['5'] },
-  { id: '4', name: 'Butare/Huye', position: [-2.6000, 29.7400] as [number, number], carIds: ['6'] },
-];
 
 function haversineDistance(coords1: [number, number], coords2: [number, number]): number {
   const toRad = (x: number) => (x * Math.PI) / 180;
@@ -33,9 +28,10 @@ function haversineDistance(coords1: [number, number], coords2: [number, number])
 
 export default function MapPage() {
   const cars = findCars();
+  const locations = findLocations();
   const center: [number, number] = [-1.9441, 30.0619];
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [nearestLocation, setNearestLocation] = useState<(typeof locations)[0] | null>(null);
+  const [nearestLocation, setNearestLocation] = useState<Location | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFindNearest = () => {
@@ -47,7 +43,7 @@ export default function MapPage() {
           const userPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(userPos);
 
-          let closestLocation = null;
+          let closestLocation: Location | null = null;
           let minDistance = Infinity;
 
           locations.forEach(location => {

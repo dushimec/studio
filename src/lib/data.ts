@@ -1,4 +1,4 @@
-import type { Car, Booking } from './types';
+import type { Car, Booking, Location } from './types';
 
 export const cars: Car[] = [
   {
@@ -108,6 +108,13 @@ export const bookings: Booking[] = [
   },
 ];
 
+export const locations: Location[] = [
+  { id: '1', name: 'Kigali International Airport', position: [-1.9639, 30.1344], carIds: ['1', '2'] },
+  { id: '2', name: 'Kigali City Center', position: [-1.9441, 30.0619], carIds: ['3', '4'] },
+  { id: '3', name: 'Gisenyi/Rubavu', position: [-1.7000, 29.2500], carIds: ['5'] },
+  { id: '4', name: 'Butare/Huye', position: [-2.6000, 29.7400], carIds: ['6'] },
+];
+
 export function findCarById(id: string): Car | undefined {
   return cars.find(car => car.id === id);
 }
@@ -118,4 +125,8 @@ export function findBookings(): Booking[] {
 
 export function findCars(): Car[] {
   return cars;
+}
+
+export function findLocations(): Location[] {
+  return locations;
 }
