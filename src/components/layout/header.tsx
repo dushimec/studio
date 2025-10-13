@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/browse', label: 'Browse' },
   { href: '/recommendations', label: 'Smart Recommendations' },
   { href: '/booking', label: 'My Bookings' },
+  { href: '/map', label: 'Map' },
 ];
 
 export default function Header() {
