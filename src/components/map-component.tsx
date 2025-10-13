@@ -1,6 +1,7 @@
 'use client';
 
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Car } from '@/lib/types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
@@ -49,8 +50,7 @@ function MapFlyTo({ position }: { position: [number, number] }) {
 
 export default function MapComponent({ center, cars, locations, userLocation, nearestLocation }: MapComponentProps) {
     return (
-         <div className="h-[600px] w-full">
-          <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+        <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: '600px', width: '100%' }}>
             {nearestLocation && <MapFlyTo position={nearestLocation.position} />}
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -88,7 +88,6 @@ export default function MapComponent({ center, cars, locations, userLocation, ne
                 <Popup>You are here</Popup>
               </Marker>
             )}
-          </MapContainer>
-        </div>
+        </MapContainer>
     )
 }
