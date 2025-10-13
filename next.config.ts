@@ -51,6 +51,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.lloydmotorgroup.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.investopedia.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
