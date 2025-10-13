@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useState, useMemo } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import Link from 'next/link';
 import { findCars } from '@/lib/data';
 import { Loader2, LocateFixed } from 'lucide-react';
 import { CarCard } from '@/components/car-card';
+import dynamic from 'next/dynamic';
 
 // Fix for default icon path issue with webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -50,12 +50,6 @@ function haversineDistance(coords1: L.LatLngTuple, coords2: L.LatLngTuple): numb
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return R * c;
-}
-
-function MapFlyTo({ position }: { position: L.LatLngTuple }) {
-  const map = useMap();
-  map.flyTo(position, 13);
-  return null;
 }
 
 export default function MapPage() {
@@ -100,6 +94,12 @@ export default function MapPage() {
     }
   };
 
+  const Map = useMemo(() => dynamic(() => import('@/components/map-component'), {
+    loading: () => <div className="h-[600px] w-full bg-muted flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>,
+    ssr: false
+  }), []);
+
+
   return (
     <div className="container mx-auto px-4 py-12">
        <div className="mb-8 text-center">
@@ -115,47 +115,14 @@ export default function MapPage() {
         </Button>
       </div>
       <Card className="overflow-hidden">
-        <div className="h-[600px] w-full">
-          <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
-            {nearestLocation && <MapFlyTo position={nearestLocation.position} />}
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {locations.map(location => (
-              <Marker key={location.id} position={location.position} opacity={nearestLocation && nearestLocation.id !== location.id ? 0.5 : 1}>
-                <Popup>
-                    <div className="p-2">
-                        <h3 className="font-bold text-lg mb-2">{location.name}</h3>
-                        <div className="space-y-2">
-                           <p className="font-semibold">Available Cars:</p>
-                           {location.carIds.map(carId => {
-                               const car = cars.find(c => c.id === carId);
-                               if (!car) return null;
-                               return (
-                                   <Card key={car.id} className="p-2">
-                                       <CardTitle className="text-sm">{car.name}</CardTitle>
-                                       <CardContent className="p-0 mt-1">
-                                           <p className="text-xs text-muted-foreground">${car.pricePerDay}/day</p>
-                                           <Button asChild variant="link" className="p-0 h-auto text-xs mt-1">
-                                               <Link href={`/browse/${car.id}`}>View Details</Link>
-                                           </Button>
-                                       </CardContent>
-                                   </Card>
-                               )
-                           })}
-                        </div>
-                    </div>
-                </Popup>
-              </Marker>
-            ))}
-             {userLocation && (
-              <Marker position={userLocation} icon={userIcon}>
-                <Popup>You are here</Popup>
-              </Marker>
-            )}
-          </MapContainer>
-        </div>
+        <Map
+            center={center}
+            cars={cars}
+            locations={locations}
+            userLocation={userLocation}
+            nearestLocation={nearestLocation}
+            userIcon={userIcon}
+          />
       </Card>
       {nearestLocation && (
         <div className="mt-8">
