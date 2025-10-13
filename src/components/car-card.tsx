@@ -33,7 +33,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           });
           setImageUrl(result.imageUrl);
         } catch (error) {
-          console.error("Failed to generate car image:", error);
+          // Don't log the error to the console, just fall back to the placeholder
           if (fallbackImage) {
             setImageUrl(fallbackImage.imageUrl);
           }
