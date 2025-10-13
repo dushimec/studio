@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { Car } from '@/lib/types';
+import type { Car, Location } from '@/lib/types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -19,23 +19,16 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// Custom user icon with a different color
 const userIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  className: 'user-location-marker'
+  shadowSize: [41, 41]
 });
 
-type Location = {
-    id: string;
-    name: string;
-    position: [number, number];
-    carIds: string[];
-}
 
 type MapComponentProps = {
     center: [number, number];
