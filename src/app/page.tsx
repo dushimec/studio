@@ -12,7 +12,7 @@ export default function Home() {
     <div className="flex flex-col">
       <section className="relative w-full h-screen overflow-hidden">
         <video
-          src="https://videos.pexels.com/video-files/3846235/3846235-hd_1920_1080_25fps.mp4"
+          src="https://res.cloudinary.com/drwi9cpdi/video/upload/v1760387629/202510132120_siq18y.mp4"
           autoPlay
           loop
           muted
