@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
         hostname: 'static0.carbuzzimages.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.lloydmotorgroup.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
