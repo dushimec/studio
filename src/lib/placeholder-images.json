@@ -32,9 +32,9 @@
     },
     {
       "id": "car-suv-2",
-      "description": "A family-friendly gray SUV in a suburban setting.",
-      "imageUrl": "https://picsum.photos/seed/car6/800/600",
-      "imageHint": "gray suv"
+      "description": "A futuristic silver SUV.",
+      "imageUrl": "https://console.kr-asia.com/wp-content/uploads/2024/12/Geely-Galaxy-Starship-7-EM-i.jpg",
+      "imageHint": "silver suv"
     },
     {
       "id": "hero-background",

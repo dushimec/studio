@@ -57,6 +57,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.investopedia.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'console.kr-asia.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
