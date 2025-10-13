@@ -19,23 +19,18 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
-  const [key, setKey] = React.useState(0);
-
-  React.useEffect(() => {
-    // Force a re-render on the client to avoid hydration mismatch
-    setKey(Math.random());
-  }, []);
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 hidden md:flex">
-          <Logo key={key} />
+          <Logo />
         </div>
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="md:hidden">
-            <Sheet>
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />
@@ -54,6 +49,7 @@ export default function Header() {
                         <Link
                           key={link.href}
                           href={link.href}
+                          onClick={() => setIsSheetOpen(false)}
                           className={cn(
                             'block rounded-md px-3 py-2 text-base font-medium',
                             pathname === link.href ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
