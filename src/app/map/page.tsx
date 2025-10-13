@@ -2,42 +2,21 @@
 
 import { useState, useMemo } from 'react';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { findCars } from '@/lib/data';
 import { Loader2, LocateFixed } from 'lucide-react';
 import { CarCard } from '@/components/car-card';
 import dynamic from 'next/dynamic';
 
-// Fix for default icon path issue with webpack
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
-const userIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  className: 'user-location-marker'
-});
-
 const locations = [
-  { id: '1', name: 'Kigali International Airport', position: [-1.9639, 30.1344] as L.LatLngTuple, carIds: ['1', '2'] },
-  { id: '2', name: 'Kigali City Center', position: [-1.9441, 30.0619] as L.LatLngTuple, carIds: ['3', '4'] },
-  { id: '3', name: 'Gisenyi/Rubavu', position: [-1.7000, 29.2500] as L.LatLngTuple, carIds: ['5'] },
-  { id: '4', name: 'Butare/Huye', position: [-2.6000, 29.7400] as L.LatLngTuple, carIds: ['6'] },
+  { id: '1', name: 'Kigali International Airport', position: [-1.9639, 30.1344] as [number, number], carIds: ['1', '2'] },
+  { id: '2', name: 'Kigali City Center', position: [-1.9441, 30.0619] as [number, number], carIds: ['3', '4'] },
+  { id: '3', name: 'Gisenyi/Rubavu', position: [-1.7000, 29.2500] as [number, number], carIds: ['5'] },
+  { id: '4', name: 'Butare/Huye', position: [-2.6000, 29.7400] as [number, number], carIds: ['6'] },
 ];
 
-function haversineDistance(coords1: L.LatLngTuple, coords2: L.LatLngTuple): number {
+function haversineDistance(coords1: [number, number], coords2: [number, number]): number {
   const toRad = (x: number) => (x * Math.PI) / 180;
   const R = 6371; // Earth radius in km
 
@@ -54,8 +33,8 @@ function haversineDistance(coords1: L.LatLngTuple, coords2: L.LatLngTuple): numb
 
 export default function MapPage() {
   const cars = findCars();
-  const center: L.LatLngTuple = [-1.9441, 30.0619];
-  const [userLocation, setUserLocation] = useState<L.LatLngTuple | null>(null);
+  const center: [number, number] = [-1.9441, 30.0619];
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearestLocation, setNearestLocation] = useState<(typeof locations)[0] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -65,7 +44,7 @@ export default function MapPage() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const userPos: L.LatLngTuple = [position.coords.latitude, position.coords.longitude];
+          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(userPos);
 
           let closestLocation = null;
@@ -121,7 +100,6 @@ export default function MapPage() {
             locations={locations}
             userLocation={userLocation}
             nearestLocation={nearestLocation}
-            userIcon={userIcon}
           />
       </Card>
       {nearestLocation && (

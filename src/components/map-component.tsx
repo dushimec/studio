@@ -7,29 +7,47 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+// Fix for default icon path issue with webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+const userIcon = new L.Icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+  className: 'user-location-marker'
+});
+
 type Location = {
     id: string;
     name: string;
-    position: L.LatLngTuple;
+    position: [number, number];
     carIds: string[];
 }
 
 type MapComponentProps = {
-    center: L.LatLngTuple;
+    center: [number, number];
     cars: Car[];
     locations: Location[];
-    userLocation: L.LatLngTuple | null;
+    userLocation: [number, number] | null;
     nearestLocation: Location | null;
-    userIcon: L.Icon;
 };
 
-function MapFlyTo({ position }: { position: L.LatLngTuple }) {
+function MapFlyTo({ position }: { position: [number, number] }) {
     const map = useMap();
     map.flyTo(position, 13);
     return null;
 }
 
-export default function MapComponent({ center, cars, locations, userLocation, nearestLocation, userIcon }: MapComponentProps) {
+export default function MapComponent({ center, cars, locations, userLocation, nearestLocation }: MapComponentProps) {
     return (
          <div className="h-[600px] w-full">
           <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
