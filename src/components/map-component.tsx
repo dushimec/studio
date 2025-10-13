@@ -7,7 +7,7 @@ import type { Car, Location } from '@/lib/types';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 // Fix for default icon path issue with webpack
 if (typeof window !== 'undefined') {
@@ -47,16 +47,6 @@ function MapFlyTo({ position }: { position: [number, number] }) {
 }
 
 export default function MapComponent({ center, cars, locations, userLocation, nearestLocation }: MapComponentProps) {
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    if (!isMounted) {
-        return null; 
-    }
-
     return (
         <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: '600px', width: '100%' }}>
             {nearestLocation && <MapFlyTo position={nearestLocation.position} />}

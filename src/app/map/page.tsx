@@ -72,7 +72,7 @@ export default function MapPage() {
   const Map = useMemo(() => dynamic(() => import('@/components/map-component'), {
     loading: () => <div className="h-[600px] w-full bg-muted flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>,
     ssr: false
-  }), []);
+  }), [userLocation, nearestLocation]);
 
 
   return (
