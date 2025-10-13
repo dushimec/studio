@@ -8,9 +8,9 @@
     },
     {
       "id": "car-sedan-1",
-      "description": "A sleek black sedan in a city at night.",
-      "imageUrl": "https://picsum.photos/seed/car2/800/600",
-      "imageHint": "black sedan"
+      "description": "A sleek white sedan on the road.",
+      "imageUrl": "https://spn-sta.spinny.com/blog/20220308152631/VW-Virtus-launch.jpg",
+      "imageHint": "white sedan"
     },
     {
       "id": "car-hatchback-1",

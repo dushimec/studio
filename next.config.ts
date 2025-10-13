@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.topgear.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'spn-sta.spinny.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
