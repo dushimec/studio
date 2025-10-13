@@ -1,11 +1,14 @@
 import type { Car, Booking, Location } from './types';
 
+// Approximate conversion rate: 1 USD = 1300 RWF
+// Prices have been updated to reflect this.
+
 export const cars: Car[] = [
   {
     id: '1',
     name: 'Stark SUV 2024',
     type: 'SUV',
-    pricePerDay: 85,
+    pricePerDay: 110500, // 85 * 1300
     seats: 5,
     fuel: 'Gasoline',
     transmission: 'Automatic',
@@ -18,7 +21,7 @@ export const cars: Car[] = [
     id: '2',
     name: 'Orion Sedan',
     type: 'Sedan',
-    pricePerDay: 70,
+    pricePerDay: 91000, // 70 * 1300
     seats: 5,
     fuel: 'Hybrid',
     transmission: 'Automatic',
@@ -31,7 +34,7 @@ export const cars: Car[] = [
     id: '3',
     name: 'Pulsar Hatchback',
     type: 'Hatchback',
-    pricePerDay: 55,
+    pricePerDay: 71500, // 55 * 1300
     seats: 4,
     fuel: 'Gasoline',
     transmission: 'Manual',
@@ -44,7 +47,7 @@ export const cars: Car[] = [
     id: '4',
     name: 'Comet Convertible',
     type: 'Convertible',
-    pricePerDay: 120,
+    pricePerDay: 156000, // 120 * 1300
     seats: 2,
     fuel: 'Gasoline',
     transmission: 'Automatic',
@@ -57,7 +60,7 @@ export const cars: Car[] = [
     id: '5',
     name: 'Titan Truck',
     type: 'Truck',
-    pricePerDay: 95,
+    pricePerDay: 123500, // 95 * 1300
     seats: 5,
     fuel: 'Gasoline',
     transmission: 'Automatic',
@@ -70,7 +73,7 @@ export const cars: Car[] = [
     id: '6',
     name: 'Galaxy SUV',
     type: 'SUV',
-    pricePerDay: 90,
+    pricePerDay: 117000, // 90 * 1300
     seats: 7,
     fuel: 'Hybrid',
     transmission: 'Automatic',
@@ -87,7 +90,7 @@ export const bookings: Booking[] = [
     carId: '2',
     startDate: new Date('2024-08-10'),
     endDate: new Date('2024-08-15'),
-    totalPrice: 350,
+    totalPrice: 455000, // 350 * 1300
     status: 'Upcoming',
   },
   {
@@ -95,7 +98,7 @@ export const bookings: Booking[] = [
     carId: '5',
     startDate: new Date('2024-06-20'),
     endDate: new Date('2024-06-25'),
-    totalPrice: 475,
+    totalPrice: 617500, // 475 * 1300
     status: 'Completed',
   },
   {
@@ -103,7 +106,7 @@ export const bookings: Booking[] = [
     carId: '1',
     startDate: new Date('2024-09-01'),
     endDate: new Date('2024-09-03'),
-    totalPrice: 170,
+    totalPrice: 221000, // 170 * 1300
     status: 'Upcoming',
   },
 ];

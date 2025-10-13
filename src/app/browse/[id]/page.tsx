@@ -48,7 +48,7 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
               )) : (
                  <CarouselItem>
                   <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground">No Image Available</span>
+                    <span className="text-muted-foreground">Nta foto ibonetse</span>
                   </div>
                 </CarouselItem>
               )}
@@ -66,7 +66,7 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
           <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             <div className="p-4 bg-card rounded-lg border">
               <Users className="w-8 h-8 mx-auto text-primary mb-2"/>
-              <p className="font-semibold">{car.seats} Seats</p>
+              <p className="font-semibold">Imyanya {car.seats}</p>
             </div>
             <div className="p-4 bg-card rounded-lg border">
               <Fuel className="w-8 h-8 mx-auto text-primary mb-2"/>
@@ -78,21 +78,21 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
             </div>
              <div className="p-4 bg-card rounded-lg border">
               <Gauge className="w-8 h-8 mx-auto text-primary mb-2"/>
-              <p className="font-semibold">Unlimited</p>
-              <p className="text-xs text-muted-foreground">Mileage</p>
+              <p className="font-semibold">Zitabarika</p>
+              <p className="text-xs text-muted-foreground">Ingendo</p>
             </div>
           </div>
           
           <Card className="bg-secondary/30">
             <CardHeader>
-              <CardTitle>Book Your Ride</CardTitle>
+              <CardTitle>Kora Booking Y'urugendo</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center justify-between">
               <div>
-                <span className="text-3xl font-bold">${car.pricePerDay}</span>
-                <span className="text-sm text-muted-foreground"> / per day</span>
+                <span className="text-3xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
+                <span className="text-sm text-muted-foreground"> / ku munsi</span>
               </div>
-              <Button size="lg" className="text-lg">Proceed to Book</Button>
+              <Button size="lg" className="text-lg">Komeza ukore Booking</Button>
             </CardContent>
           </Card>
         </div>
@@ -100,7 +100,7 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
       
       <div className="mt-16 grid md:grid-cols-2 gap-8 lg:gap-12">
         <div>
-          <h2 className="text-2xl font-bold mb-4">Features</h2>
+          <h2 className="text-2xl font-bold mb-4">Iby'ingenzi</h2>
           <ul className="space-y-2">
             {car.features.map((feature, i) => (
               <li key={i} className="flex items-center text-lg">
@@ -111,24 +111,24 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
           </ul>
         </div>
         <div>
-          <h2 className="text-2xl font-bold mb-4">Rental Terms</h2>
+          <h2 className="text-2xl font-bold mb-4">Amategeko yo gukodesha</h2>
            <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>Driver Requirements</AccordionTrigger>
+              <AccordionTrigger>Ibisabwa utwara</AccordionTrigger>
               <AccordionContent>
-                All drivers must be at least 21 years old and possess a valid driver's license.
+                Abashoferi bose bagomba kuba bafite byibuze imyaka 21 kandi bafite uruhushya rwo gutwara ibinyabiziga rwemewe.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger>Insurance Policy</AccordionTrigger>
+              <AccordionTrigger>Amategeko y'ubwishingizi</AccordionTrigger>
               <AccordionContent>
-                Basic insurance is included. Additional coverage options are available at the rental counter.
+                Ubwishingizi bw'ibanze burimo. Ubundi buryo bwo kwishingira buboneka ku biro byo gukodesha.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
-              <AccordionTrigger>Fuel Policy</AccordionTrigger>
+              <AccordionTrigger>Amategeko ya lisansi</AccordionTrigger>
               <AccordionContent>
-                The vehicle must be returned with the same amount of fuel as at the start of the rental to avoid refueling charges.
+                Ikigomba gusubizwa gifite lisansi ingana niyicyatwaranye kugirango wirinde kwishyuzwa ibindi.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

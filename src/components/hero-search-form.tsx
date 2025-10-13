@@ -18,14 +18,14 @@ export function HeroSearchForm() {
     <div className="p-4 bg-background/80 backdrop-blur-sm rounded-lg shadow-2xl">
       <form className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
         <div className="md:col-span-5">
-          <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Location</label>
+          <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Aho muherereye</label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input id="location" placeholder="City, address, or zip code" className="pl-10 h-12" />
+            <Input id="location" placeholder="Umujyi, aderesi, cyangwa kode y'iposita" className="pl-10 h-12" />
           </div>
         </div>
         <div className="md:col-span-5">
-          <label className="block text-sm font-medium text-foreground mb-1">Pick-up & Drop-off</label>
+          <label className="block text-sm font-medium text-foreground mb-1">Kureba & Gusubiza</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -47,7 +47,7 @@ export function HeroSearchForm() {
                     format(date.from, 'LLL dd, y')
                   )
                 ) : (
-                  <span>Pick a date range</span>
+                  <span>Hitamo amatariki</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -66,7 +66,7 @@ export function HeroSearchForm() {
         <div className="md:col-span-2">
           <Button type="submit" size="lg" className="w-full h-12 text-base">
             <Search className="mr-2 h-5 w-5" />
-            Search
+            Shakisha
           </Button>
         </div>
       </form>

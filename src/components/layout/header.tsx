@@ -11,10 +11,10 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Logo } from '@/components/logo';
 
 const navLinks = [
-  { href: '/browse', label: 'Browse' },
-  { href: '/recommendations', label: 'Smart Recommendations' },
-  { href: '/booking', label: 'My Bookings' },
-  { href: '/map', label: 'Map' },
+  { href: '/browse', label: 'Reba Imodoka' },
+  { href: '/recommendations', label: 'Inama Zisobanutse' },
+  { href: '/booking', label: 'Amabookinga Yanjye' },
+  { href: '/map', label: 'Ikarita' },
 ];
 
 export default function Header() {

@@ -16,22 +16,22 @@ export default function BrowsePage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-headline font-bold mb-2">Browse Our Fleet</h1>
-        <p className="text-lg text-muted-foreground">Find the perfect vehicle for your needs.</p>
+        <h1 className="text-4xl font-headline font-bold mb-2">Reba Imodoka Zacu</h1>
+        <p className="text-lg text-muted-foreground">Shaka imodoka ikunogeye.</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 p-4 bg-card rounded-lg border">
         <div className="relative w-full md:w-auto md:flex-grow max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search cars..." className="pl-10"/>
+          <Input placeholder="Shakisha imodoka..." className="pl-10"/>
         </div>
         <div className="flex flex-wrap gap-4">
           <Select>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Car Type" />
+              <SelectValue placeholder="Ubwoko bw'imodoka" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="all">Amoko yose</SelectItem>
               <SelectItem value="suv">SUV</SelectItem>
               <SelectItem value="sedan">Sedan</SelectItem>
               <SelectItem value="hatchback">Hatchback</SelectItem>
@@ -41,12 +41,12 @@ export default function BrowsePage() {
           </Select>
           <Select>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by Price" />
+              <SelectValue placeholder="Rinda ku giciro" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Default</SelectItem>
-              <SelectItem value="low-to-high">Low to High</SelectItem>
-              <SelectItem value="high-to-low">High to Low</SelectItem>
+              <SelectItem value="any">Bisanzwe</SelectItem>
+              <SelectItem value="low-to-high">Kuva hasi ujya hejuru</SelectItem>
+              <SelectItem value="high-to-low">Kuva hejuru ujya hasi</SelectItem>
             </SelectContent>
           </Select>
         </div>

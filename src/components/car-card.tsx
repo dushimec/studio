@@ -83,7 +83,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
-            <span>{car.seats} Seats</span>
+            <span>Imyanya {car.seats}</span>
           </div>
           <div className="flex items-center gap-2">
             <Fuel className="w-4 h-4 text-primary" />
@@ -91,7 +91,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-primary" />
-            <span>Unlimited miles</span>
+            <span>Ingendo zitabarika</span>
           </div>
           <div className="flex items-center gap-2">
             <Cog className="w-4 h-4 text-primary" />
@@ -101,11 +101,11 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
       </CardContent>
       <CardFooter className="p-4 flex items-center justify-between bg-secondary/30">
         <div>
-          <span className="text-2xl font-bold">${car.pricePerDay}</span>
-          <span className="text-sm text-muted-foreground">/day</span>
+          <span className="text-2xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
+          <span className="text-sm text-muted-foreground">/ku munsi</span>
         </div>
         <Button asChild>
-          <Link href={`/browse/${car.id}`}>Book Now</Link>
+          <Link href={`/browse/${car.id}`}>Kora Booking</Link>
         </Button>
       </CardFooter>
     </Card>

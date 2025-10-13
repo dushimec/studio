@@ -28,8 +28,8 @@ export default function BookingsPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-headline font-bold mb-2">My Bookings</h1>
-        <p className="text-lg text-muted-foreground">Manage your past, current, and future rentals.</p>
+        <h1 className="text-4xl font-headline font-bold mb-2">Amabookinga yanjye</h1>
+        <p className="text-lg text-muted-foreground">Genzura amakode yawe yashize, ayariho, n'azaza.</p>
       </div>
       
       {bookings.length > 0 ? (
@@ -62,13 +62,13 @@ export default function BookingsPage() {
                   </CardHeader>
                   <CardContent className="p-0 mt-2">
                     <p className="text-sm text-muted-foreground">
-                      {format(booking.startDate, 'MMM d, yyyy')} to {format(booking.endDate, 'MMM d, yyyy')}
+                      {format(booking.startDate, 'MMM d, yyyy')} kugeza {format(booking.endDate, 'MMM d, yyyy')}
                     </p>
                   </CardContent>
                 </div>
                 <div className="md:col-span-3 text-left md:text-right">
-                  <p className="text-2xl font-bold mb-2">${booking.totalPrice}</p>
-                  {booking.status === 'Upcoming' && <Button variant="outline" size="sm">Manage</Button>}
+                  <p className="text-2xl font-bold mb-2">{booking.totalPrice.toLocaleString()} RWF</p>
+                  {booking.status === 'Upcoming' && <Button variant="outline" size="sm">Genzura</Button>}
                 </div>
               </Card>
             );
@@ -76,10 +76,10 @@ export default function BookingsPage() {
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
-          <h2 className="text-2xl font-semibold mb-2">No Bookings Found</h2>
-          <p className="text-muted-foreground mb-4">You haven't made any bookings yet.</p>
+          <h2 className="text-2xl font-semibold mb-2">Nta Booking Zibonetse</h2>
+          <p className="text-muted-foreground mb-4">Ntabwo uragira booking n'imwe ukora.</p>
           <Button asChild>
-            <Link href="/browse">Browse Cars</Link>
+            <Link href="/browse">Reba Imodoka</Link>
           </Button>
         </div>
       )}
