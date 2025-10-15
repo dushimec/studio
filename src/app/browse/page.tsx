@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { findCars } from '@/lib/data';
 import type { Car } from '@/lib/types';
 import { CarCard } from '@/components/car-card';
@@ -18,9 +19,10 @@ import { Button } from '@/components/ui/button';
 
 export default function BrowsePage() {
   const allCars = useMemo(() => findCars(), []);
+  const searchParams = useSearchParams();
   const [filteredCars, setFilteredCars] = useState<Car[]>(allCars);
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [carType, setCarType] = useState('all');
   const [brand, setBrand] = useState('all');
   const [seats, setSeats] = useState('all');

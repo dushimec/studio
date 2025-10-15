@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -12,15 +14,36 @@ import type { DateRange } from 'react-day-picker';
 
 export function HeroSearchForm() {
   const [date, setDate] = useState<DateRange | undefined>();
+  const [keyword, setKeyword] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (keyword) {
+      params.set('q', keyword);
+    }
+    // You could also pass date parameters here if the browse page supported them
+    // if (date?.from) params.set('from', format(date.from, 'yyyy-MM-dd'));
+    // if (date?.to) params.set('to', format(date.to, 'yyyy-MM-dd'));
+
+    router.push(`/browse?${params.toString()}`);
+  };
 
   return (
     <div className="p-4 bg-background/80 backdrop-blur-sm rounded-lg shadow-2xl">
-      <form className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
         <div className="md:col-span-5">
-          <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Location</label>
+          <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Location or Car Name</label>
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground">location_on</span>
-            <Input id="location" placeholder="City, address, or postal code" className="pl-10 h-12" />
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground">search</span>
+            <Input 
+              id="location" 
+              placeholder="e.g., Kigali or Stark SUV" 
+              className="pl-10 h-12"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
           </div>
         </div>
         <div className="md:col-span-5">
