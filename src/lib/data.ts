@@ -1,3 +1,4 @@
+
 import type { Car, Booking, Location } from './types';
 
 // Approximate conversion rate: 1 USD = 1300 RWF
@@ -18,7 +19,7 @@ export const cars: Car[] = [
     description: 'Experience the perfect blend of luxury and performance with the Stark SUV. Ideal for family trips or navigating city streets in style.',
     rentalCompany: 'Apex Rentals',
     availability: 'Available',
-    ownerId: 'user1',
+    ownerId: 'admin-admin',
   },
   {
     id: '2',
@@ -35,7 +36,7 @@ export const cars: Car[] = [
     description: 'The Orion Sedan offers a smooth, efficient ride with modern amenities. Perfect for business trips or a comfortable commute.',
     rentalCompany: 'Starlight Drives',
     availability: 'Booked',
-    ownerId: 'user1',
+    ownerId: 'owner-dush',
   },
   {
     id: '3',
@@ -52,7 +53,7 @@ export const cars: Car[] = [
     description: 'A zippy and economical choice for city driving. The Pulsar Hatchback is easy to park and fun to drive.',
     rentalCompany: 'City Wheels',
     availability: 'Available',
-    ownerId: 'user2',
+    ownerId: 'owner-dush',
   },
   {
     id: '4',
@@ -69,7 +70,7 @@ export const cars: Car[] = [
     description: 'Feel the wind in your hair with the Comet Convertible. The ultimate car for a scenic coastal drive or a weekend getaway.',
     rentalCompany: 'Apex Rentals',
     availability: 'Maintenance',
-    ownerId: 'user1',
+    ownerId: 'admin-admin',
   },
   {
     id: '5',
@@ -86,7 +87,7 @@ export const cars: Car[] = [
     description: 'For heavy-duty needs or off-road adventures, the Titan Truck delivers power and reliability.',
     rentalCompany: 'Rugged Rides',
     availability: 'Available',
-    ownerId: 'user2',
+    ownerId: 'owner-dush',
   },
   {
     id: '6',
@@ -103,7 +104,7 @@ export const cars: Car[] = [
     description: 'The spacious Galaxy SUV is perfect for large families or groups, offering comfort and versatility for any journey.',
     rentalCompany: 'Starlight Drives',
     availability: 'Available',
-    ownerId: 'user1',
+    ownerId: 'admin-admin',
   },
 ];
 

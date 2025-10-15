@@ -18,7 +18,7 @@ export default function DashboardPage() {
   const allBookings = useMemo(() => findBookings(), []);
 
   const ownerCars = useMemo(() => {
-    if (!user) return [];
+    if (!user || user.role !== 'owner') return [];
     return findCars({ ownerId: user.id });
   }, [user]);
 
@@ -38,11 +38,11 @@ export default function DashboardPage() {
   }, [ownerBookings]);
 
 
-  if (!user) {
+  if (!user || user.role !== 'owner') {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">Please log in to view your owner dashboard.</p>
+        <p className="text-muted-foreground mb-6">You must be an owner to view this page.</p>
         <Button asChild>
           <Link href="/login">Login</Link>
         </Button>

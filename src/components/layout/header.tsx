@@ -22,21 +22,15 @@ export default function Header() {
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const { user, logout } = useAuth();
 
-  const loggedInLinks = [
-    { href: '/booking', label: 'My Bookings' },
-    { href: '/dashboard', label: 'Dashboard' },
-  ];
-  
-  const adminLinks = [
-      { href: '/admin', label: 'Admin' },
-  ];
-
   const getNavLinks = () => {
-      let links = [...navLinks];
+      const links = [...navLinks];
       if (user) {
-          links = [...links, ...loggedInLinks];
+          links.push({ href: '/booking', label: 'My Bookings' });
+          if (user.role === 'owner' || user.role === 'admin') {
+            links.push({ href: '/dashboard', label: 'Dashboard' });
+          }
           if (user.role === 'admin') {
-              links = [...links, ...adminLinks];
+              links.push({ href: '/admin', label: 'Admin' });
           }
       }
       return links;

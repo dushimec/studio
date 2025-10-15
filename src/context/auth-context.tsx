@@ -8,7 +8,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'owner' | 'admin';
 }
 
 interface AuthContextType {
@@ -21,8 +21,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Mock users data
 const mockUsers: User[] = [
-    { id: 'user1', name: 'Dushime', email: 'dushime@gmail.com', role: 'admin' },
-    { id: 'user2', name: 'Jane Doe', email: 'jane@example.com', role: 'user' },
+    { id: 'user-dushime', name: 'Dushime', email: 'dushime@gmail.com', role: 'user' },
+    { id: 'owner-dush', name: 'Dush', email: 'dush@gmail.com', role: 'owner' },
+    { id: 'admin-admin', name: 'Admin', email: 'admin@gmail.com', role: 'admin' },
 ];
 
 
