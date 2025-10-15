@@ -10,17 +10,18 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/logo';
+import { useAuth } from '@/context/auth-context';
 
 const navLinks = [
   { href: '/browse', label: 'Browse Cars' },
   { href: '/recommendations', label: 'Smart Recommendations' },
-  { href: '/booking', label: 'My Bookings' },
   { href: '/map', label: 'Map' },
 ];
 
 export default function Header() {
   const pathname = usePathname();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -46,7 +47,7 @@ export default function Header() {
                 <div className="space-y-4 py-4">
                   <div className="px-3 py-2">
                     <div className="space-y-1">
-                      {navLinks.map((link) => (
+                      {[...navLinks, ...(user ? [{ href: '/booking', label: 'My Bookings' }] : [])].map((link) => (
                         <Link
                           key={link.href}
                           href={link.href}
@@ -83,15 +84,32 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+             {user && (
+              <Link
+                href="/booking"
+                className={cn(
+                  'transition-colors hover:text-primary',
+                  pathname === "/booking" ? 'text-primary' : 'text-foreground/60'
+                )}
+              >
+                My Bookings
+              </Link>
+            )}
           </nav>
           
           <div className="hidden md:flex items-center space-x-2">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+            {user ? (
+              <Button onClick={logout} variant="ghost">Logout</Button>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

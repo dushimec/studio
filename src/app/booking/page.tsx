@@ -1,3 +1,6 @@
+
+'use client';
+
 import { findBookings, findCarById } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,8 +9,10 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth-context';
 
 export default function BookingsPage() {
+  const { user } = useAuth();
   const bookings = findBookings();
 
   const getBadgeVariant = (status: string): "default" | "secondary" | "outline" | "destructive" => {
@@ -24,6 +29,18 @@ export default function BookingsPage() {
         return 'default';
     }
   };
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
+        <p className="text-muted-foreground mb-6">Please log in to view your bookings.</p>
+        <Button asChild>
+          <Link href="/login">Login</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
