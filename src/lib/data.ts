@@ -18,6 +18,7 @@ export const cars: Car[] = [
     description: 'Experience the perfect blend of luxury and performance with the Stark SUV. Ideal for family trips or navigating city streets in style.',
     rentalCompany: 'Apex Rentals',
     availability: 'Available',
+    ownerId: 'user1',
   },
   {
     id: '2',
@@ -34,6 +35,7 @@ export const cars: Car[] = [
     description: 'The Orion Sedan offers a smooth, efficient ride with modern amenities. Perfect for business trips or a comfortable commute.',
     rentalCompany: 'Starlight Drives',
     availability: 'Booked',
+    ownerId: 'user1',
   },
   {
     id: '3',
@@ -50,6 +52,7 @@ export const cars: Car[] = [
     description: 'A zippy and economical choice for city driving. The Pulsar Hatchback is easy to park and fun to drive.',
     rentalCompany: 'City Wheels',
     availability: 'Available',
+    ownerId: 'user2',
   },
   {
     id: '4',
@@ -66,6 +69,7 @@ export const cars: Car[] = [
     description: 'Feel the wind in your hair with the Comet Convertible. The ultimate car for a scenic coastal drive or a weekend getaway.',
     rentalCompany: 'Apex Rentals',
     availability: 'Maintenance',
+    ownerId: 'user1',
   },
   {
     id: '5',
@@ -82,6 +86,7 @@ export const cars: Car[] = [
     description: 'For heavy-duty needs or off-road adventures, the Titan Truck delivers power and reliability.',
     rentalCompany: 'Rugged Rides',
     availability: 'Available',
+    ownerId: 'user2',
   },
   {
     id: '6',
@@ -98,6 +103,7 @@ export const cars: Car[] = [
     description: 'The spacious Galaxy SUV is perfect for large families or groups, offering comfort and versatility for any journey.',
     rentalCompany: 'Starlight Drives',
     availability: 'Available',
+    ownerId: 'user1',
   },
 ];
 
@@ -126,6 +132,14 @@ export const bookings: Booking[] = [
     totalPrice: 221000,
     status: 'Upcoming',
   },
+    {
+    id: 'booking4',
+    carId: '6',
+    startDate: new Date('2024-07-28'),
+    endDate: new Date('2024-08-02'),
+    totalPrice: 585000,
+    status: 'Active',
+  },
 ];
 
 export const locations: Location[] = [
@@ -143,7 +157,10 @@ export function findBookings(): Booking[] {
   return bookings;
 }
 
-export function findCars(): Car[] {
+export function findCars(filters?: { ownerId?: string }): Car[] {
+  if (filters?.ownerId) {
+    return cars.filter(car => car.ownerId === filters.ownerId);
+  }
   return cars;
 }
 

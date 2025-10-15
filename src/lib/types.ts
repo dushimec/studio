@@ -13,6 +13,7 @@ export type Car = {
   description: string;
   rentalCompany: string;
   availability: 'Available' | 'Booked' | 'Maintenance';
+  ownerId: string;
 };
 
 export type Booking = {

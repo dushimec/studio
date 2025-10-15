@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface User {
+  id: string;
   name: string;
   email: string;
 }
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             if (email === 'dushime@gmail.com' && pass === '123456') {
-                const mockUser: User = { name: 'Dushime', email: 'dushime@gmail.com' };
+                const mockUser: User = { id: 'user1', name: 'Dushime', email: 'dushime@gmail.com' };
                 setUser(mockUser);
                 resolve();
             } else {
