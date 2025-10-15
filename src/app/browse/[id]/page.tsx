@@ -2,16 +2,23 @@
 'use client';
 
 import Image from 'next/image';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { useMockData } from '@/lib/data';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import type { Car } from '@/lib/types';
+import type { Car, Booking } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 import Link from 'next/link';
+import { useState } from 'react';
+import type { DateRange } from 'react-day-picker';
+import { format, differenceInCalendarDays } from 'date-fns';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { useToast } from '@/hooks/use-toast';
 
 const getAvailabilityProps = (availability: Car['availability']) => {
     switch (availability) {
@@ -29,13 +36,50 @@ const getAvailabilityProps = (availability: Car['availability']) => {
 export default function CarDetailsPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { findCarById } = useMockData();
+  const { findCarById, addBooking, updateCar } = useMockData();
   const car = findCarById(id);
   const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [date, setDate] = useState<DateRange | undefined>();
+  const [isBooking, setIsBooking] = useState(false);
 
   if (!car) {
     notFound();
   }
+  
+  const numberOfDays = date?.from && date?.to ? differenceInCalendarDays(date.to, date.from) + 1 : 0;
+  const totalPrice = numberOfDays * car.pricePerDay;
+
+  const handleBooking = () => {
+    if (!user || !date?.from || !date?.to || !car) return;
+    
+    setIsBooking(true);
+
+    const newBooking: Booking = {
+      id: `booking-${Date.now()}`,
+      carId: car.id,
+      startDate: date.from,
+      endDate: date.to,
+      totalPrice,
+      status: 'Upcoming',
+    };
+    
+    // Simulate API call
+    setTimeout(() => {
+        addBooking(newBooking);
+        updateCar({ ...car, availability: 'Booked' });
+
+        toast({
+            title: "Booking Successful!",
+            description: `Your booking for the ${car.name} has been confirmed.`,
+        });
+
+        router.push('/booking');
+        setIsBooking(false);
+    }, 1500);
+  };
 
   const carImages = car.images;
   const availability = getAvailabilityProps(car.availability);
@@ -45,7 +89,9 @@ export default function CarDetailsPage() {
       return <Button size="lg" className="text-lg" disabled>Not Available</Button>;
     }
     if (user) {
-      return <Button size="lg" className="text-lg">Continue to Book</Button>;
+      return <Button size="lg" className="text-lg" onClick={handleBooking} disabled={!date?.from || !date?.to || isBooking}>
+         {isBooking ? <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span> : 'Book Now'}
+      </Button>;
     }
     return (
       <Button size="lg" className="text-lg" asChild>
@@ -123,12 +169,65 @@ export default function CarDetailsPage() {
             <CardHeader>
               <CardTitle>Start Your Booking</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center justify-between">
-              <div>
-                <span className="text-3xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
-                <span className="text-sm text-muted-foreground"> / day</span>
+            <CardContent className="grid gap-4">
+               {car.availability === 'Available' && user && (
+                 <div className="grid gap-2">
+                    <label className="text-sm font-medium">Select Dates</label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            id="date"
+                            variant="outline"
+                            className={cn(
+                            'w-full justify-start text-left font-normal h-12',
+                            !date && 'text-muted-foreground'
+                            )}
+                        >
+                            <span className="material-symbols-outlined mr-2 h-4 w-4">calendar_month</span>
+                            {date?.from ? (
+                            date.to ? (
+                                <>
+                                {format(date.from, 'LLL dd, y')} -{' '}
+                                {format(date.to, 'LLL dd, y')}
+                                </>
+                            ) : (
+                                format(date.from, 'LLL dd, y')
+                            )
+                            ) : (
+                            <span>Pick your dates</span>
+                            )}
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={date?.from}
+                            selected={date}
+                            onSelect={setDate}
+                            numberOfMonths={2}
+                            disabled={(day) => day < new Date(new Date().setHours(0,0,0,0))}
+                        />
+                        </PopoverContent>
+                    </Popover>
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Price per day</p>
+                  <span className="text-xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
+                </div>
+                {numberOfDays > 0 && (
+                   <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Total for {numberOfDays} day(s)</p>
+                        <span className="text-3xl font-bold">{totalPrice.toLocaleString()} RWF</span>
+                   </div>
+                )}
               </div>
-              {renderBookingButton()}
+               <div className="pt-2">
+                 {renderBookingButton()}
+               </div>
             </CardContent>
           </Card>
         </div>

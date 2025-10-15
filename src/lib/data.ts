@@ -201,6 +201,11 @@ export function useMockData() {
         });
         forceUpdate();
     }, []);
+
+    const addBooking = useCallback((newBooking: Booking) => {
+        bookings.unshift(newBooking);
+        forceUpdate();
+    }, []);
     
     const findCarById = useCallback((id: string): Car | undefined => {
       return data.cars.find(car => car.id === id);
@@ -216,6 +221,7 @@ export function useMockData() {
         addCar,
         updateCar,
         deleteCar,
+        addBooking,
         findCarById,
     };
 }
