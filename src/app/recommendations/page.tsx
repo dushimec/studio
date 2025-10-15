@@ -16,11 +16,11 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const recommendationFormSchema = z.object({
-  priceRange: z.string().min(1, 'Igiciro ni ngombwa.'),
-  carType: z.string().min(1, 'Ubwoko bw\'imodoka ni ngombwa.'),
-  features: z.string().min(1, 'Andika byibuze ikintu kimwe kiranga imodoka.'),
-  purpose: z.string().min(1, 'Impamvu yo gukodesha ni ngombwa.'),
-  location: z.string().min(1, 'Aho uherereye ni ngombwa.'),
+  priceRange: z.string().min(1, 'Price range is required.'),
+  carType: z.string().min(1, 'Car type is required.'),
+  features: z.string().min(1, 'Please list at least one feature.'),
+  purpose: z.string().min(1, 'Purpose of rental is required.'),
+  location: z.string().min(1, 'Location is required.'),
 });
 
 type RecommendationFormValues = z.infer<typeof recommendationFormSchema>;
@@ -36,7 +36,7 @@ export default function RecommendationsPage() {
       priceRange: '65000-130000',
       carType: 'SUV',
       features: 'GPS, Bluetooth',
-      purpose: 'Urugendo rw\'umuryango',
+      purpose: 'Family trip',
       location: 'Kigali, Rwanda',
     },
   });
@@ -50,7 +50,7 @@ export default function RecommendationsPage() {
       const result = await getSmartRecommendations(data);
       setRecommendations(result);
     } catch (e) {
-      setError('Ntibyakunze kubona inama. Gerageza nanone.');
+      setError('Failed to get recommendations. Please try again.');
       console.error(e);
     } finally {
       setIsLoading(false);
@@ -61,17 +61,17 @@ export default function RecommendationsPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
         <Sparkles className="mx-auto h-12 w-12 text-primary mb-4" />
-        <h1 className="text-4xl font-headline font-bold mb-2">Inama Zisobanutse</h1>
+        <h1 className="text-4xl font-headline font-bold mb-2">Smart Recommendations</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Tubwire ibyo ukeneye, AI yacu izagushakira imodoka ikunogeye.
+          Tell us what you need, and our AI will find the perfect car for you.
         </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
         <Card className="md:col-span-1 h-fit">
           <CardHeader>
-            <CardTitle>Ibyo ukunda</CardTitle>
-            <CardDescription>Uzuza iyi fomu kugirango utangire.</CardDescription>
+            <CardTitle>Your Preferences</CardTitle>
+            <CardDescription>Fill out the form to get started.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -81,9 +81,9 @@ export default function RecommendationsPage() {
                   name="priceRange"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Igiciro (RWF/ku munsi)</FormLabel>
+                      <FormLabel>Price Range (RWF/day)</FormLabel>
                       <FormControl>
-                        <Input placeholder="urugero, 65000-130000" {...field} />
+                        <Input placeholder="e.g., 65000-130000" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -94,11 +94,11 @@ export default function RecommendationsPage() {
                   name="carType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ubwoko bw'imodoka</FormLabel>
+                      <FormLabel>Car Type</FormLabel>
                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Hitamo ubwoko bw'imodoka" />
+                            <SelectValue placeholder="Select a car type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -106,8 +106,8 @@ export default function RecommendationsPage() {
                           <SelectItem value="Sedan">Sedan</SelectItem>
                           <SelectItem value="Hatchback">Hatchback</SelectItem>
                           <SelectItem value="Convertible">Convertible</SelectItem>
-                           <SelectItem value="Truck">Ikamyo</SelectItem>
-                          <SelectItem value="Any">Icyo aricyo cyose</SelectItem>
+                           <SelectItem value="Truck">Truck</SelectItem>
+                          <SelectItem value="Any">Any</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -119,9 +119,9 @@ export default function RecommendationsPage() {
                   name="features"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ibyo yifuzwaho</FormLabel>
+                      <FormLabel>Desired Features</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="urugero, GPS, Apple CarPlay, Sunroof" {...field} />
+                        <Textarea placeholder="e.g., GPS, Apple CarPlay, Sunroof" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -132,9 +132,9 @@ export default function RecommendationsPage() {
                   name="purpose"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Impamvu yo gukodesha</FormLabel>
+                      <FormLabel>Purpose of Rental</FormLabel>
                       <FormControl>
-                        <Input placeholder="urugero, Urugendo rw'akazi, Urugendo rw'umuryango" {...field} />
+                        <Input placeholder="e.g., Business Trip, Family Vacation" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -145,9 +145,9 @@ export default function RecommendationsPage() {
                   name="location"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Aho muherereye</FormLabel>
+                      <FormLabel>Location</FormLabel>
                       <FormControl>
-                        <Input placeholder="urugero, Kigali, Rwanda" {...field} />
+                        <Input placeholder="e.g., Kigali, Rwanda" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -155,7 +155,7 @@ export default function RecommendationsPage() {
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                  Shaka Inama
+                  Get Recommendations
                 </Button>
               </form>
             </Form>
@@ -166,13 +166,13 @@ export default function RecommendationsPage() {
           {isLoading && (
             <div className="flex flex-col items-center justify-center h-full space-y-4 rounded-lg border-2 border-dashed">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-muted-foreground">AI yacu irimo kugushakira imodoka nziza...</p>
+              <p className="text-muted-foreground">Our AI is finding the best cars for you...</p>
             </div>
           )}
           {error && <p className="text-destructive text-center p-8">{error}</p>}
           {recommendations && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Inama Z'ingenzi Kuri Wowe</h2>
+              <h2 className="text-2xl font-bold">Top Recommendations For You</h2>
               {recommendations.recommendations.map((rec, index) => (
                 <Card key={index} className="overflow-hidden">
                   <CardHeader>
@@ -183,14 +183,14 @@ export default function RecommendationsPage() {
                       </div>
                       <div className="text-right">
                           <p className="text-2xl font-bold">{rec.price.toLocaleString()} RWF</p>
-                          <p className="text-sm text-muted-foreground">/ku munsi</p>
+                          <p className="text-sm text-muted-foreground">/day</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <p className="mb-4 text-sm">{rec.reasoning}</p>
                     <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-muted-foreground">Igereranya:</p>
+                        <p className="text-sm font-medium text-muted-foreground">Suitability:</p>
                         <Progress value={rec.suitabilityScore * 100} className="w-[100px]" />
                         <span className="text-sm font-semibold">{Math.round(rec.suitabilityScore * 100)}%</span>
                     </div>
@@ -201,7 +201,7 @@ export default function RecommendationsPage() {
           )}
           {!isLoading && !recommendations && !error && (
             <div className="flex items-center justify-center h-full border-2 border-dashed rounded-lg">
-                <p className="text-muted-foreground p-8 text-center">Inama zawe bwite zizagaragara hano.</p>
+                <p className="text-muted-foreground p-8 text-center">Your personalized recommendations will appear here.</p>
             </div>
           )}
         </div>

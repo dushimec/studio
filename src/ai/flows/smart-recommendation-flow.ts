@@ -44,7 +44,7 @@ const prompt = ai.definePrompt({
 
   Based on the user's specified preferences, provide a list of car rental options that best match their needs.
   Consider the price range (in RWF), car type, desired features, and rental location within Rwanda.
-  Explain the reasoning behind each recommendation and assign a suitability score. The reasoning should be in English.
+  Explain the reasoning behind each recommendation and assign a suitability score.
 
   Preferences:
   - Price Range: {{{priceRange}}} RWF

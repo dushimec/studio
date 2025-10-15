@@ -60,12 +60,12 @@ export default function MapPage() {
         (error) => {
           console.error("Error getting user location:", error);
           setIsLoading(false);
-          alert("Ntibishoboka kubona aho uherereye. Emeza serivisi zaho uherereye.");
+          alert("Could not get your location. Please enable location services.");
         }
       );
     } else {
       setIsLoading(false);
-      alert("Iyi mushakisha ntishyigikiye kumenya aho uherereye.");
+      alert("Geolocation is not supported by this browser.");
     }
   };
   
@@ -78,15 +78,15 @@ export default function MapPage() {
   return (
     <div className="container mx-auto px-4 py-12">
        <div className="mb-8 text-center">
-        <h1 className="text-4xl font-headline font-bold mb-2">Ikarita y'ikode ry'imodoka mu Rwanda</h1>
-        <p className="text-lg text-muted-foreground">Shakisha aho dukorera hirya no hino mu gihugu.</p>
+        <h1 className="text-4xl font-headline font-bold mb-2">Car Rental Map of Rwanda</h1>
+        <p className="text-lg text-muted-foreground">Find our locations across the country.</p>
         <Button onClick={handleFindNearest} disabled={isLoading} className="mt-4">
           {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <LocateFixed className="mr-2 h-4 w-4" />
           )}
-          Shaka Aho hafi
+          Find Nearest Location
         </Button>
       </div>
       <Card className="overflow-hidden">
@@ -101,8 +101,8 @@ export default function MapPage() {
       {nearestLocation && (
         <div className="mt-8">
             <div className="mb-4">
-              <h2 className="text-2xl font-bold">Aho hafi: {nearestLocation.name}</h2>
-              <p className="text-muted-foreground">Izi modoka ziraboneka hafi yawe.</p>
+              <h2 className="text-2xl font-bold">Nearest Location: {nearestLocation.name}</h2>
+              <p className="text-muted-foreground">These cars are available near you.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {nearestLocation.carIds.map(carId => {

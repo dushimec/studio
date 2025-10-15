@@ -60,7 +60,7 @@ export default function MapComponent({ center, cars, locations, userLocation, ne
                     <div className="p-2">
                         <h3 className="font-bold text-lg mb-2">{location.name}</h3>
                         <div className="space-y-2">
-                           <p className="font-semibold">Imodoka zihari:</p>
+                           <p className="font-semibold">Available Cars:</p>
                            {location.carIds.map(carId => {
                                const car = cars.find(c => c.id === carId);
                                if (!car) return null;
@@ -68,9 +68,9 @@ export default function MapComponent({ center, cars, locations, userLocation, ne
                                    <Card key={car.id} className="p-2">
                                        <CardTitle className="text-sm">{car.name}</CardTitle>
                                        <CardContent className="p-0 mt-1">
-                                           <p className="text-xs text-muted-foreground">{car.pricePerDay.toLocaleString()} RWF/ku munsi</p>
+                                           <p className="text-xs text-muted-foreground">{car.pricePerDay.toLocaleString()} RWF/day</p>
                                            <Button asChild variant="link" className="p-0 h-auto text-xs mt-1">
-                                               <Link href={`/browse/${car.id}`}>Reba Ibindi</Link>
+                                               <Link href={`/browse/${car.id}`}>View Details</Link>
                                            </Button>
                                        </CardContent>
                                    </Card>
@@ -83,7 +83,7 @@ export default function MapComponent({ center, cars, locations, userLocation, ne
             ))}
              {userLocation && (
               <Marker position={userLocation} icon={userIcon}>
-                <Popup>Uherereye hano</Popup>
+                <Popup>You are here</Popup>
               </Marker>
             )}
         </MapContainer>
