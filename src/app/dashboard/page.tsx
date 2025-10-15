@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 
 const carFormSchema = z.object({
@@ -229,7 +230,9 @@ export default function DashboardPage() {
   const { cars, bookings, updateCar, addCar, deleteCar } = useMockData();
   
   const ownerCars = useMemo(() => {
-    if (!user || user.role !== 'owner') return [];
+    if (!user || (user.role !== 'owner' && user.role !== 'admin')) return [];
+    // Admins can see all cars, owners see only their own
+    if (user.role === 'admin') return cars;
     return cars.filter(car => car.ownerId === user.id);
   }, [user, cars]);
 
@@ -249,11 +252,11 @@ export default function DashboardPage() {
   }, [ownerBookings]);
 
 
-  if (!user || user.role !== 'owner') {
+  if (!user || (user.role !== 'owner' && user.role !== 'admin')) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">You must be an owner to view this page.</p>
+        <p className="text-muted-foreground mb-6">You must be an owner or admin to view this page.</p>
         <Button asChild>
           <Link href="/login">Login</Link>
         </Button>
@@ -275,135 +278,146 @@ export default function DashboardPage() {
   };
   
   const handleSaveVehicle = (car: Car) => {
-    if (ownerCars.find(c => c.id === car.id)) {
+    if (cars.find(c => c.id === car.id)) { // use `cars` from mock data to check existence
         updateCar(car);
     } else {
         addCar(car);
     }
   }
+  
+  const navItems = user.role === 'admin'
+    ? [
+        { href: '/admin', label: 'Overview', icon: 'grid_view' },
+        { href: '/dashboard', label: 'Fleet', icon: 'directions_car' },
+      ]
+    : [
+        { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+      ];
 
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-            <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
-            <p className="text-lg text-muted-foreground">Welcome back, {user.name}. Here's an overview of your fleet.</p>
+    <DashboardLayout navItems={navItems}>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+              <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
+              <p className="text-lg text-muted-foreground">Welcome back, {user.name}. Here's an overview of your fleet.</p>
+          </div>
+           <ManageVehicleDialog
+              trigger={<Button>Add Vehicle</Button>}
+              ownerId={user.id}
+              onSave={handleSaveVehicle}
+           />
         </div>
-         <ManageVehicleDialog
-            trigger={<Button>Add Vehicle</Button>}
-            ownerId={user.id}
-            onSave={handleSaveVehicle}
-         />
-      </div>
-      
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">payments</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEarnings.toLocaleString()} RWF</div>
-            <p className="text-xs text-muted-foreground">From completed bookings</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active & Upcoming Bookings</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">event_available</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeBookings}</div>
-            <p className="text-xs text-muted-foreground">Across all vehicles</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{ownerCars.length}</div>
-            <p className="text-xs text-muted-foreground">In your fleet</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid gap-8 md:grid-cols-3">
-        {/* My Vehicles Table */}
-        <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">My Vehicles</h2>
-             <Card>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Vehicle</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Price/Day (RWF)</TableHead>
-                      <TableHead className="text-right">Total Bookings</TableHead>
-                       <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {ownerCars.length > 0 ? ownerCars.map(car => (
-                      <TableRow key={car.id}>
-                        <TableCell className="font-medium">{car.name}</TableCell>
-                        <TableCell>
-                          <Badge variant={getBadgeVariant(car.availability)}>{car.availability}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">{car.pricePerDay.toLocaleString()}</TableCell>
-                        <TableCell className="text-right">{bookings.filter(b => b.carId === car.id).length}</TableCell>
-                        <TableCell className="text-right">
-                          <ManageVehicleDialog 
-                            car={car}
-                            trigger={<Button variant="outline" size="sm">Manage</Button>}
-                            ownerId={user.id}
-                            onSave={handleSaveVehicle}
-                            onDelete={deleteCar}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )) : (
+        
+        {/* Summary Cards */}
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <span className="material-symbols-outlined text-muted-foreground">payments</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalEarnings.toLocaleString()} RWF</div>
+              <p className="text-xs text-muted-foreground">From completed bookings</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active & Upcoming Bookings</CardTitle>
+              <span className="material-symbols-outlined text-muted-foreground">event_available</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{activeBookings}</div>
+              <p className="text-xs text-muted-foreground">Across all vehicles</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
+              <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{ownerCars.length}</div>
+              <p className="text-xs text-muted-foreground">In your fleet</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* My Vehicles Table */}
+          <div className="md:col-span-2">
+              <h2 className="text-2xl font-bold mb-4">My Vehicles</h2>
+               <Card>
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">You have no vehicles listed.</TableCell>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Price/Day (RWF)</TableHead>
+                        <TableHead className="text-right">Total Bookings</TableHead>
+                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-            </Card>
-        </div>
+                    </TableHeader>
+                    <TableBody>
+                      {ownerCars.length > 0 ? ownerCars.map(car => (
+                        <TableRow key={car.id}>
+                          <TableCell className="font-medium">{car.name}</TableCell>
+                          <TableCell>
+                            <Badge variant={getBadgeVariant(car.availability)}>{car.availability}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">{car.pricePerDay.toLocaleString()}</TableCell>
+                          <TableCell className="text-right">{bookings.filter(b => b.carId === car.id).length}</TableCell>
+                          <TableCell className="text-right">
+                            <ManageVehicleDialog 
+                              car={car}
+                              trigger={<Button variant="outline" size="sm">Manage</Button>}
+                              ownerId={user.id}
+                              onSave={handleSaveVehicle}
+                              onDelete={deleteCar}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center h-24">You have no vehicles listed.</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+              </Card>
+          </div>
 
-        {/* Recent Bookings */}
-        <div className="md:col-span-1">
-            <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
-            <Card>
-                <CardContent className="p-4 space-y-4">
-                    {ownerBookings.slice(0, 5).map(booking => {
-                        const car = cars.find(c => c.id === booking.carId);
-                        return (
-                            <div key={booking.id} className="flex items-center">
-                                <div className="flex-grow">
-                                    <p className="font-semibold">{car?.name}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        {format(booking.startDate, 'MMM d')} - {format(booking.endDate, 'MMM d, yyyy')}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-semibold text-sm">{booking.totalPrice.toLocaleString()} RWF</p>
-                                    <Badge variant={booking.status === "Completed" ? "outline" : "default"}>{booking.status}</Badge>
-                                </div>
-                            </div>
-                        )
-                    })}
-                     {ownerBookings.length === 0 && (
-                        <p className="text-sm text-muted-foreground text-center py-8">No bookings for your vehicles yet.</p>
-                     )}
-                </CardContent>
-            </Card>
+          {/* Recent Bookings */}
+          <div className="md:col-span-1">
+              <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
+              <Card>
+                  <CardContent className="p-4 space-y-4">
+                      {ownerBookings.slice(0, 5).map(booking => {
+                          const car = cars.find(c => c.id === booking.carId);
+                          return (
+                              <div key={booking.id} className="flex items-center">
+                                  <div className="flex-grow">
+                                      <p className="font-semibold">{car?.name}</p>
+                                      <p className="text-sm text-muted-foreground">
+                                          {format(booking.startDate, 'MMM d')} - {format(booking.endDate, 'MMM d, yyyy')}
+                                      </p>
+                                  </div>
+                                  <div className="text-right">
+                                      <p className="font-semibold text-sm">{booking.totalPrice.toLocaleString()} RWF</p>
+                                      <Badge variant={booking.status === "Completed" ? "outline" : "default"}>{booking.status}</Badge>
+                                  </div>
+                              </div>
+                          )
+                      })}
+                       {ownerBookings.length === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-8">No bookings for your vehicles yet.</p>
+                       )}
+                  </CardContent>
+              </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

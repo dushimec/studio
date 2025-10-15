@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DashboardLayout } from '@/components/dashboard-layout';
 
 function ManageUserDialog({ user: targetUser, onUpdate, onDelete }: { user: User, onUpdate: (user: User) => void, onDelete: (userId: string) => void }) {
     const [role, setRole] = React.useState(targetUser.role);
@@ -106,108 +107,115 @@ export default function AdminDashboardPage() {
     }
   };
 
-  return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-8">
-        <h1 className="text-4xl font-headline font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-lg text-muted-foreground">Platform-wide overview and management.</p>
-      </div>
-      
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">group</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">Registered users on the platform</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">book_online</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{bookings.length}</div>
-            <p className="text-xs text-muted-foreground">Across all vehicles</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{cars.length}</div>
-            <p className="text-xs text-muted-foreground">Available for rent</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid gap-8 md:grid-cols-3">
-        {/* User Management */}
-        <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">User Management</h2>
-             <Card>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map(u => (
-                      <TableRow key={u.id}>
-                        <TableCell className="font-medium">{u.name}</TableCell>
-                        <TableCell>{u.email}</TableCell>
-                        <TableCell>
-                          <Badge variant={u.role === 'admin' ? 'destructive' : 'outline'}>{u.role}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <ManageUserDialog user={u} onUpdate={updateUser} onDelete={deleteUser} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-            </Card>
-        </div>
+  const navItems = [
+    { href: '/admin', label: 'Overview', icon: 'grid_view' },
+    { href: '/dashboard', label: 'Fleet', icon: 'directions_car' },
+  ]
 
-        {/* Recent Platform Bookings */}
-        <div className="md:col-span-1">
-            <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
-            <Card>
-                <CardContent className="p-4 space-y-4">
-                    {bookings.slice(0, 5).map(booking => {
-                        const car = cars.find(c => c.id === booking.carId);
-                        return (
-                            <div key={booking.id} className="flex items-center">
-                                <div className="flex-grow">
-                                    <p className="font-semibold">{car?.name || 'Unknown Car'}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        {format(booking.startDate, 'MMM d')} - {format(booking.endDate, 'MMM d, yyyy')}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-semibold text-sm">{booking.totalPrice.toLocaleString()} RWF</p>
-                                    <Badge variant={getStatusBadgeVariant(booking.status)}>{booking.status}</Badge>
-                                </div>
-                            </div>
-                        )
-                    })}
-                     {bookings.length === 0 && (
-                        <p className="text-sm text-muted-foreground text-center py-8">No bookings on the platform yet.</p>
-                     )}
-                </CardContent>
-            </Card>
+  return (
+    <DashboardLayout navItems={navItems}>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-headline font-bold mb-2">Admin Dashboard</h1>
+          <p className="text-lg text-muted-foreground">Platform-wide overview and management.</p>
+        </div>
+        
+        {/* Summary Cards */}
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <span className="material-symbols-outlined text-muted-foreground">group</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{users.length}</div>
+              <p className="text-xs text-muted-foreground">Registered users on the platform</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+              <span className="material-symbols-outlined text-muted-foreground">book_online</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{bookings.length}</div>
+              <p className="text-xs text-muted-foreground">Across all vehicles</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
+              <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{cars.length}</div>
+              <p className="text-xs text-muted-foreground">Available for rent</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* User Management */}
+          <div className="md:col-span-2">
+              <h2 className="text-2xl font-bold mb-4">User Management</h2>
+               <Card>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map(u => (
+                        <TableRow key={u.id}>
+                          <TableCell className="font-medium">{u.name}</TableCell>
+                          <TableCell>{u.email}</TableCell>
+                          <TableCell>
+                            <Badge variant={u.role === 'admin' ? 'destructive' : 'outline'}>{u.role}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <ManageUserDialog user={u} onUpdate={updateUser} onDelete={deleteUser} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+              </Card>
+          </div>
+
+          {/* Recent Platform Bookings */}
+          <div className="md:col-span-1">
+              <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
+              <Card>
+                  <CardContent className="p-4 space-y-4">
+                      {bookings.slice(0, 5).map(booking => {
+                          const car = cars.find(c => c.id === booking.carId);
+                          return (
+                              <div key={booking.id} className="flex items-center">
+                                  <div className="flex-grow">
+                                      <p className="font-semibold">{car?.name || 'Unknown Car'}</p>
+                                      <p className="text-sm text-muted-foreground">
+                                          {format(booking.startDate, 'MMM d')} - {format(booking.endDate, 'MMM d, yyyy')}
+                                      </p>
+                                  </div>
+                                  <div className="text-right">
+                                      <p className="font-semibold text-sm">{booking.totalPrice.toLocaleString()} RWF</p>
+                                      <Badge variant={getStatusBadgeVariant(booking.status)}>{booking.status}</Badge>
+                                  </div>
+                              </div>
+                          )
+                      })}
+                       {bookings.length === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-8">No bookings on the platform yet.</p>
+                       )}
+                  </CardContent>
+              </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
