@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle2, Users, Fuel, Cog, Gauge, Calendar, Tag, ShieldCheck, ShieldX } from 'lucide-react';
 import type { Car } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 import Link from 'next/link';
@@ -18,13 +17,13 @@ import Link from 'next/link';
 const getAvailabilityProps = (availability: Car['availability']) => {
     switch (availability) {
         case 'Available':
-            return { icon: ShieldCheck, text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
+            return { icon: 'verified_user', text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
         case 'Booked':
-            return { icon: ShieldX, text: 'Booked', color: 'text-red-500', bgColor: 'bg-red-500/10' };
+            return { icon: 'lock', text: 'Booked', color: 'text-red-500', bgColor: 'bg-red-500/10' };
         case 'Maintenance':
-            return { icon: Cog, text: 'Under Maintenance', color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' };
+            return { icon: 'build', text: 'Under Maintenance', color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' };
         default:
-            return { icon: ShieldCheck, text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
+            return { icon: 'verified_user', text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
     }
 }
 
@@ -96,7 +95,7 @@ export default function CarDetailsPage() {
               <p className="text-lg text-muted-foreground">{car.brand} - {car.year}</p>
             </div>
             <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
-              <availability.icon className="w-5 h-5" />
+              <span className="material-symbols-outlined text-lg">{availability.icon}</span>
               <span className="font-semibold">{availability.text}</span>
             </div>
           </div>
@@ -105,19 +104,19 @@ export default function CarDetailsPage() {
           
           <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             <div className="p-4 bg-card rounded-lg border">
-              <Users className="w-8 h-8 mx-auto text-primary mb-2"/>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">group</span>
               <p className="font-semibold">{car.seats} Seats</p>
             </div>
             <div className="p-4 bg-card rounded-lg border">
-              <Fuel className="w-8 h-8 mx-auto text-primary mb-2"/>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">local_gas_station</span>
               <p className="font-semibold">{car.fuel}</p>
             </div>
             <div className="p-4 bg-card rounded-lg border">
-              <Cog className="w-8 h-8 mx-auto text-primary mb-2"/>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">settings</span>
               <p className="font-semibold">{car.transmission}</p>
             </div>
              <div className="p-4 bg-card rounded-lg border">
-              <Gauge className="w-8 h-8 mx-auto text-primary mb-2"/>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">speed</span>
               <p className="font-semibold">Unlimited</p>
               <p className="text-xs text-muted-foreground">Mileage</p>
             </div>
@@ -144,7 +143,7 @@ export default function CarDetailsPage() {
           <ul className="space-y-2">
             {car.features.map((feature, i) => (
               <li key={i} className="flex items-center text-lg">
-                <CheckCircle2 className="w-5 h-5 mr-3 text-primary" />
+                <span className="material-symbols-outlined w-5 h-5 mr-3 text-primary">check_circle</span>
                 <span>{feature}</span>
               </li>
             ))}

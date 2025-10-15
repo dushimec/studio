@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Sparkles } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const recommendationFormSchema = z.object({
@@ -61,7 +60,7 @@ export default function RecommendationsPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <Sparkles className="mx-auto h-12 w-12 text-primary mb-4" />
+        <span className="material-symbols-outlined text-5xl text-primary mb-4 mx-auto">auto_awesome</span>
         <h1 className="text-4xl font-headline font-bold mb-2">Smart Recommendations</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Tell us what you need, and our AI will find the perfect car for you.
@@ -155,7 +154,7 @@ export default function RecommendationsPage() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                  {isLoading ? <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span> : <span className="material-symbols-outlined mr-2 h-4 w-4">auto_awesome</span>}
                   Get Recommendations
                 </Button>
               </form>
@@ -166,7 +165,7 @@ export default function RecommendationsPage() {
         <div className="md:col-span-2">
           {isLoading && (
             <div className="flex flex-col items-center justify-center h-full space-y-4 rounded-lg border-2 border-dashed">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <span className="material-symbols-outlined text-5xl animate-spin text-primary">progress_activity</span>
               <p className="text-muted-foreground">Our AI is finding the best cars for you...</p>
             </div>
           )}

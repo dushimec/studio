@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu } from 'lucide-react';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -35,7 +34,7 @@ export default function Header() {
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
+                  <span className="material-symbols-outlined">menu</span>
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>

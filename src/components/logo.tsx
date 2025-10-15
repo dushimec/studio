@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { Car } from 'lucide-react';
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -9,7 +8,7 @@ export function Logo({ className }: { className?: string }) {
       className={cn("flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground font-headline", className)}
       data-test-id="logo"
     >
-      <Car className="h-7 w-7 text-primary"/>
+      <span className="material-symbols-outlined text-3xl text-primary">directions_car</span>
       Dush<span className="text-primary">Rent</span>
     </Link>
   );

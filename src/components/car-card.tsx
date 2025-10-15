@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Fuel, Cog, ShieldCheck, ShieldX } from 'lucide-react';
 import type { Car as CarType } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,7 +77,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
               />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">
-                <Users className="w-12 h-12 text-muted-foreground" />
+                <span className="material-symbols-outlined text-4xl text-muted-foreground">group</span>
               </div>
             )}
              <Badge variant="secondary" className="absolute top-3 left-3">{car.type}</Badge>
@@ -99,15 +98,15 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
         <p className="text-sm text-muted-foreground mb-3">{car.brand} &middot; {car.year}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
+            <span className="material-symbols-outlined text-lg text-primary">group</span>
             <span>{car.seats} Seats</span>
           </div>
           <div className="flex items-center gap-2">
-            <Fuel className="w-4 h-4 text-primary" />
+            <span className="material-symbols-outlined text-lg text-primary">local_gas_station</span>
             <span>{car.fuel}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Cog className="w-4 h-4 text-primary" />
+            <span className="material-symbols-outlined text-lg text-primary">settings</span>
             <span>{car.transmission}</span>
           </div>
         </div>

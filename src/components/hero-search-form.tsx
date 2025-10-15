@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Calendar as CalendarIcon, Search } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -20,7 +19,7 @@ export function HeroSearchForm() {
         <div className="md:col-span-5">
           <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Location</label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground">location_on</span>
             <Input id="location" placeholder="City, address, or postal code" className="pl-10 h-12" />
           </div>
         </div>
@@ -36,7 +35,7 @@ export function HeroSearchForm() {
                   !date && 'text-muted-foreground'
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <span className="material-symbols-outlined mr-2 h-4 w-4">calendar_month</span>
                 {date?.from ? (
                   date.to ? (
                     <>
@@ -65,7 +64,7 @@ export function HeroSearchForm() {
         </div>
         <div className="md:col-span-2">
           <Button type="submit" size="lg" className="w-full h-12 text-base">
-            <Search className="mr-2 h-5 w-5" />
+            <span className="material-symbols-outlined mr-2 h-5 w-5">search</span>
             Search
           </Button>
         </div>

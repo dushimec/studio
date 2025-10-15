@@ -17,7 +17,6 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,7 +68,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex flex-col">
           <Button className="w-full" onClick={handleLogin} disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
             Sign in
           </Button>
            <div className="mt-4 text-center text-sm">

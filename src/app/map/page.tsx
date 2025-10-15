@@ -5,7 +5,6 @@ import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { findCars, findLocations } from '@/lib/data';
-import { Loader2, LocateFixed } from 'lucide-react';
 import { CarCard } from '@/components/car-card';
 import dynamic from 'next/dynamic';
 import type { Location } from '@/lib/types';
@@ -70,7 +69,7 @@ export default function MapPage() {
   };
   
   const Map = useMemo(() => dynamic(() => import('@/components/map-component'), {
-    loading: () => <div className="h-[600px] w-full bg-muted flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>,
+    loading: () => <div className="h-[600px] w-full bg-muted flex items-center justify-center"><span className="material-symbols-outlined text-5xl animate-spin text-primary">progress_activity</span></div>,
     ssr: false
   }), [userLocation, nearestLocation]);
 
@@ -82,9 +81,9 @@ export default function MapPage() {
         <p className="text-lg text-muted-foreground">Find our locations across the country.</p>
         <Button onClick={handleFindNearest} disabled={isLoading} className="mt-4">
           {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>
           ) : (
-            <LocateFixed className="mr-2 h-4 w-4" />
+            <span className="material-symbols-outlined mr-2 h-4 w-4">my_location</span>
           )}
           Find Nearest Location
         </Button>

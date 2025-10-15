@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 
@@ -87,7 +86,7 @@ export default function BrowsePage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Search by name</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground">search</span>
                 <Input placeholder="e.g., Stark SUV" className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
             </div>
