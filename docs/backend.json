@@ -6,7 +6,6 @@
       "type": "object",
       "description": "Represents a user of the car rental service.",
       "properties": {
-        "id": { "type": "string", "description": "Unique user ID (from Firebase Auth)" },
         "fullName": { "type": "string", "description": "User’s full name" },
         "email": { "type": "string", "format": "email", "description": "User’s email address" },
         "phoneNumber": { "type": "string", "description": "Contact phone number" },
@@ -15,37 +14,37 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of account creation" },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update" }
       },
-      "required": ["id", "fullName", "email", "role", "createdAt", "updatedAt"]
+      "required": ["fullName", "email", "role", "createdAt", "updatedAt"]
     },
     "Car": {
       "title": "Car",
       "type": "object",
       "description": "Represents a car available for rent.",
       "properties": {
-        "id": { "type": "string", "description": "Unique car ID" },
         "ownerId": { "type": "string", "description": "Reference to the user (owner)" },
         "brand": { "type": "string", "description": "Car brand" },
         "model": { "type": "string", "description": "Car model" },
         "year": { "type": "number", "description": "Year of manufacture" },
         "pricePerDay": { "type": "number", "description": "Rental price per day" },
-        "fuelType": { "type": "string", "enum": ["Petrol", "Diesel", "Electric"], "description": "Fuel type" },
+        "fuelType": { "type": "string", "enum": ["Petrol", "Diesel", "Electric", "Hybrid", "Gasoline"], "description": "Fuel type" },
         "transmission": { "type": "string", "enum": ["Automatic", "Manual"], "description": "Transmission type" },
         "seats": { "type": "number", "description": "Number of seats" },
         "images": { "type": "array", "items": { "type": "string" }, "description": "List of car image URLs" },
         "location": { "type": "string", "description": "Location of the car" },
         "available": { "type": "boolean", "description": "Whether the car is currently available" },
         "availabilityDates": { "type": "array", "items": { "type": "object", "properties": { "start": {"type": "string", "format": "date-time"}, "end": {"type": "string", "format": "date-time"} } } },
+        "description": { "type": "string", "description": "A detailed description of the car" },
+        "features": { "type": "array", "items": { "type": "string" }, "description": "List of car features" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of car addition" },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update" }
       },
-      "required": ["id", "ownerId", "brand", "model", "year", "pricePerDay", "fuelType", "transmission", "seats", "images", "location", "available", "createdAt", "updatedAt"]
+      "required": ["ownerId", "brand", "model", "year", "pricePerDay", "fuelType", "transmission", "seats", "images", "location", "available", "createdAt", "updatedAt", "description", "features"]
     },
     "Booking": {
       "title": "Booking",
       "type": "object",
       "description": "Represents a car rental booking.",
       "properties": {
-        "id": { "type": "string", "description": "Unique booking ID" },
         "carId": { "type": "string", "description": "Reference to car document" },
         "customerId": { "type": "string", "description": "Reference to user document" },
         "ownerId": { "type": "string", "description": "Reference to car owner" },
@@ -56,14 +55,13 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of booking creation" },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update" }
       },
-      "required": ["id", "carId", "customerId", "ownerId", "startDate", "endDate", "totalPrice", "status", "createdAt", "updatedAt"]
+      "required": ["carId", "customerId", "ownerId", "startDate", "endDate", "totalPrice", "status", "createdAt", "updatedAt"]
     },
     "Notification": {
       "title": "Notification",
       "type": "object",
       "description": "Represents a notification for a user.",
       "properties": {
-        "id": { "type": "string", "description": "Unique notification ID" },
         "userId": { "type": "string", "description": "Reference to the target user" },
         "title": { "type": "string", "description": "Short title of the message" },
         "message": { "type": "string", "description": "Full message body" },
@@ -71,14 +69,13 @@
         "read": { "type": "boolean", "description": "Whether the user has read the notification" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of notification creation" }
       },
-      "required": ["id", "userId", "title", "message", "type", "read", "createdAt"]
+      "required": ["userId", "title", "message", "type", "read", "createdAt"]
     },
     "Review": {
       "title": "Review",
       "type": "object",
       "description": "Represents a review for a car rental.",
       "properties": {
-        "id": { "type": "string", "description": "Unique review ID" },
         "bookingId": { "type": "string", "description": "Reference to the related booking" },
         "carId": { "type": "string", "description": "Reference to the reviewed car" },
         "userId": { "type": "string", "description": "Who wrote the review" },
@@ -86,39 +83,32 @@
         "comment": { "type": "string", "description": "Optional text feedback" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of review creation" }
       },
-      "required": ["id", "bookingId", "carId", "userId", "rating", "createdAt"]
+      "required": ["bookingId", "carId", "userId", "rating", "createdAt"]
     }
   },
   "auth": {
     "providers": ["password", "anonymous"]
   },
   "firestore": {
-    "collections": [
-      {
-        "path": "/users",
-        "description": "Stores user profiles. The document ID is the Firebase Auth UID.",
-        "schema": { "$ref": "#/entities/User" }
-      },
-      {
-        "path": "/cars",
-        "description": "Stores all car listings.",
-        "schema": { "$ref": "#/entities/Car" }
-      },
-      {
-        "path": "/bookings",
-        "description": "Stores all bookings for all users and cars.",
-        "schema": { "$ref": "#/entities/Booking" }
-      },
-      {
-        "path": "/notifications",
-        "description": "Stores notifications for users.",
-        "schema": { "$ref": "#/entities/Notification" }
-      },
-      {
-        "path": "/reviews",
-        "description": "Stores reviews for car rentals.",
-        "schema": { "$ref": "#/entities/Review" }
-      }
-    ]
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles. The document ID is the Firebase Auth UID."
+    },
+    "/cars/{carId}": {
+      "schema": { "$ref": "#/entities/Car" },
+      "description": "Stores all car listings."
+    },
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/Booking" },
+      "description": "Stores all bookings for all users and cars."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Stores notifications for users."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Stores reviews for car rentals."
+    }
   }
 }

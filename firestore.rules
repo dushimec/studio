@@ -1,89 +1,120 @@
 /**
- * @fileoverview Firestore Security Rules for AutoNomad Car Rental.
+ * @file Firestore Security Rules
+ * @version 2
  *
- * Core Philosophy:
- * This ruleset enforces a user-ownership model for bookings, while allowing public read access to car and location data.
+ * @description This ruleset enforces a user-ownership model for user profiles and allows public reads for car listings. Bookings, notifications, and reviews have more granular access control based on user roles and relationships.
  *
- * Data Structure:
- * - /locations/{locationId}: Stores location information; publicly readable.
- * - /cars/{carId}: Stores car details; publicly readable.
- * - /users/{userId}: Stores user profiles; only accessible by the user themselves.
- * - /users/{userId}/bookings/{bookingId}: Stores booking information; only accessible by the user who created the booking.
+ * @data_structure
+ * - /users/{userId}: Stores user profiles, with the document ID being the Firebase Auth UID.
+ * - /cars/{carId}: Stores car listings, accessible for public reading but with owner-only writes.
+ * - /bookings/{bookingId}: Stores booking information.
+ * - /notifications/{notificationId}: Stores notifications for users.
+ * - /reviews/{reviewId}: Stores reviews for car rentals.
  *
- * Key Security Decisions:
- * - Public Read Access for Cars and Locations: Allows unauthenticated users to view available cars and locations, enhancing the user experience.
- * - User-Owned Bookings: Enforces strict ownership for bookings, ensuring that only the authenticated user can manage their bookings.
- * - No User Listing: Prevents listing all users to protect user privacy.
+ * @key_security_decisions
+ * - Users can only read and write their own profile data.
+ * - Car listings are publicly readable but can only be created, updated, or deleted by the car's owner.
+ * - Listing of users is disallowed.
  *
- * Denormalization for Authorization:
- *  - Bookings are stored under `/users/{userId}/bookings/{bookingId}`. This allows for path-based rules and avoids needing complex rules to validate ownership.
+ * @denormalization_for_authorization
+ * - Car documents have an `ownerId` field to simplify ownership checks for write operations.
+ * - Booking documents include `customerId` and `ownerId` fields for simpler authorization.
+ * - Notification documents include a `userId` to target the intended recipient.
+ *
+ * @structural_segregation
+ * - No structural segregation is used in this ruleset.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Allows public read access to location data.
-     * @path /locations/{locationId}
-     * @allow (get, list) Unauthenticated user can retrieve location data.
-     * @deny (create, update, delete) No one can create, update, or delete locations through the client.
-     * @principle Public read access for car and location data.
+     * @description Manages user profiles. Users can only read and write their own profile data.
+     * @path /users/{userId}
+     * @allow (get, create, update, delete) User with ID 'user123' can read/write their own profile.
+     * @deny (get, create, update, delete) User with ID 'user456' cannot access 'user123' profile.
+     * @principle Enforces document ownership for all operations.
      */
-    match /locations/{locationId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to car data.
+     * @description Manages car listings. Car data is publicly readable but only the owner can create, update, or delete.
      * @path /cars/{carId}
-     * @allow (get, list) Unauthenticated user can retrieve car data.
-     * @deny (create, update, delete) No one can create, update, or delete cars through the client.
-     * @principle Public read access for car and location data.
+     * @allow (get, list) Any user can read car listings.
+     * @allow (create, update, delete) User with ID 'owner123' can create, update, or delete their own car listing.
+     * @deny (create, update, delete) User with ID 'otherUser' cannot modify 'owner123' car listing.
+     * @principle Public read, owner-only writes.
      */
     match /cars/{carId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.ownerId);
+      allow delete: if isExistingOwner(resource.data.ownerId);
     }
 
     /**
-     * @description Controls access to user profile data.
-     * @path /users/{userId}
-     * @allow (create) User can create their own profile if the userId matches their auth UID.
-     * @allow (get, update, delete) User can get, update, and delete their own profile if authenticated.
-     * @deny (get, update, delete) User cannot access another user's profile.
-     * @deny (list) Listing all users is prohibited.
-     * @principle Enforces document ownership for user profiles.
+     * @description Manages bookings. Access control is based on the customer and car owner.
+     * @path /bookings/{bookingId}
+     * @allow (get) Any user can get a booking
+     * @allow (create) Any signed in user can create a booking
+     * @allow (update, delete) Only the car owner or the customer who created the booking can update or delete it.
+     * @principle Access control based on customer and owner relationships.
      */
-    match /users/{userId} {
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
-      allow get, update, delete: if isSignedIn() && isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn();
       allow list: if false;
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isExistingOwner(request.resource.data.customerId) || isExistingOwner(resource.data.ownerId);
+      allow delete: if isExistingOwner(request.resource.data.customerId) || isExistingOwner(resource.data.ownerId);
     }
 
     /**
-     * @description Controls access to booking data for a specific user.
-     * @path /users/{userId}/bookings/{bookingId}
-     * @allow (create) User can create a booking under their user ID if authenticated.
-     * @allow (get, update, delete, list) User can get, update, delete, and list their own bookings if authenticated.
-     * @deny (get, update, delete, list) User cannot access another user's bookings.
-     * @principle Enforces document ownership for bookings.
+     * @description Manages notifications for users. Only the target user can access their notifications.
+     * @path /notifications/{notificationId}
+     * @allow (get, create, update, delete) User with ID 'user123' can read/write their own notifications.
+     * @deny (get, create, update, delete) User with ID 'user456' cannot access 'user123' notifications.
+     * @principle Enforces user-specific access for notifications.
      */
-    match /users/{userId}/bookings/{bookingId} {
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
-      allow get, update, delete, list: if isSignedIn() && isExistingOwner(userId);
+    match /notifications/{notificationId} {
+      allow get: if isOwner(resource.data.userId);
+      allow list: if isOwner(resource.data.userId);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.userId);
+      allow delete: if isExistingOwner(resource.data.userId);
     }
 
-    function isSignedIn() {
-      return request.auth != null;
+    /**
+     * @description Manages reviews for car rentals.
+     * @path /reviews/{reviewId}
+     * @allow (get, list) Any user can get/list review data.
+     * @allow (create) Any signed in user can create a review. The `userId` field must match the authenticated user's UID.
+     * @allow (update, delete) Only the user who created the review can update or delete it.
+     * @principle Public read for reviews, owner-only writes.
+     */
+    match /reviews/{reviewId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.userId);
+      allow delete: if isExistingOwner(resource.data.userId);
     }
+  }
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
+  // Helper functions
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  function isOwner(userId) {
+    return request.auth.uid == userId;
+  }
 
     function isExistingOwner(userId) {
-        return isSignedIn() && isOwner(userId) && resource != null;
-    }
+    return isSignedIn() && isOwner(userId) && resource != null;
   }
 }
