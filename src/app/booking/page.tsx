@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
+import type { Booking } from '@/lib/types';
 
 export default function BookingsPage() {
   const { user } = useAuth();
@@ -53,7 +54,7 @@ export default function BookingsPage() {
       
       {bookings.length > 0 ? (
         <div className="space-y-6">
-          {bookings.map((booking) => {
+          {bookings.map((booking: Booking) => {
             const car = findCarById(booking.carId);
             if (!car) return null;
             const carImage = car.images[0];

@@ -226,4 +226,11 @@ export function useMockData() {
     };
 }
 
+export function findCars() {
+  return cars;
+}
+
+export function findBookings() {
+    return bookings;
+}
     
