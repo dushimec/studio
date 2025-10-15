@@ -8,6 +8,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  role: 'user' | 'admin';
 }
 
 interface AuthContextType {
@@ -18,6 +19,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock users data
+const mockUsers: User[] = [
+    { id: 'user1', name: 'Dushime', email: 'dushime@gmail.com', role: 'admin' },
+    { id: 'user2', name: 'Jane Doe', email: 'jane@example.com', role: 'user' },
+];
+
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
@@ -25,9 +33,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, pass: string): Promise<void> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            if (email === 'dushime@gmail.com' && pass === '123456') {
-                const mockUser: User = { id: 'user1', name: 'Dushime', email: 'dushime@gmail.com' };
-                setUser(mockUser);
+            const foundUser = mockUsers.find(u => u.email === email);
+            if (foundUser && pass === '123456') {
+                setUser(foundUser);
                 resolve();
             } else {
                 reject(new Error('Invalid email or password.'));
@@ -54,4 +62,8 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+}
+
+export function findUsers() {
+    return mockUsers;
 }

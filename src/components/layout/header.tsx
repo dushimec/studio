@@ -26,6 +26,21 @@ export default function Header() {
     { href: '/booking', label: 'My Bookings' },
     { href: '/dashboard', label: 'Dashboard' },
   ];
+  
+  const adminLinks = [
+      { href: '/admin', label: 'Admin' },
+  ];
+
+  const getNavLinks = () => {
+      let links = [...navLinks];
+      if (user) {
+          links = [...links, ...loggedInLinks];
+          if (user.role === 'admin') {
+              links = [...links, ...adminLinks];
+          }
+      }
+      return links;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -51,7 +66,7 @@ export default function Header() {
                 <div className="space-y-4 py-4">
                   <div className="px-3 py-2">
                     <div className="space-y-1">
-                      {[...navLinks, ...(user ? loggedInLinks : [])].map((link) => (
+                      {getNavLinks().map((link) => (
                         <Link
                           key={link.href}
                           href={link.href}
@@ -76,7 +91,7 @@ export default function Header() {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map((link) => (
+            {getNavLinks().map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -88,18 +103,6 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-             {user && loggedInLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    'transition-colors hover:text-primary',
-                    pathname === link.href ? 'text-primary' : 'text-foreground/60'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
           </nav>
           
           <div className="hidden md:flex items-center space-x-2">
