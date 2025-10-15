@@ -41,6 +41,7 @@ const carFormSchema = z.object({
   fuel: z.enum(['Gasoline', 'Electric', 'Hybrid']),
   transmission: z.enum(['Automatic', 'Manual']),
   features: z.string(),
+  images: z.string().min(1, 'At least one image ID is required'),
   description: z.string().min(1, 'Description is required'),
   availability: z.enum(['Available', 'Booked', 'Maintenance']),
 });
@@ -75,6 +76,7 @@ function ManageVehicleDialog({
             fuel: car?.fuel || 'Gasoline',
             transmission: car?.transmission || 'Automatic',
             features: car?.features.join(', ') || '',
+            images: car?.images.join(', ') || '',
             description: car?.description || '',
             availability: car?.availability || 'Available',
         }
@@ -85,7 +87,7 @@ function ManageVehicleDialog({
             id: car?.id || `car-${Date.now()}`,
             ...data,
             features: data.features.split(',').map(f => f.trim()),
-            images: car?.images || [],
+            images: data.images.split(',').map(f => f.trim()),
             rentalCompany: car?.rentalCompany || 'My Fleet',
             ownerId: ownerId,
         };
@@ -207,6 +209,12 @@ function ManageVehicleDialog({
                     <div>
                         <Label htmlFor="features">Features (comma-separated)</Label>
                         <Input id="features" {...register('features')} />
+                    </div>
+                    
+                    <div>
+                        <Label htmlFor="images">Image IDs (comma-separated)</Label>
+                        <Input id="images" {...register('images')} />
+                        {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message}</p>}
                     </div>
 
                     <DialogFooter className="sm:justify-between pt-4">
@@ -420,3 +428,5 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
+
+    
