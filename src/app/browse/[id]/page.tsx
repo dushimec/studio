@@ -1,3 +1,6 @@
+
+'use client';
+
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { findCarById } from '@/lib/data';
@@ -9,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CheckCircle2, Users, Fuel, Cog, Gauge, Calendar, Tag, ShieldCheck, ShieldX } from 'lucide-react';
 import type { Car } from '@/lib/types';
+import { useAuth } from '@/context/auth-context';
+import Link from 'next/link';
 
 type CarDetailsPageProps = {
   params: {
@@ -31,6 +36,7 @@ const getAvailabilityProps = (availability: Car['availability']) => {
 
 export default function CarDetailsPage({ params }: CarDetailsPageProps) {
   const car = findCarById(params.id);
+  const { user } = useAuth();
 
   if (!car) {
     notFound();
@@ -38,6 +44,20 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
 
   const carImages = car.images.map(imgId => PlaceHolderImages.find(p => p.id === imgId)).filter(Boolean);
   const availability = getAvailabilityProps(car.availability);
+
+  const renderBookingButton = () => {
+    if (car.availability !== 'Available') {
+      return <Button size="lg" className="text-lg" disabled>Not Available</Button>;
+    }
+    if (user) {
+      return <Button size="lg" className="text-lg">Continue to Book</Button>;
+    }
+    return (
+      <Button size="lg" className="text-lg" asChild>
+        <Link href="/login">Login to Book</Link>
+      </Button>
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -116,9 +136,7 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
                 <span className="text-3xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
                 <span className="text-sm text-muted-foreground"> / day</span>
               </div>
-              <Button size="lg" className="text-lg" disabled={car.availability !== 'Available'}>
-                {car.availability === 'Available' ? 'Continue to Book' : 'Not Available'}
-              </Button>
+              {renderBookingButton()}
             </CardContent>
           </Card>
         </div>
