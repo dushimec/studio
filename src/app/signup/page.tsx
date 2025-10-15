@@ -33,6 +33,8 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async () => {
+    if (!auth || !firestore) return;
+
     setIsLoading(true);
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
@@ -41,17 +43,19 @@ export default function SignupPage() {
         
         const userRef = doc(firestore, "users", user.uid);
         
+        // Using Omit to create a user object that excludes fields managed by the database
         const newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'> = {
             fullName: fullName,
             email: user.email!,
-            role: 'customer', // Default role
+            role: 'customer', // Assign 'customer' role by default
         };
 
+        // Use the non-blocking firestore update
         setDocumentNonBlocking(userRef, { 
             ...newUser, 
             createdAt: serverTimestamp(), 
             updatedAt: serverTimestamp() 
-        }, {});
+        }, { merge: false });
 
         toast({
           title: "Account Created",
@@ -72,7 +76,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-14rem)]">
+    <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] py-12">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Sign Up</CardTitle>
@@ -95,7 +99,7 @@ export default function SignupPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
-          <Button className="w-full" onClick={handleSignup} disabled={isLoading}>
+          <Button className="w-full" onClick={handleSignup} disabled={isLoading || !fullName || !email || !password}>
             {isLoading && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
             Create account
           </Button>
