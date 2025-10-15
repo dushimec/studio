@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { findCars } from '@/lib/data';
 import type { Car } from '@/lib/types';
 import { CarCard } from '@/components/car-card';
@@ -28,7 +29,7 @@ export default function BrowsePage() {
 
   const brands = useMemo(() => ['all', ...Array.from(new Set(allCars.map(car => car.brand)))], [allCars]);
 
-  const applyFilters = () => {
+  useEffect(() => {
     let cars = [...allCars];
 
     // Search
@@ -62,12 +63,7 @@ export default function BrowsePage() {
     }
 
     setFilteredCars(cars);
-  };
-  
-  // Apply filters whenever a filter state changes
-  useState(() => {
-    applyFilters();
-  });
+  }, [searchTerm, carType, brand, seats, priceRange, sortOrder, allCars]);
 
 
   return (
@@ -137,7 +133,7 @@ export default function BrowsePage() {
                 max={200000}
                 step={5000}
                 value={priceRange}
-                onValueChange={setPriceRange}
+                onValueChange={(value) => setPriceRange(value as [number, number])}
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{priceRange[0].toLocaleString()}</span>
@@ -156,8 +152,6 @@ export default function BrowsePage() {
                 </SelectContent>
               </Select>
             </div>
-
-            <Button onClick={applyFilters} className="w-full">Apply Filters</Button>
           </div>
         </aside>
 
