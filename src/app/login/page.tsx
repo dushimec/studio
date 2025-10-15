@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import {
@@ -16,8 +16,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/firebase";
+import { useAuth, useUser } from "@/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,27 +28,43 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const { user, isUserLoading } = useUser();
+  const { userProfile, isLoading: isProfileLoading } = useUserProfile(user?.uid);
+
+  useEffect(() => {
+    if (!isUserLoading && user && !isProfileLoading && userProfile) {
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${userProfile.fullName}!`,
+      });
+
+      // Role-based redirection
+      switch (userProfile.role) {
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'owner':
+          router.push('/dashboard');
+          break;
+        case 'customer':
+        default:
+          router.push('/browse');
+          break;
+      }
+    }
+  }, [user, isUserLoading, userProfile, isProfileLoading, router, toast]);
+
   const handleLogin = async () => {
     if (!auth) return;
     setIsLoading(true);
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        });
-        // You can fetch user role from Firestore here to redirect
-        router.push('/dashboard');
-      })
       .catch((error) => {
         toast({
           variant: "destructive",
           title: "Login Failed",
           description: error.message,
         });
-      })
-      .finally(() => {
-        setIsLoading(false);
+        setIsLoading(false); // Only stop loading on error, success is handled by useEffect
       });
   };
 
@@ -72,7 +89,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex flex-col">
           <Button className="w-full" onClick={handleLogin} disabled={isLoading || !email || !password}>
-            {isLoading && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
+            {(isLoading || isUserLoading || isProfileLoading) && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
             Sign in
           </Button>
            <div className="mt-4 text-center text-sm">
