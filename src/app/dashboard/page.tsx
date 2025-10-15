@@ -41,7 +41,7 @@ const carFormSchema = z.object({
   fuel: z.enum(['Gasoline', 'Electric', 'Hybrid']),
   transmission: z.enum(['Automatic', 'Manual']),
   features: z.string(),
-  images: z.string().min(1, 'At least one image ID is required'),
+  images: z.string().min(1, 'At least one image URL is required'),
   description: z.string().min(1, 'Description is required'),
   availability: z.enum(['Available', 'Booked', 'Maintenance']),
 });
@@ -86,8 +86,8 @@ function ManageVehicleDialog({
         const carToSave: Car = {
             id: car?.id || `car-${Date.now()}`,
             ...data,
-            features: data.features.split(',').map(f => f.trim()),
-            images: data.images.split(',').map(f => f.trim()),
+            features: data.features.split(',').map(f => f.trim()).filter(f => f),
+            images: data.images.split(',').map(f => f.trim()).filter(f => f),
             rentalCompany: car?.rentalCompany || 'My Fleet',
             ownerId: ownerId,
         };
@@ -212,7 +212,7 @@ function ManageVehicleDialog({
                     </div>
                     
                     <div>
-                        <Label htmlFor="images">Image IDs (comma-separated)</Label>
+                        <Label htmlFor="images">Image URLs (comma-separated)</Label>
                         <Input id="images" {...register('images')} />
                         {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message}</p>}
                     </div>

@@ -1,9 +1,9 @@
+
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Car as CarType } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,11 +20,13 @@ type CarCardProps = {
 export function CarCard({ car, generateImage = false }: CarCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(generateImage);
-  const fallbackImage = PlaceHolderImages.find(img => img.id === car.images[0]);
+  const fallbackImage = 'https://picsum.photos/seed/car-placeholder/800/600';
+  const primaryImage = car.images[0] || fallbackImage;
+
 
   useEffect(() => {
     async function generate() {
-      if (generateImage) {
+      if (generateImage && !car.images[0]) {
         try {
           const result = await getCarImage({
             carName: car.name,
@@ -33,20 +35,17 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           });
           setImageUrl(result.imageUrl);
         } catch (error) {
-          if (fallbackImage) {
-            setImageUrl(fallbackImage.imageUrl);
-          }
+          setImageUrl(fallbackImage);
         } finally {
           setLoading(false);
         }
       } else {
-        if(fallbackImage) {
-            setImageUrl(fallbackImage.imageUrl);
-        }
+        setImageUrl(primaryImage);
+        if (generateImage) setLoading(false);
       }
     }
     generate();
-  }, [car, generateImage, fallbackImage]);
+  }, [car, generateImage, fallbackImage, primaryImage]);
 
   const availabilityStyles = {
     Available: 'bg-green-500/20 text-green-400 border-green-500/30',
@@ -73,11 +72,11 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                data-ai-hint={fallbackImage?.imageHint || 'car image'}
+                data-ai-hint={'car image'}
               />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-muted-foreground">group</span>
+                <span className="material-symbols-outlined text-4xl text-muted-foreground">directions_car</span>
               </div>
             )}
              <Badge variant="secondary" className="absolute top-3 left-3">{car.type}</Badge>
@@ -123,3 +122,5 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
     </Card>
   );
 }
+
+    

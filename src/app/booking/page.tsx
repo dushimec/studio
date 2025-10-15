@@ -1,12 +1,10 @@
 
-
 'use client';
 
 import { useMockData } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -58,18 +56,17 @@ export default function BookingsPage() {
           {bookings.map((booking) => {
             const car = findCarById(booking.carId);
             if (!car) return null;
-            const carImage = PlaceHolderImages.find(p => p.id === car.images[0]);
+            const carImage = car.images[0];
             return (
               <Card key={booking.id} className="grid md:grid-cols-12 gap-4 items-center p-4 hover:bg-card/80 transition-colors">
                 <div className="md:col-span-3">
                   <div className="relative aspect-video rounded-md overflow-hidden">
                     {carImage ? (
                       <Image 
-                        src={carImage.imageUrl} 
+                        src={carImage} 
                         alt={car.name} 
                         fill
                         className="object-cover"
-                        data-ai-hint={carImage.imageHint}
                         sizes="(max-width: 768px) 100vw, 25vw"
                       />
                     ) : <div className="bg-muted w-full h-full" /> }
@@ -107,3 +104,5 @@ export default function BookingsPage() {
     </div>
   );
 }
+
+    

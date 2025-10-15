@@ -39,3 +39,5 @@ export interface User {
   email: string;
   role: 'user' | 'owner' | 'admin';
 }
+
+    

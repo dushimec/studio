@@ -4,7 +4,6 @@
 import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
 import { useMockData } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +37,7 @@ export default function CarDetailsPage() {
     notFound();
   }
 
-  const carImages = car.images.map(imgId => PlaceHolderImages.find(p => p.id === imgId)).filter(Boolean);
+  const carImages = car.images;
   const availability = getAvailabilityProps(car.availability);
 
   const renderBookingButton = () => {
@@ -61,19 +60,16 @@ export default function CarDetailsPage() {
         <div>
           <Carousel className="w-full rounded-lg overflow-hidden shadow-lg">
             <CarouselContent>
-              {carImages.length > 0 ? carImages.map((img, index) => (
+              {carImages.length > 0 ? carImages.map((imgUrl, index) => (
                 <CarouselItem key={index}>
                   <div className="relative aspect-[4/3]">
-                    {img && (
-                      <Image
-                        src={img.imageUrl}
-                        alt={`${car.name} view ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        data-ai-hint={img.imageHint}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    )}
+                    <Image
+                      src={imgUrl}
+                      alt={`${car.name} view ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                   </div>
                 </CarouselItem>
               )) : (
@@ -177,3 +173,5 @@ export default function CarDetailsPage() {
     </div>
   );
 }
+
+    

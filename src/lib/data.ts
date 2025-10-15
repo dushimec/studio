@@ -15,7 +15,7 @@ const initialCars: Car[] = [
     fuel: 'Gasoline',
     transmission: 'Automatic',
     features: ['Air Conditioning', 'GPS', 'Bluetooth', 'Heated Seats'],
-    images: ['car-suv-1', 'car-suv-2'],
+    images: ['https://www.topgear.com/sites/default/files/2024/02/2024-cadillac-escalade-v-series-010.jpg'],
     description: 'Experience the perfect blend of luxury and performance with the Stark SUV. Ideal for family trips or navigating city streets in style.',
     rentalCompany: 'Apex Rentals',
     availability: 'Available',
@@ -32,7 +32,7 @@ const initialCars: Car[] = [
     fuel: 'Hybrid',
     transmission: 'Automatic',
     features: ['Air Conditioning', 'Apple CarPlay', 'Cruise Control'],
-    images: ['car-sedan-1', 'car-sedan-2'],
+    images: ['https://spn-sta.spinny.com/blog/20220308152631/VW-Virtus-launch.jpg'],
     description: 'The Orion Sedan offers a smooth, efficient ride with modern amenities. Perfect for business trips or a comfortable commute.',
     rentalCompany: 'Starlight Drives',
     availability: 'Booked',
@@ -49,7 +49,7 @@ const initialCars: Car[] = [
     fuel: 'Gasoline',
     transmission: 'Manual',
     features: ['Air Conditioning', 'Bluetooth'],
-    images: ['car-hatchback-1', 'car-hatchback-2'],
+    images: ['https://static0.carbuzzimages.com/wordpress/wp-content/uploads/2025/03/2025-honda-civic-hatchback.jpg'],
     description: 'A zippy and economical choice for city driving. The Pulsar Hatchback is easy to park and fun to drive.',
     rentalCompany: 'City Wheels',
     availability: 'Available',
@@ -66,7 +66,7 @@ const initialCars: Car[] = [
     fuel: 'Gasoline',
     transmission: 'Automatic',
     features: ['Air Conditioning', 'GPS', 'Premium Sound System'],
-    images: ['car-convertible-1', 'car-convertible-2'],
+    images: ['https://www.lloydmotorgroup.com/VehicleLibrary/101011-Nosg28I8e0Szk5DNrHxnAg.jpg'],
     description: 'Feel the wind in your hair with the Comet Convertible. The ultimate car for a scenic coastal drive or a weekend getaway.',
     rentalCompany: 'Apex Rentals',
     availability: 'Maintenance',
@@ -83,7 +83,7 @@ const initialCars: Car[] = [
     fuel: 'Gasoline',
     transmission: 'Automatic',
     features: ['Air Conditioning', 'Towing Package', '4x4 Drive'],
-    images: ['car-truck-1', 'car-truck-2'],
+    images: ['https://www.investopedia.com/thmb/eQJIp9UXcrxlTiPyO9VD0cJ_w9E=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/cq5dam.web.3840.3840-bf2160fea77047d79ef249e4db3565fc.jpeg'],
     description: 'For heavy-duty needs or off-road adventures, the Titan Truck delivers power and reliability.',
     rentalCompany: 'Rugged Rides',
     availability: 'Available',
@@ -100,7 +100,7 @@ const initialCars: Car[] = [
     fuel: 'Hybrid',
     transmission: 'Automatic',
     features: ['Air Conditioning', 'GPS', 'Third-Row Seating', 'Sunroof'],
-    images: ['car-suv-2', 'car-suv-1'],
+    images: ['https://console.kr-asia.com/wp-content/uploads/2024/12/Geely-Galaxy-Starship-7-EM-i.jpg'],
     description: 'The spacious Galaxy SUV is perfect for large families or groups, offering comfort and versatility for any journey.',
     rentalCompany: 'Starlight Drives',
     availability: 'Available',
@@ -184,7 +184,7 @@ export function useMockData() {
     }, []);
 
     const addCar = useCallback((newCar: Car) => {
-        cars.push(newCar);
+        cars.unshift(newCar);
         forceUpdate();
     }, []);
 
@@ -219,3 +219,5 @@ export function useMockData() {
         findCarById,
     };
 }
+
+    
