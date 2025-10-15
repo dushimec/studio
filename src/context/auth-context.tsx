@@ -13,7 +13,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<User>;
   logout: () => void;
 }
 
@@ -31,13 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  const login = async (email: string, pass: string): Promise<void> => {
+  const login = async (email: string, pass: string): Promise<User> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             const foundUser = mockUsers.find(u => u.email === email);
             if (foundUser && pass === '123456') {
                 setUser(foundUser);
-                resolve();
+                resolve(foundUser);
             } else {
                 reject(new Error('Invalid email or password.'));
             }

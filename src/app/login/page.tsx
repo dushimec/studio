@@ -30,12 +30,27 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      await login(email, password);
+      const user = await login(email, password);
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       });
-      router.push('/booking');
+
+      // Role-based redirection
+      switch (user.role) {
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'owner':
+          router.push('/dashboard');
+          break;
+        case 'user':
+          router.push('/booking');
+          break;
+        default:
+          router.push('/');
+          break;
+      }
     } catch (error: any) {
        toast({
         variant: "destructive",
