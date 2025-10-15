@@ -27,20 +27,15 @@ export default function Header() {
           return baseNavLinks;
       }
 
-      let roleLinks = [];
       switch (user.role) {
           case 'admin':
-              return [
-                { href: '/admin', label: 'Admin' },
-                { href: '/dashboard', label: 'Dashboard' },
-              ];
+              return [{ href: '/admin', label: 'Admin' }];
           case 'owner':
-              return [
-                { href: '/dashboard', label: 'Dashboard' },
-              ];
+              return [{ href: '/dashboard', label: 'Dashboard' }];
           case 'user':
-              roleLinks.push({ href: '/booking', label: 'My Bookings' });
-              return [...baseNavLinks, ...roleLinks];
+              const userLinks = [...baseNavLinks];
+              userLinks.push({ href: '/booking', label: 'My Bookings' });
+              return userLinks;
           default:
             return baseNavLinks;
       }
