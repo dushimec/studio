@@ -6,7 +6,7 @@ import Footer from '@/components/layout/footer';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'dushCarRent',
+  title: 'AutoNomad',
   description: 'Your Journey, Your Car.',
 };
 
