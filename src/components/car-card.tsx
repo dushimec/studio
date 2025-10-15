@@ -19,14 +19,24 @@ type CarCardProps = {
 
 export function CarCard({ car, generateImage = false }: CarCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(generateImage);
+  const [loading, setLoading] = useState(true);
   const fallbackImage = 'https://picsum.photos/seed/car-placeholder/800/600';
-  const primaryImage = car.images[0] || fallbackImage;
+  
+  // If the car has user-uploaded images (even temporary blob URLs), use them.
+  // Otherwise, decide whether to generate one with AI.
+  const hasUserImage = car.images && car.images.length > 0;
+  const shouldGenerateImage = generateImage && !hasUserImage;
 
 
   useEffect(() => {
     async function generate() {
-      if (generateImage && !car.images[0]) {
+      if (hasUserImage) {
+        setImageUrl(car.images[0]);
+        setLoading(false);
+        return;
+      }
+
+      if (shouldGenerateImage) {
         try {
           const result = await getCarImage({
             carName: car.name,
@@ -40,12 +50,12 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           setLoading(false);
         }
       } else {
-        setImageUrl(primaryImage);
-        if (generateImage) setLoading(false);
+        setImageUrl(fallbackImage);
+        setLoading(false);
       }
     }
     generate();
-  }, [car, generateImage, fallbackImage, primaryImage]);
+  }, [car, shouldGenerateImage, hasUserImage, fallbackImage]);
 
   const availabilityStyles = {
     Available: 'bg-green-500/20 text-green-400 border-green-500/30',

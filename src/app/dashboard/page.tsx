@@ -42,7 +42,8 @@ const carFormSchema = z.object({
   transmission: z.enum(['Automatic', 'Manual']),
   description: z.string().min(1, 'Description is required'),
   availability: z.enum(['Available', 'Booked', 'Maintenance']),
-  images: z.any(),
+  features: z.string().optional(),
+  images: z.any().optional(),
 });
 
 type CarFormValues = z.infer<typeof carFormSchema>;
@@ -57,7 +58,7 @@ function ManageVehicleDialog({
     car?: Car, 
     trigger: React.ReactNode, 
     ownerId: string,
-    onSave: (car: Car) => void,
+    onSave: (car: Car, images: FileList | null) => void,
     onDelete?: (carId: string) => void,
 }) {
     const [open, setOpen] = React.useState(false);
@@ -76,13 +77,15 @@ function ManageVehicleDialog({
             transmission: car?.transmission || 'Automatic',
             description: car?.description || '',
             availability: car?.availability || 'Available',
-            images: [],
+            features: car?.features?.join(', ') || '',
+            images: null,
         }
     });
 
     const onSubmit = (data: CarFormValues) => {
-        const carToSave: Car = {
-            id: car?.id || `car-${Date.now()}`,
+        const featuresArray = data.features ? data.features.split(',').map(f => f.trim()) : [];
+        
+        const carData: Omit<Car, 'id' | 'images' | 'rentalCompany' | 'ownerId'> = {
             name: data.name,
             brand: data.brand,
             year: data.year,
@@ -93,12 +96,18 @@ function ManageVehicleDialog({
             transmission: data.transmission,
             description: data.description,
             availability: data.availability,
-            features: [],
-            images: [],
+            features: featuresArray,
+        };
+
+        const carToSave: Car = {
+            ...carData,
+            id: car?.id || `car-${Date.now()}`,
             rentalCompany: car?.rentalCompany || 'My Fleet',
             ownerId: ownerId,
+            images: car?.images || [], // Preserve old images if no new ones are uploaded
         };
-        onSave(carToSave);
+        
+        onSave(carToSave, data.images);
         setOpen(false);
     };
 
@@ -148,6 +157,11 @@ function ManageVehicleDialog({
                         <Label htmlFor="description">Description</Label>
                         <Textarea id="description" {...register('description')} />
                         {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
+                    </div>
+                    
+                    <div>
+                        <Label htmlFor="features">Features (comma-separated)</Label>
+                        <Input id="features" {...register('features')} placeholder="e.g., GPS, Bluetooth, Sunroof" />
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
@@ -216,6 +230,9 @@ function ManageVehicleDialog({
                     <div>
                         <Label htmlFor="images">Car Images</Label>
                         <Input id="images" type="file" multiple {...register('images')} />
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {isEditMode ? "Uploading new images will replace all existing ones." : "Select one or more images to upload."}
+                        </p>
                         {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message as string}</p>}
                     </div>
 
@@ -287,11 +304,42 @@ export default function DashboardPage() {
     }
   };
   
-  const handleSaveVehicle = (car: Car) => {
-    if (cars.find(c => c.id === car.id)) { // use `cars` from mock data to check existence
-        updateCar(car);
+  const handleSaveVehicle = (car: Car, imageFiles: FileList | null) => {
+    const updatedCar = { ...car };
+
+    if (imageFiles && imageFiles.length > 0) {
+        const imageUrls: string[] = [];
+        for (let i = 0; i < imageFiles.length; i++) {
+            const file = imageFiles[i];
+            
+            // =================================================================
+            // INTEGRATION POINT: UPLOAD TO BACKEND
+            // =================================================================
+            // In a real application, you would upload the `file` to your backend here.
+            //
+            // Example:
+            // const formData = new FormData();
+            // formData.append('image', file);
+            // const response = await fetch('/api/upload-image', {
+            //     method: 'POST',
+            //     body: formData,
+            // });
+            // const { url } = await response.json();
+            // imageUrls.push(url);
+            //
+            // For this mock implementation, we will use local object URLs.
+            // These are temporary and will only work for the current session.
+            const objectUrl = URL.createObjectURL(file);
+            imageUrls.push(objectUrl);
+        }
+        updatedCar.images = imageUrls;
+    }
+
+
+    if (cars.find(c => c.id === updatedCar.id)) { // use `cars` from mock data to check existence
+        updateCar(updatedCar);
     } else {
-        addCar(car);
+        addCar(updatedCar);
     }
   }
   
@@ -305,7 +353,7 @@ export default function DashboardPage() {
 
 
   return (
-    <DashboardLayout navItems={navItems}>
+    <DashboardLayout>
       <div className="flex justify-between items-center mb-8">
         <div>
             <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
@@ -428,5 +476,6 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
+    
 
     
