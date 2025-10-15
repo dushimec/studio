@@ -84,6 +84,15 @@ export default function Header() {
               </Link>
             ))}
           </nav>
+          
+          <div className="hidden md:flex items-center space-x-2">
+            <Button variant="ghost" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/signup">Sign Up</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </header>
