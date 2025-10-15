@@ -68,7 +68,9 @@ export function DashboardLayout({ children, navItems }: DashboardLayoutProps) {
           <div className="p-2 hidden md:block">
              <SidebarTrigger className="md:hidden" />
           </div>
-          {children}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            {children}
+          </div>
         </main>
       </div>
     </SidebarProvider>

@@ -287,8 +287,7 @@ export default function DashboardPage() {
   
   const navItems = user.role === 'admin'
     ? [
-        { href: '/admin', label: 'Overview', icon: 'grid_view' },
-        { href: '/dashboard', label: 'Fleet', icon: 'directions_car' },
+        { href: '/admin', label: 'Admin', icon: 'shield_person' },
       ]
     : [
         { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -297,7 +296,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout navItems={navItems}>
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="py-4 sm:py-6 lg:py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
               <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
