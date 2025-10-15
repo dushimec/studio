@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
-import { findCarById } from '@/lib/data';
+import { useMockData } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,7 @@ const getAvailabilityProps = (availability: Car['availability']) => {
 export default function CarDetailsPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { findCarById } = useMockData();
   const car = findCarById(id);
   const { user } = useAuth();
 

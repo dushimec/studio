@@ -1,3 +1,4 @@
+
 export type Car = {
   id: string;
   name: string;
@@ -31,3 +32,10 @@ export type Location = {
     position: [number, number];
     carIds: string[];
 };
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'user' | 'owner' | 'admin';
+}

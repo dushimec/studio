@@ -1,24 +1,89 @@
 
 'use client';
 
-import { useAuth, findUsers } from '@/context/auth-context';
-import { findCars, findBookings } from '@/lib/data';
-import type { Booking } from '@/lib/types';
+import { useAuth } from '@/context/auth-context';
+import { findCars, findBookings, useMockData } from '@/lib/data';
+import type { Booking, User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+function ManageUserDialog({ user: targetUser, onUpdate, onDelete }: { user: User, onUpdate: (user: User) => void, onDelete: (userId: string) => void }) {
+    const [role, setRole] = React.useState(targetUser.role);
+    const [open, setOpen] = React.useState(false);
+
+    const handleSave = () => {
+        onUpdate({ ...targetUser, role });
+        setOpen(false);
+    }
+    
+    const handleDelete = () => {
+        onDelete(targetUser.id);
+        setOpen(false);
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="sm">Manage</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Manage {targetUser.name}</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">Email</Label>
+                        <p id="email" className="col-span-3">{targetUser.email}</p>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="role" className="text-right">Role</Label>
+                        <Select value={role} onValueChange={(value) => setRole(value as User['role'])}>
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="user">User</SelectItem>
+                                <SelectItem value="owner">Owner</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <DialogFooter className="sm:justify-between">
+                    <Button type="button" variant="destructive" onClick={handleDelete}>Delete User</Button>
+                    <div className="flex gap-2">
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary">Cancel</Button>
+                        </DialogClose>
+                        <Button type="button" onClick={handleSave}>Save Changes</Button>
+                    </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
+  const { users, cars, bookings, updateUser, deleteUser } = useMockData();
   
-  const allUsers = useMemo(() => findUsers(), []);
-  const allCars = useMemo(() => findCars(), []);
-  const allBookings = useMemo(() => findBookings(), []);
-
   if (!user || user.role !== 'admin') {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -56,7 +121,7 @@ export default function AdminDashboardPage() {
             <span className="material-symbols-outlined text-muted-foreground">group</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{allUsers.length}</div>
+            <div className="text-2xl font-bold">{users.length}</div>
             <p className="text-xs text-muted-foreground">Registered users on the platform</p>
           </CardContent>
         </Card>
@@ -66,7 +131,7 @@ export default function AdminDashboardPage() {
             <span className="material-symbols-outlined text-muted-foreground">book_online</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{allBookings.length}</div>
+            <div className="text-2xl font-bold">{bookings.length}</div>
             <p className="text-xs text-muted-foreground">Across all vehicles</p>
           </CardContent>
         </Card>
@@ -76,7 +141,7 @@ export default function AdminDashboardPage() {
             <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{allCars.length}</div>
+            <div className="text-2xl font-bold">{cars.length}</div>
             <p className="text-xs text-muted-foreground">Available for rent</p>
           </CardContent>
         </Card>
@@ -97,7 +162,7 @@ export default function AdminDashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {allUsers.map(u => (
+                    {users.map(u => (
                       <TableRow key={u.id}>
                         <TableCell className="font-medium">{u.name}</TableCell>
                         <TableCell>{u.email}</TableCell>
@@ -105,7 +170,7 @@ export default function AdminDashboardPage() {
                           <Badge variant={u.role === 'admin' ? 'destructive' : 'outline'}>{u.role}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="outline" size="sm">Manage</Button>
+                          <ManageUserDialog user={u} onUpdate={updateUser} onDelete={deleteUser} />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -119,8 +184,8 @@ export default function AdminDashboardPage() {
             <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
             <Card>
                 <CardContent className="p-4 space-y-4">
-                    {allBookings.slice(0, 5).map(booking => {
-                        const car = allCars.find(c => c.id === booking.carId);
+                    {bookings.slice(0, 5).map(booking => {
+                        const car = cars.find(c => c.id === booking.carId);
                         return (
                             <div key={booking.id} className="flex items-center">
                                 <div className="flex-grow">
@@ -136,7 +201,7 @@ export default function AdminDashboardPage() {
                             </div>
                         )
                     })}
-                     {allBookings.length === 0 && (
+                     {bookings.length === 0 && (
                         <p className="text-sm text-muted-foreground text-center py-8">No bookings on the platform yet.</p>
                      )}
                 </CardContent>

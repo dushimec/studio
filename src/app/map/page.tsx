@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { findCars, findLocations } from '@/lib/data';
+import { useMockData } from '@/lib/data';
 import { CarCard } from '@/components/car-card';
 import dynamic from 'next/dynamic';
 import type { Location } from '@/lib/types';
@@ -26,8 +27,7 @@ function haversineDistance(coords1: [number, number], coords2: [number, number])
 }
 
 export default function MapPage() {
-  const cars = findCars();
-  const locations = findLocations();
+  const { cars, locations } = useMockData();
   const center: [number, number] = [-1.9441, 30.0619];
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearestLocation, setNearestLocation] = useState<Location | null>(null);
@@ -71,7 +71,7 @@ export default function MapPage() {
   const Map = useMemo(() => dynamic(() => import('@/components/map-component'), {
     loading: () => <div className="h-[600px] w-full bg-muted flex items-center justify-center"><span className="material-symbols-outlined text-5xl animate-spin text-primary">progress_activity</span></div>,
     ssr: false
-  }), [userLocation, nearestLocation]);
+  }), []);
 
 
   return (

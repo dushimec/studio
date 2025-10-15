@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { findCars } from '@/lib/data';
+import { useMockData } from '@/lib/data';
 import type { Car } from '@/lib/types';
 import { CarCard } from '@/components/car-card';
 import {
@@ -15,10 +15,9 @@ import {
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
 
 export default function BrowsePage() {
-  const allCars = useMemo(() => findCars(), []);
+  const { cars: allCars } = useMockData();
   const searchParams = useSearchParams();
   const [filteredCars, setFilteredCars] = useState<Car[]>(allCars);
 

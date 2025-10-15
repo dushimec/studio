@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { findBookings, findCarById } from '@/lib/data';
+import { useMockData } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -13,7 +14,7 @@ import { useAuth } from '@/context/auth-context';
 
 export default function BookingsPage() {
   const { user } = useAuth();
-  const bookings = findBookings();
+  const { bookings, findCarById } = useMockData();
 
   const getBadgeVariant = (status: string): "default" | "secondary" | "outline" | "destructive" => {
     switch (status) {
@@ -41,6 +42,9 @@ export default function BookingsPage() {
       </div>
     );
   }
+  
+  // NOTE: In a real app, you'd fetch bookings for the specific logged-in user.
+  // Here we just show all mock bookings.
 
   return (
     <div className="container mx-auto px-4 py-12">

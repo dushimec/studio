@@ -1,40 +1,32 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import type { User } from '@/lib/types';
+import { useMockData } from '@/lib/data';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'owner' | 'admin';
-}
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string) => Promise<User>;
   logout: () => void;
+  users: User[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users data
-const mockUsers: User[] = [
-    { id: 'user-dushime', name: 'Dushime', email: 'dushime@gmail.com', role: 'user' },
-    { id: 'owner-dush', name: 'Dush', email: 'dush@gmail.com', role: 'owner' },
-    { id: 'admin-admin', name: 'Admin', email: 'admin@gmail.com', role: 'admin' },
-];
-
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const { users } = useMockData();
 
   const login = async (email: string, pass: string): Promise<User> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            const foundUser = mockUsers.find(u => u.email === email);
+            const foundUser = users.find(u => u.email === email);
+            // In a real app, you'd hash and compare the password. Here we use a plain one.
             if (foundUser && pass === '123456') {
                 setUser(foundUser);
                 resolve(foundUser);
@@ -51,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, users }}>
       {children}
     </AuthContext.Provider>
   );
@@ -63,8 +55,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-export function findUsers() {
-    return mockUsers;
 }

@@ -1,12 +1,15 @@
 
+'use client';
+
 import { HeroSearchForm } from '@/components/hero-search-form';
-import { findCars } from '@/lib/data';
+import { useMockData } from '@/lib/data';
 import { CarCard } from '@/components/car-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function Home() {
-  const featuredCars = findCars().slice(0, 3);
+  const { cars } = useMockData();
+  const featuredCars = cars.slice(0, 3);
 
   return (
     <div className="flex flex-col">

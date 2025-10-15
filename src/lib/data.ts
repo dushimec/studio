@@ -1,9 +1,9 @@
 
-import type { Car, Booking, Location } from './types';
+'use client';
+import type { Car, Booking, Location, User } from './types';
+import { useState, useCallback } from 'react';
 
-// Approximate conversion rate: 1 USD = 1300 RWF
-
-export const cars: Car[] = [
+const initialCars: Car[] = [
   {
     id: '1',
     name: 'Stark SUV 2024',
@@ -19,7 +19,7 @@ export const cars: Car[] = [
     description: 'Experience the perfect blend of luxury and performance with the Stark SUV. Ideal for family trips or navigating city streets in style.',
     rentalCompany: 'Apex Rentals',
     availability: 'Available',
-    ownerId: 'admin-admin',
+    ownerId: 'admin@gmail.com',
   },
   {
     id: '2',
@@ -36,7 +36,7 @@ export const cars: Car[] = [
     description: 'The Orion Sedan offers a smooth, efficient ride with modern amenities. Perfect for business trips or a comfortable commute.',
     rentalCompany: 'Starlight Drives',
     availability: 'Booked',
-    ownerId: 'owner-dush',
+    ownerId: 'dush@gmail.com',
   },
   {
     id: '3',
@@ -53,7 +53,7 @@ export const cars: Car[] = [
     description: 'A zippy and economical choice for city driving. The Pulsar Hatchback is easy to park and fun to drive.',
     rentalCompany: 'City Wheels',
     availability: 'Available',
-    ownerId: 'owner-dush',
+    ownerId: 'dush@gmail.com',
   },
   {
     id: '4',
@@ -70,7 +70,7 @@ export const cars: Car[] = [
     description: 'Feel the wind in your hair with the Comet Convertible. The ultimate car for a scenic coastal drive or a weekend getaway.',
     rentalCompany: 'Apex Rentals',
     availability: 'Maintenance',
-    ownerId: 'admin-admin',
+    ownerId: 'admin@gmail.com',
   },
   {
     id: '5',
@@ -87,7 +87,7 @@ export const cars: Car[] = [
     description: 'For heavy-duty needs or off-road adventures, the Titan Truck delivers power and reliability.',
     rentalCompany: 'Rugged Rides',
     availability: 'Available',
-    ownerId: 'owner-dush',
+    ownerId: 'dush@gmail.com',
   },
   {
     id: '6',
@@ -104,11 +104,11 @@ export const cars: Car[] = [
     description: 'The spacious Galaxy SUV is perfect for large families or groups, offering comfort and versatility for any journey.',
     rentalCompany: 'Starlight Drives',
     availability: 'Available',
-    ownerId: 'admin-admin',
+    ownerId: 'admin@gmail.com',
   },
 ];
 
-export const bookings: Booking[] = [
+const initialBookings: Booking[] = [
   {
     id: 'booking1',
     carId: '2',
@@ -143,28 +143,79 @@ export const bookings: Booking[] = [
   },
 ];
 
-export const locations: Location[] = [
+const initialLocations: Location[] = [
   { id: '1', name: 'Kigali International Airport', position: [-1.9639, 30.1344], carIds: ['1', '2'] },
   { id: '2', name: 'Kigali City Center', position: [-1.9441, 30.0619], carIds: ['3', '4'] },
   { id: '3', name: 'Gisenyi/Rubavu', position: [-1.7000, 29.2500], carIds: ['5'] },
   { id: '4', name: 'Butare/Huye', position: [-2.6000, 29.7400], carIds: ['6'] },
 ];
 
-export function findCarById(id: string): Car | undefined {
-  return cars.find(car => car.id === id);
-}
 
-export function findBookings(): Booking[] {
-  return bookings;
-}
+const initialUsers: User[] = [
+    { id: 'user-dushime', name: 'Dushime', email: 'dushime@gmail.com', role: 'user' },
+    { id: 'owner-dush', name: 'Dush', email: 'dush@gmail.com', role: 'owner' },
+    { id: 'admin-admin', name: 'Admin', email: 'admin@gmail.com', role: 'admin' },
+];
 
-export function findCars(filters?: { ownerId?: string }): Car[] {
-  if (filters?.ownerId) {
-    return cars.filter(car => car.ownerId === filters.ownerId);
-  }
-  return cars;
-}
+let cars: Car[] = [...initialCars];
+let bookings: Booking[] = [...initialBookings];
+let locations: Location[] = [...initialLocations];
+let users: User[] = [...initialUsers];
 
-export function findLocations(): Location[] {
-  return locations;
+// This hook provides a reactive state for the mock data and functions to manipulate it.
+export function useMockData() {
+    const [data, setData] = useState({ cars, bookings, locations, users });
+
+    const forceUpdate = () => setData({
+      cars: [...cars],
+      bookings: [...bookings],
+      locations: [...locations],
+      users: [...users]
+    });
+
+    const updateUser = useCallback((updatedUser: User) => {
+        users = users.map(u => u.id === updatedUser.id ? updatedUser : u);
+        forceUpdate();
+    }, []);
+
+    const deleteUser = useCallback((userId: string) => {
+        users = users.filter(u => u.id !== userId);
+        forceUpdate();
+    }, []);
+
+    const addCar = useCallback((newCar: Car) => {
+        cars.push(newCar);
+        forceUpdate();
+    }, []);
+
+    const updateCar = useCallback((updatedCar: Car) => {
+        cars = cars.map(c => c.id === updatedCar.id ? updatedCar : c);
+        forceUpdate();
+    }, []);
+    
+    const deleteCar = useCallback((carId: string) => {
+        cars = cars.filter(c => c.id !== carId);
+        // Also remove from locations
+        locations.forEach(loc => {
+            loc.carIds = loc.carIds.filter(id => id !== carId);
+        });
+        forceUpdate();
+    }, []);
+    
+    const findCarById = useCallback((id: string): Car | undefined => {
+      return data.cars.find(car => car.id === id);
+    }, [data.cars]);
+
+    return {
+        cars: data.cars,
+        bookings: data.bookings,
+        locations: data.locations,
+        users: data.users,
+        updateUser,
+        deleteUser,
+        addCar,
+        updateCar,
+        deleteCar,
+        findCarById,
+    };
 }
