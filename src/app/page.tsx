@@ -4,7 +4,7 @@ import { findCars } from '@/lib/data';
 import { CarCard } from '@/components/car-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Search, Calendar, Car } from 'lucide-react';
+import { Search, Calendar, Car, ThumbsUp, ShieldCheck, Clock } from 'lucide-react';
 
 export default function Home() {
   const featuredCars = findCars().slice(0, 3);
@@ -23,10 +23,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white">
           <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 animate-fade-in-up">
-            Your Journey, Your Car.
+            Rent a Car in Rwanda
           </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mb-8 animate-fade-in-up animation-delay-300">
-            Rent the perfect car for your next adventure. Best prices, unlimited mileage, and easy booking.
+          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mb-8 animate-fade-in-up animation-delay-300">
+            To simplify transportation access in Rwanda by providing a trustworthy online platform where customers can easily find cars for rent and owners can reach more clients.
           </p>
           <div className="w-full max-w-4xl animate-fade-in-up animation-delay-600">
             <HeroSearchForm />
@@ -42,22 +42,22 @@ export default function Home() {
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 border-2 border-primary mb-4">
                    <Search className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Find Your Car</h3>
-                <p className="text-muted-foreground">Browse our wide selection of cars and choose the one that fits your needs.</p>
+                <h3 className="text-xl font-semibold mb-2">1. Find Your Car</h3>
+                <p className="text-muted-foreground">Visit the website, search for a car, and check if it’s available for your desired dates.</p>
               </div>
               <div className="flex flex-col items-center">
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 border-2 border-primary mb-4">
                   <Calendar className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Book with Ease</h3>
-                <p className="text-muted-foreground">Select your dates and book your car in just a few clicks.</p>
+                <h3 className="text-xl font-semibold mb-2">2. Book with Ease</h3>
+                <p className="text-muted-foreground">Send a booking request. The car owner or admin will review and approve it.</p>
               </div>
               <div className="flex flex-col items-center">
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 border-2 border-primary mb-4">
                   <Car className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Enjoy Your Ride</h3>
-                <p className="text-muted-foreground">Pick up your car and start your journey. It's that simple.</p>
+                <h3 className="text-xl font-semibold mb-2">3. Enjoy Your Ride</h3>
+                <p className="text-muted-foreground">Once approved, pick up the car at the agreed location and start your journey.</p>
               </div>
            </div>
         </div>
@@ -79,6 +79,35 @@ export default function Home() {
               <Link href="/browse">Browse All Cars</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container mx-auto px-4">
+           <h2 className="text-3xl font-bold text-center mb-12">Why Choose Us?</h2>
+           <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
+                   <ThumbsUp className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Simple Booking</h3>
+                <p className="text-muted-foreground">Our booking process is fast, straightforward, and can be completed in just a few clicks.</p>
+              </div>
+              <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
+                  <ShieldCheck className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Verified Owners</h3>
+                <p className="text-muted-foreground">We partner with reliable and verified car owners to ensure your safety and satisfaction.</p>
+              </div>
+              <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
+                  <Clock className="w-10 h-10 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Clear Availability</h3>
+                <p className="text-muted-foreground">See which cars are available in real-time, so you can plan your trip without any guesswork.</p>
+              </div>
+           </div>
         </div>
       </section>
     </div>
