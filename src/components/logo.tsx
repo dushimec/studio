@@ -10,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
       data-test-id="logo"
     >
       <Car className="h-7 w-7 text-primary"/>
-      Auto<span className="text-primary">Nomad</span>
+      Dush<span className="text-primary">Rent</span>
     </Link>
   );
 }

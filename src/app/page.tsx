@@ -4,7 +4,7 @@ import { findCars } from '@/lib/data';
 import { CarCard } from '@/components/car-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Search, Calendar, Car, ThumbsUp, ShieldCheck, Clock } from 'lucide-react';
+import { Search, Calendar, Car, ThumbsUp, ShieldCheck, Clock, Goal, Eye } from 'lucide-react';
 
 export default function Home() {
   const featuredCars = findCars().slice(0, 3);
@@ -23,10 +23,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white">
           <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 animate-fade-in-up">
-            Rent a Car in Rwanda
+            DushRent – Your Journey, Your Car
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mb-8 animate-fade-in-up animation-delay-300">
-            To simplify transportation access in Rwanda by providing a trustworthy online platform where customers can easily find cars for rent and owners can reach more clients.
+            DushRent is an online platform that allows people in Rwanda to easily rent cars for travel, business, or tourism. We connect car owners directly with customers, making car rental simple, safe, and reliable.
           </p>
           <div className="w-full max-w-4xl animate-fade-in-up animation-delay-600">
             <HeroSearchForm />
@@ -81,8 +81,30 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      
       <section className="py-16 md:py-24 bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-12">About Us</h2>
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
+                 <Goal className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-2">Our Mission</h3>
+              <p className="text-muted-foreground">To simplify transportation access in Rwanda by providing a trustworthy online platform where customers can easily find cars for rent and owners can reach more clients.</p>
+            </div>
+            <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
+                <Eye className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-2">Our Vision</h3>
+              <p className="text-muted-foreground">To become Rwanda’s leading and most trusted digital car rental service — making car rentals accessible to anyone, anywhere, anytime.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-24 bg-secondary/5">
         <div className="container mx-auto px-4">
            <h2 className="text-3xl font-bold text-center mb-12">Why Choose Us?</h2>
            <div className="grid md:grid-cols-3 gap-8 text-center">
