@@ -1,16 +1,23 @@
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export function Logo({ className }: { className?: string }) {
   return (
     <Link 
       href="/" 
-      className={cn("flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground font-headline", className)}
+      className={cn("flex items-center gap-2", className)}
       data-test-id="logo"
     >
-      <span className="material-symbols-outlined text-3xl text-primary">directions_car</span>
-      We<span className="text-primary">Go</span>
+      <Image 
+        src="https://res.cloudinary.com/drwi9cpdi/image/upload/v1760517967/weGo_mcux3i.jpg" 
+        alt="We Go Logo" 
+        width={100} 
+        height={40}
+        priority
+        className="h-10 w-auto"
+      />
     </Link>
   );
 }
