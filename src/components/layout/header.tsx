@@ -39,9 +39,9 @@ export default function Header() {
 
       switch (user.role) {
           case 'admin':
-              return [];
+              return [{ href: '/admin', label: 'Admin' }];
           case 'owner':
-              return [];
+              return [{ href: '/dashboard', label: 'Dashboard' }];
           case 'user':
               return [
                 ...baseNavLinks,
@@ -53,7 +53,6 @@ export default function Header() {
   }
 
   const navLinks = getNavLinks();
-  const showNav = navLinks.length > 0;
   
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -65,13 +64,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="mr-4 hidden md:flex">
+        <div className="mr-4 flex">
           <Logo />
         </div>
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          {showNav && (
-             <div className="md:hidden">
+            <div className="md:hidden">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -106,13 +104,11 @@ export default function Header() {
                 </SheetContent>
               </Sheet>
             </div>
-          )}
           
           <div className="w-full flex-1 md:w-auto md:flex-none">
             {/* Can add a search bar here later if needed */}
           </div>
           
-          {showNav && (
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               {navLinks.map((link) => (
                 <Link
@@ -127,7 +123,6 @@ export default function Header() {
                 </Link>
               ))}
             </nav>
-          )}
           
           <div className="flex items-center space-x-2">
             {user ? (
