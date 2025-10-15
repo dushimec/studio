@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Logo } from '@/components/logo';
 import { useAuth } from '@/context/auth-context';
 
-const navLinks = [
+const baseNavLinks = [
   { href: '/browse', label: 'Browse Cars' },
   { href: '/recommendations', label: 'Smart Recommendations' },
   { href: '/map', label: 'Map' },
@@ -23,18 +23,27 @@ export default function Header() {
   const { user, logout } = useAuth();
 
   const getNavLinks = () => {
-      const links = [...navLinks];
-      if (user) {
-          links.push({ href: '/booking', label: 'My Bookings' });
-          if (user.role === 'owner' || user.role === 'admin') {
-            links.push({ href: '/dashboard', label: 'Dashboard' });
-          }
-          if (user.role === 'admin') {
-              links.push({ href: '/admin', label: 'Admin' });
-          }
+      if (!user) {
+          return baseNavLinks;
       }
-      return links;
+
+      let roleLinks = [];
+      switch (user.role) {
+          case 'admin':
+              roleLinks.push({ href: '/admin', label: 'Admin' });
+              roleLinks.push({ href: '/dashboard', label: 'Dashboard' });
+              break;
+          case 'owner':
+              roleLinks.push({ href: '/dashboard', label: 'Dashboard' });
+              break;
+          case 'user':
+              roleLinks.push({ href: '/booking', label: 'My Bookings' });
+              break;
+      }
+      return [...baseNavLinks, ...roleLinks];
   }
+
+  const navLinks = getNavLinks();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -60,7 +69,7 @@ export default function Header() {
                 <div className="space-y-4 py-4">
                   <div className="px-3 py-2">
                     <div className="space-y-1">
-                      {getNavLinks().map((link) => (
+                      {navLinks.map((link) => (
                         <Link
                           key={link.href}
                           href={link.href}
@@ -85,7 +94,7 @@ export default function Header() {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {getNavLinks().map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
