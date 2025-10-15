@@ -20,8 +20,9 @@ export type Car = {
 export type Booking = {
   id: string;
   carId: string;
-  startDate: Date;
-  endDate: Date;
+  userId: string;
+  startDate: string;
+  endDate: string;
   totalPrice: number;
   status: 'Upcoming' | 'Active' | 'Completed' | 'Cancelled';
 };
@@ -39,6 +40,3 @@ export interface User {
   email: string;
   role: 'user' | 'owner' | 'admin';
 }
-
-    
-    

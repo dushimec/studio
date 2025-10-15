@@ -3,14 +3,12 @@
 
 import Image from 'next/image';
 import { notFound, useParams, useRouter } from 'next/navigation';
-import { useMockData } from '@/lib/data';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { Car, Booking } from '@/lib/types';
-import { useAuth } from '@/context/auth-context';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { DateRange } from 'react-day-picker';
@@ -19,6 +17,10 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { doc, collection } from 'firebase/firestore';
+import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const getAvailabilityProps = (availability: Car['availability']) => {
     switch (availability) {
@@ -36,50 +38,68 @@ const getAvailabilityProps = (availability: Car['availability']) => {
 export default function CarDetailsPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { findCarById, addBooking, updateCar } = useMockData();
-  const car = findCarById(id);
-  const { user } = useAuth();
+  const firestore = useFirestore();
+  const carRef = useMemoFirebase(() => doc(firestore, 'cars', id), [firestore, id]);
+  const { data: car, isLoading: isCarLoading } = useDoc<Car>(carRef);
+  const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
 
   const [date, setDate] = useState<DateRange | undefined>();
   const [isBooking, setIsBooking] = useState(false);
-
-  if (!car) {
+  
+  if (!isCarLoading && !car) {
     notFound();
   }
   
   const numberOfDays = date?.from && date?.to ? differenceInCalendarDays(date.to, date.from) + 1 : 0;
-  const totalPrice = numberOfDays * car.pricePerDay;
+  const totalPrice = numberOfDays * (car?.pricePerDay || 0);
 
   const handleBooking = () => {
     if (!user || !date?.from || !date?.to || !car) return;
     
     setIsBooking(true);
 
-    const newBooking: Booking = {
-      id: `booking-${Date.now()}`,
+    const newBooking: Omit<Booking, 'id'> = {
       carId: car.id,
-      startDate: date.from,
-      endDate: date.to,
+      userId: user.uid,
+      startDate: date.from.toISOString(),
+      endDate: date.to.toISOString(),
       totalPrice,
       status: 'Upcoming',
     };
     
-    // Simulate API call
-    setTimeout(() => {
-        addBooking(newBooking);
-        updateCar({ ...car, availability: 'Booked' });
+    const bookingsRef = collection(firestore, 'users', user.uid, 'bookings');
+    addDocumentNonBlocking(bookingsRef, newBooking)
+        .then(() => {
+            const carDocRef = doc(firestore, 'cars', car.id);
+            setDocumentNonBlocking(carDocRef, { availability: 'Booked' }, { merge: true });
 
-        toast({
-            title: "Booking Successful!",
-            description: `Your booking for the ${car.name} has been confirmed.`,
+            toast({
+                title: "Booking Successful!",
+                description: `Your booking for the ${car.name} has been confirmed.`,
+            });
+            router.push('/booking');
+        })
+        .catch((e) => {
+             toast({
+                variant: "destructive",
+                title: "Booking Failed",
+                description: e.message || "Could not save your booking.",
+            });
+        })
+        .finally(() => {
+            setIsBooking(false);
         });
-
-        router.push('/booking');
-        setIsBooking(false);
-    }, 1500);
   };
+
+  if (isCarLoading) {
+    return <CarDetailsSkeleton />;
+  }
+
+  if (!car) {
+    notFound();
+  }
 
   const carImages = car.images;
   const availability = getAvailabilityProps(car.availability);
@@ -271,4 +291,49 @@ export default function CarDetailsPage() {
       </div>
     </div>
   );
+}
+
+
+function CarDetailsSkeleton() {
+    return (
+        <div className="container mx-auto px-4 py-12">
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+                <div>
+                    <Skeleton className="w-full aspect-[4/3] rounded-lg" />
+                </div>
+                <div>
+                    <Skeleton className="h-12 w-3/4 mb-2" />
+                    <Skeleton className="h-8 w-1/2 mb-4" />
+                    <Skeleton className="h-6 w-1/4 mb-4" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                    </div>
+                    <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        {Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-24" />)}
+                    </div>
+                    <Skeleton className="h-64 w-full" />
+                </div>
+            </div>
+             <div className="mt-16 grid md:grid-cols-2 gap-8 lg:gap-12">
+                <div>
+                    <Skeleton className="h-8 w-1/3 mb-4" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-6 w-full" />
+                    </div>
+                </div>
+                 <div>
+                    <Skeleton className="h-8 w-1/3 mb-4" />
+                     <div className="space-y-2">
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                    </div>
+                 </div>
+            </div>
+        </div>
+    );
 }

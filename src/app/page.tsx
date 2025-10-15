@@ -2,14 +2,18 @@
 'use client';
 
 import { HeroSearchForm } from '@/components/hero-search-form';
-import { useMockData } from '@/lib/data';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { CarCard } from '@/components/car-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { collection } from 'firebase/firestore';
+import type { Car } from '@/lib/types';
 
 export default function Home() {
-  const { cars } = useMockData();
-  const featuredCars = cars.slice(0, 3);
+  const firestore = useFirestore();
+  const carsQuery = useMemoFirebase(() => collection(firestore, 'cars'), [firestore]);
+  const { data: cars, isLoading } = useCollection<Car>(carsQuery);
+  const featuredCars = cars?.slice(0, 3) || [];
 
   return (
     <div className="flex flex-col">
@@ -72,9 +76,13 @@ export default function Home() {
             <p className="text-muted-foreground mt-2">Check out our most popular cars.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCars.map((car) => (
-              <CarCard key={car.id} car={car} generateImage={true} />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => <CarCard key={i} car={null} />)
+            ) : (
+              featuredCars.map((car) => (
+                <CarCard key={car.id} car={car} generateImage={true} />
+              ))
+            )}
           </div>
           <div className="text-center mt-12">
             <Button asChild size="lg">

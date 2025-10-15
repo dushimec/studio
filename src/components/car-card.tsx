@@ -13,7 +13,7 @@ import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 
 type CarCardProps = {
-  car: CarType;
+  car: CarType | null;
   generateImage?: boolean;
 };
 
@@ -22,14 +22,17 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
   const [loading, setLoading] = useState(true);
   const fallbackImage = 'https://picsum.photos/seed/car-placeholder/800/600';
   
-  // If the car has user-uploaded images (even temporary blob URLs), use them.
-  // Otherwise, decide whether to generate one with AI.
-  const hasUserImage = car.images && car.images.length > 0;
-  const shouldGenerateImage = generateImage && !hasUserImage;
-
+  const hasUserImage = car && car.images && car.images.length > 0;
+  const shouldGenerateImage = generateImage && !hasUserImage && car;
 
   useEffect(() => {
     async function generate() {
+      if (!car) {
+          setLoading(true);
+          return;
+      }
+      setLoading(true);
+
       if (hasUserImage) {
         setImageUrl(car.images[0]);
         setLoading(false);
@@ -56,6 +59,29 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
     }
     generate();
   }, [car, shouldGenerateImage, hasUserImage, fallbackImage]);
+
+  if (!car) {
+      return (
+          <Card className="flex flex-col overflow-hidden transition-all duration-300 shadow-lg">
+              <CardHeader className="p-0">
+                  <Skeleton className="h-56 w-full" />
+              </CardHeader>
+              <CardContent className="flex-grow p-4">
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2 mb-3" />
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                      <Skeleton className="h-5 w-full" />
+                  </div>
+              </CardContent>
+              <CardFooter className="p-4 flex items-center justify-between bg-secondary/30">
+                  <Skeleton className="h-8 w-24" />
+                  <Skeleton className="h-10 w-24" />
+              </CardFooter>
+          </Card>
+      )
+  }
 
   const availabilityStyles = {
     Available: 'bg-green-500/20 text-green-400 border-green-500/30',
@@ -132,5 +158,3 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
     </Card>
   );
 }
-
-    

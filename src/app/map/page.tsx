@@ -5,10 +5,11 @@ import { useState, useMemo } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useMockData } from '@/lib/data';
 import { CarCard } from '@/components/car-card';
 import dynamic from 'next/dynamic';
-import type { Location } from '@/lib/types';
+import type { Location, Car } from '@/lib/types';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 
 function haversineDistance(coords1: [number, number], coords2: [number, number]): number {
@@ -27,7 +28,12 @@ function haversineDistance(coords1: [number, number], coords2: [number, number])
 }
 
 export default function MapPage() {
-  const { cars, locations } = useMockData();
+  const firestore = useFirestore();
+  const carsQuery = useMemoFirebase(() => collection(firestore, 'cars'), [firestore]);
+  const { data: cars, isLoading: carsLoading } = useCollection<Car>(carsQuery);
+  const locationsQuery = useMemoFirebase(() => collection(firestore, 'locations'), [firestore]);
+  const { data: locations, isLoading: locationsLoading } = useCollection<Location>(locationsQuery);
+
   const center: [number, number] = [-1.9441, 30.0619];
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearestLocation, setNearestLocation] = useState<Location | null>(null);
@@ -41,6 +47,11 @@ export default function MapPage() {
         (position) => {
           const userPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(userPos);
+
+          if (!locations) {
+            setIsLoading(false);
+            return;
+          }
 
           let closestLocation: Location | null = null;
           let minDistance = Infinity;
@@ -73,14 +84,19 @@ export default function MapPage() {
     ssr: false
   }), []);
 
+  const carsForNearestLocation = useMemo(() => {
+    if (!nearestLocation || !cars) return [];
+    return cars.filter(car => nearestLocation.carIds.includes(car.id));
+  }, [nearestLocation, cars])
+
 
   return (
     <div className="container mx-auto px-4 py-12">
        <div className="mb-8 text-center">
         <h1 className="text-4xl font-headline font-bold mb-2">Car Rental Map of Rwanda</h1>
         <p className="text-lg text-muted-foreground">Find our locations across the country.</p>
-        <Button onClick={handleFindNearest} disabled={isLoading} className="mt-4">
-          {isLoading ? (
+        <Button onClick={handleFindNearest} disabled={isLoading || locationsLoading} className="mt-4">
+          {isLoading || locationsLoading ? (
             <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>
           ) : (
             <span className="material-symbols-outlined mr-2 h-4 w-4">my_location</span>
@@ -91,8 +107,8 @@ export default function MapPage() {
       <Card className="overflow-hidden">
         <Map
             center={center}
-            cars={cars}
-            locations={locations}
+            cars={cars || []}
+            locations={locations || []}
             userLocation={userLocation}
             nearestLocation={nearestLocation}
           />
@@ -104,13 +120,13 @@ export default function MapPage() {
               <p className="text-muted-foreground">These cars are available near you.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {nearestLocation.carIds.map(carId => {
-                    const car = cars.find(c => c.id === carId);
-                    if (!car) return null;
-                    return (
-                        <CarCard key={car.id} car={car} />
-                    )
-                })}
+                {carsLoading ? (
+                  Array.from({length: nearestLocation.carIds.length}).map((_, i) => <CarCard key={i} car={null} />)
+                ) : carsForNearestLocation.length > 0 ? (
+                  carsForNearestLocation.map(car => <CarCard key={car.id} car={car} />)
+                ) : (
+                  <p>No cars available at this location.</p>
+                )}
             </div>
         </div>
       )}

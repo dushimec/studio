@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useAuth } from '@/context/auth-context';
-import { useMockData } from '@/lib/data';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import type { Car, Booking } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -16,7 +15,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogClose,
   DialogDescription,
@@ -29,6 +27,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DashboardLayout } from '@/components/dashboard-layout';
+import { collection, doc, query, where } from 'firebase/firestore';
+import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
 const carFormSchema = z.object({
@@ -52,15 +52,12 @@ function ManageVehicleDialog({
     car, 
     trigger,
     ownerId,
-    onSave,
-    onDelete,
 } : { 
     car?: Car, 
     trigger: React.ReactNode, 
     ownerId: string,
-    onSave: (car: Car, images: FileList | null) => void,
-    onDelete?: (carId: string) => void,
 }) {
+    const firestore = useFirestore();
     const [open, setOpen] = React.useState(false);
     const isEditMode = !!car;
 
@@ -85,7 +82,7 @@ function ManageVehicleDialog({
     const onSubmit = (data: CarFormValues) => {
         const featuresArray = data.features ? data.features.split(',').map(f => f.trim()) : [];
         
-        const carData: Omit<Car, 'id' | 'images' | 'rentalCompany' | 'ownerId'> = {
+        const carData: Omit<Car, 'id' | 'images' | 'rentalCompany'> = {
             name: data.name,
             brand: data.brand,
             year: data.year,
@@ -97,23 +94,36 @@ function ManageVehicleDialog({
             description: data.description,
             availability: data.availability,
             features: featuresArray,
+            ownerId: ownerId,
         };
 
-        const carToSave: Car = {
+        const carToSave: Omit<Car, 'id' | 'images'> = {
             ...carData,
-            id: car?.id || `car-${Date.now()}`,
             rentalCompany: car?.rentalCompany || 'My Fleet',
-            ownerId: ownerId,
-            images: car?.images || [], // Preserve old images if no new ones are uploaded
         };
+
+        const imageFiles = data.images as FileList | null;
+        let imageUrls: string[] = car?.images || [];
+
+        if (imageFiles && imageFiles.length > 0) {
+            imageUrls = Array.from(imageFiles).map(file => URL.createObjectURL(file));
+             // In a real app, you'd upload to a service like Cloudinary here
+        }
         
-        onSave(carToSave, data.images);
+        const finalCar = { ...carToSave, images: imageUrls };
+
+        if (isEditMode && car) {
+            setDocumentNonBlocking(doc(firestore, 'cars', car.id), finalCar, { merge: true });
+        } else {
+            addDocumentNonBlocking(collection(firestore, 'cars'), finalCar);
+        }
+        
         setOpen(false);
     };
 
     const handleDelete = () => {
-        if (car && onDelete) {
-            onDelete(car.id);
+        if (car) {
+            deleteDocumentNonBlocking(doc(firestore, 'cars', car.id));
             setOpen(false);
         }
     }
@@ -253,37 +263,39 @@ function ManageVehicleDialog({
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const { cars, bookings, updateCar, addCar, deleteCar } = useMockData();
-  
-  const ownerCars = useMemo(() => {
-    if (!user || (user.role !== 'owner' && user.role !== 'admin')) return [];
-    // Admins can see all cars, owners see only their own
-    if (user.role === 'admin') return cars;
-    return cars.filter(car => car.ownerId === user.id);
-  }, [user, cars]);
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  const ownerBookings = useMemo(() => {
-    if (!ownerCars.length) return [];
+  const carsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(collection(firestore, 'cars'), where('ownerId', '==', user.uid));
+  }, [user, firestore]);
+  const { data: ownerCars, isLoading: carsLoading } = useCollection<Car>(carsQuery);
+
+  const bookingsQuery = useMemoFirebase(() => {
+    if (!ownerCars || ownerCars.length === 0) return null;
     const ownerCarIds = ownerCars.map(c => c.id);
-    return bookings.filter(b => ownerCarIds.includes(b.carId));
-  }, [ownerCars, bookings]);
-
+    return query(collection(firestore, 'bookings'), where('carId', 'in', ownerCarIds));
+  }, [ownerCars, firestore]);
+  const { data: ownerBookings, isLoading: bookingsLoading } = useCollection<Booking>(bookingsQuery);
 
   const totalEarnings = useMemo(() => {
+    if (!ownerBookings) return 0;
     return ownerBookings.filter(b => b.status === 'Completed').reduce((sum, b) => sum + b.totalPrice, 0);
   }, [ownerBookings]);
 
   const activeBookings = useMemo(() => {
+    if (!ownerBookings) return 0;
     return ownerBookings.filter(b => b.status === 'Active' || b.status === 'Upcoming').length;
   }, [ownerBookings]);
 
+  const userProfile = { name: user?.displayName || 'Owner', role: 'owner' };
 
-  if (!user || (user.role !== 'owner' && user.role !== 'admin')) {
+  if (!user) { // Simplified check for loading/logged out state
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">You must be an owner or admin to view this page.</p>
+        <p className="text-muted-foreground mb-6">You must be logged in as an owner to view this page.</p>
         <Button asChild>
           <Link href="/login">Login</Link>
         </Button>
@@ -304,46 +316,7 @@ export default function DashboardPage() {
     }
   };
   
-  const handleSaveVehicle = (car: Car, imageFiles: FileList | null) => {
-    const updatedCar = { ...car };
-
-    if (imageFiles && imageFiles.length > 0) {
-        const imageUrls: string[] = [];
-        for (let i = 0; i < imageFiles.length; i++) {
-            const file = imageFiles[i];
-            
-            // =================================================================
-            // INTEGRATION POINT: UPLOAD TO BACKEND
-            // =================================================================
-            // In a real application, you would upload the `file` to your backend here.
-            //
-            // Example:
-            // const formData = new FormData();
-            // formData.append('image', file);
-            // const response = await fetch('/api/upload-image', {
-            //     method: 'POST',
-            //     body: formData,
-            // });
-            // const { url } = await response.json();
-            // imageUrls.push(url);
-            //
-            // For this mock implementation, we will use local object URLs.
-            // These are temporary and will only work for the current session.
-            const objectUrl = URL.createObjectURL(file);
-            imageUrls.push(objectUrl);
-        }
-        updatedCar.images = imageUrls;
-    }
-
-
-    if (cars.find(c => c.id === updatedCar.id)) { // use `cars` from mock data to check existence
-        updateCar(updatedCar);
-    } else {
-        addCar(updatedCar);
-    }
-  }
-  
-  const navItems = user.role === 'admin'
+  const navItems = userProfile.role === 'admin'
     ? [
         { href: '/admin', label: 'Admin', icon: 'shield_person' },
       ]
@@ -353,16 +326,15 @@ export default function DashboardPage() {
 
 
   return (
-    <DashboardLayout>
+    <DashboardLayout navItems={navItems}>
       <div className="flex justify-between items-center mb-8">
         <div>
             <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
-            <p className="text-lg text-muted-foreground">Welcome back, {user.name}. Here's an overview of your fleet.</p>
+            <p className="text-lg text-muted-foreground">Welcome back, {user.displayName}. Here's an overview of your fleet.</p>
         </div>
          <ManageVehicleDialog
             trigger={<Button>Add Vehicle</Button>}
-            ownerId={user.id}
-            onSave={handleSaveVehicle}
+            ownerId={user.uid}
          />
       </div>
       
@@ -394,7 +366,7 @@ export default function DashboardPage() {
             <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{ownerCars.length}</div>
+            <div className="text-2xl font-bold">{ownerCars?.length ?? 0}</div>
             <p className="text-xs text-muted-foreground">In your fleet</p>
           </CardContent>
         </Card>
@@ -416,21 +388,23 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {ownerCars.length > 0 ? ownerCars.map(car => (
+                    {carsLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="text-center h-24">Loading your vehicles...</TableCell>
+                        </TableRow>
+                    ) : ownerCars && ownerCars.length > 0 ? ownerCars.map(car => (
                       <TableRow key={car.id}>
                         <TableCell className="font-medium">{car.name}</TableCell>
                         <TableCell>
                           <Badge variant={getBadgeVariant(car.availability)}>{car.availability}</Badge>
                         </TableCell>
                         <TableCell className="text-right">{car.pricePerDay.toLocaleString()}</TableCell>
-                        <TableCell className="text-right">{bookings.filter(b => b.carId === car.id).length}</TableCell>
+                        <TableCell className="text-right">{ownerBookings?.filter(b => b.carId === car.id).length || 0}</TableCell>
                         <TableCell className="text-right">
                           <ManageVehicleDialog 
                             car={car}
                             trigger={<Button variant="outline" size="sm">Manage</Button>}
-                            ownerId={user.id}
-                            onSave={handleSaveVehicle}
-                            onDelete={deleteCar}
+                            ownerId={user.uid}
                           />
                         </TableCell>
                       </TableRow>
@@ -449,14 +423,16 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
             <Card>
                 <CardContent className="p-4 space-y-4">
-                    {ownerBookings.slice(0, 5).map(booking => {
-                        const car = cars.find(c => c.id === booking.carId);
+                    {bookingsLoading ? (
+                        <p className="text-sm text-muted-foreground text-center py-8">Loading bookings...</p>
+                    ) : ownerBookings && ownerBookings.length > 0 ? ownerBookings.slice(0, 5).map(booking => {
+                        const car = ownerCars?.find(c => c.id === booking.carId);
                         return (
                             <div key={booking.id} className="flex items-center">
                                 <div className="flex-grow">
                                     <p className="font-semibold">{car?.name}</p>
                                     <p className="text-sm text-muted-foreground">
-                                        {format(booking.startDate, 'MMM d')} - {format(booking.endDate, 'MMM d, yyyy')}
+                                        {format(new Date(booking.startDate), 'MMM d')} - {format(new Date(booking.endDate), 'MMM d, yyyy')}
                                     </p>
                                 </div>
                                 <div className="text-right">
@@ -465,8 +441,7 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                         )
-                    })}
-                     {ownerBookings.length === 0 && (
+                    }) : (
                         <p className="text-sm text-muted-foreground text-center py-8">No bookings for your vehicles yet.</p>
                      )}
                 </CardContent>
@@ -476,6 +451,3 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
-    
-
-    

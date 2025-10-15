@@ -3,7 +3,6 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useMockData } from '@/lib/data';
 import type { Car } from '@/lib/types';
 import { CarCard } from '@/components/car-card';
 import {
@@ -15,11 +14,15 @@ import {
 } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export default function BrowsePage() {
-  const { cars: allCars } = useMockData();
+  const firestore = useFirestore();
+  const carsQuery = useMemoFirebase(() => collection(firestore, 'cars'), [firestore]);
+  const { data: allCars, isLoading } = useCollection<Car>(carsQuery);
   const searchParams = useSearchParams();
-  const [filteredCars, setFilteredCars] = useState<Car[]>(allCars);
+  const [filteredCars, setFilteredCars] = useState<Car[] | null>(null);
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [carType, setCarType] = useState('all');
@@ -28,35 +31,29 @@ export default function BrowsePage() {
   const [priceRange, setPriceRange] = useState([0, 200000]);
   const [sortOrder, setSortOrder] = useState('any');
 
-  const brands = useMemo(() => ['all', ...Array.from(new Set(allCars.map(car => car.brand)))], [allCars]);
+  const brands = useMemo(() => {
+    if (!allCars) return ['all'];
+    return ['all', ...Array.from(new Set(allCars.map(car => car.brand)))];
+  }, [allCars]);
 
   useEffect(() => {
+    if (!allCars) return;
+
     let cars = [...allCars];
 
-    // Search
     if (searchTerm) {
       cars = cars.filter(car => car.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
-
-    // Car Type
     if (carType !== 'all') {
       cars = cars.filter(car => car.type === carType);
     }
-    
-    // Brand
     if (brand !== 'all') {
         cars = cars.filter(car => car.brand === brand);
     }
-
-    // Seats
     if (seats !== 'all') {
         cars = cars.filter(car => car.seats >= parseInt(seats));
     }
-
-    // Price
     cars = cars.filter(car => car.pricePerDay >= priceRange[0] && car.pricePerDay <= priceRange[1]);
-
-    // Sort
     if (sortOrder === 'low-to-high') {
         cars.sort((a, b) => a.pricePerDay - b.pricePerDay);
     } else if (sortOrder === 'high-to-low') {
@@ -158,10 +155,14 @@ export default function BrowsePage() {
 
         {/* Cars Grid */}
         <main className="lg:w-3/4">
-            {filteredCars.length > 0 ? (
+            {isLoading || !filteredCars ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    {Array.from({ length: 6 }).map((_, i) => <CarCard key={i} car={null} />)}
+                </div>
+            ) : filteredCars.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                     {filteredCars.map((car) => (
-                    <CarCard key={car.id} car={car} />
+                      <CarCard key={car.id} car={car} />
                     ))}
                 </div>
             ) : (

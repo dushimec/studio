@@ -15,22 +15,39 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/context/auth-context';
+import { useUser } from '@/firebase';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
-  navItems: {
+  navItems?: {
     href: string;
     label: string;
     icon: string;
   }[];
 };
 
-export function DashboardLayout({ children, navItems }: DashboardLayoutProps) {
+export function DashboardLayout({ children, navItems = [] }: DashboardLayoutProps) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isUserLoading } = useUser();
   
-  if (!user) return null;
+  if (isUserLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    // Or a redirect to login
+    return null;
+  }
+  
+  const defaultNavItems = [
+     { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  ];
+  
+  const finalNavItems = navItems.length > 0 ? navItems : defaultNavItems;
 
   return (
     <SidebarProvider>
@@ -43,7 +60,7 @@ export function DashboardLayout({ children, navItems }: DashboardLayoutProps) {
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
-              {navItems.map((item) => (
+              {finalNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     href={item.href}
@@ -68,7 +85,7 @@ export function DashboardLayout({ children, navItems }: DashboardLayoutProps) {
           <div className="p-2 hidden md:block">
              <SidebarTrigger className="md:hidden" />
           </div>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}
           </div>
         </main>

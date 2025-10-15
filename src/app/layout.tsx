@@ -1,20 +1,13 @@
 
 'use client';
 
-import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from "@/lib/utils";
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from '@/context/auth-context';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
-/*
-export const metadata: Metadata = {
-  title: 'We Go',
-  description: 'Your Journey, Your Car.',
-};
-*/
 
 export default function RootLayout({
   children,
@@ -31,14 +24,14 @@ export default function RootLayout({
         <title>We Go - Your Journey, Your Car.</title>
       </head>
       <body className={cn("font-body antialiased min-h-screen flex flex-col")}>
-        <AuthProvider>
+        <FirebaseClientProvider>
           <Header />
           <main className="flex-grow">
             {children}
           </main>
           <Footer />
           <Toaster />
-        </AuthProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );

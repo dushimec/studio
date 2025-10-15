@@ -15,51 +15,39 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const auth = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleLogin = async () => {
     setIsLoading(true);
-    try {
-      const user = await login(email, password);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-
-      // Role-based redirection
-      switch (user.role) {
-        case 'admin':
-          router.push('/admin');
-          break;
-        case 'owner':
-          router.push('/dashboard');
-          break;
-        case 'user':
-          router.push('/booking');
-          break;
-        default:
-          router.push('/');
-          break;
-      }
-    } catch (error: any) {
-       toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: error.message,
-      });
-    } finally {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        // You can fetch user role from Firestore here to redirect
+        router.push('/dashboard');
+      })
+      .catch((error) => {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: error.message,
+        });
+      })
+      .finally(() => {
         setIsLoading(false);
-    }
+      });
   };
 
   return (
