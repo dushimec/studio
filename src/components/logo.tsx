@@ -8,7 +8,7 @@ export function Logo({ className }: { className?: string }) {
       className={cn("text-2xl font-bold tracking-tight text-foreground font-headline", className)}
       data-test-id="logo"
     >
-      dush<span className="text-primary">CarRent</span>
+      Dush<span className="text-primary">Rent</span>
     </Link>
   );
 }
