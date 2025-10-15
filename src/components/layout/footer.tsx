@@ -1,3 +1,4 @@
+
 import { Logo } from "@/components/logo";
 
 export default function Footer() {
@@ -11,7 +12,7 @@ export default function Footer() {
           </p>
         </div>
         <p className="text-center text-sm text-muted-foreground md:text-left">
-          © {new Date().getFullYear()} DushRent. All rights reserved.
+          © {new Date().getFullYear()} We Go. All rights reserved.
         </p>
       </div>
     </footer>

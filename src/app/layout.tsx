@@ -11,7 +11,7 @@ import { AuthProvider } from '@/context/auth-context';
 
 /*
 export const metadata: Metadata = {
-  title: 'DushRent',
+  title: 'We Go',
   description: 'Your Journey, Your Car.',
 };
 */
@@ -28,7 +28,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-        <title>DushRent - Your Journey, Your Car.</title>
+        <title>We Go - Your Journey, Your Car.</title>
       </head>
       <body className={cn("font-body antialiased min-h-screen flex flex-col")}>
         <AuthProvider>

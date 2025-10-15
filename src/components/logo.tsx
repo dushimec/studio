@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
       data-test-id="logo"
     >
       <span className="material-symbols-outlined text-3xl text-primary">directions_car</span>
-      Dush<span className="text-primary">Rent</span>
+      We<span className="text-primary">Go</span>
     </Link>
   );
 }
