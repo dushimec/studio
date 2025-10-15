@@ -1,6 +1,8 @@
 export type Car = {
   id: string;
   name: string;
+  brand: string;
+  year: number;
   type: 'SUV' | 'Sedan' | 'Hatchback' | 'Convertible' | 'Truck';
   pricePerDay: number;
   seats: number;
@@ -10,6 +12,7 @@ export type Car = {
   images: string[];
   description: string;
   rentalCompany: string;
+  availability: 'Available' | 'Booked' | 'Maintenance';
 };
 
 export type Booking = {

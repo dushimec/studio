@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, Fuel, Gauge, Cog, Car } from 'lucide-react';
+import { Users, Fuel, Cog, ShieldCheck, ShieldX } from 'lucide-react';
 import type { Car as CarType } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
 import { getCarImage } from '@/ai/flows/car-image-flow';
 import { Skeleton } from './ui/skeleton';
+import { cn } from '@/lib/utils';
 
 type CarCardProps = {
   car: CarType;
@@ -33,7 +34,6 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           });
           setImageUrl(result.imageUrl);
         } catch (error) {
-          // Don't log the error to the console, just fall back to the placeholder
           if (fallbackImage) {
             setImageUrl(fallbackImage.imageUrl);
           }
@@ -49,8 +49,19 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
     generate();
   }, [car, generateImage, fallbackImage]);
 
+  const availabilityStyles = {
+    Available: 'bg-green-500/20 text-green-400 border-green-500/30',
+    Booked: 'bg-red-500/20 text-red-400 border-red-500/30',
+    Maintenance: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  };
+  
+  const isAvailable = car.availability === 'Available';
+
   return (
-    <Card className="flex flex-col overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 shadow-lg">
+    <Card className={cn(
+      "flex flex-col overflow-hidden transition-all duration-300 hover:shadow-primary/20 shadow-lg",
+       !isAvailable && "opacity-60 hover:opacity-80"
+    )}>
       <CardHeader className="p-0">
         <Link href={`/browse/${car.id}`} className="block">
           <div className="relative h-56 w-full">
@@ -67,10 +78,15 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
               />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">
-                <Car className="w-12 h-12 text-muted-foreground" />
+                <Users className="w-12 h-12 text-muted-foreground" />
               </div>
             )}
-             <Badge variant="secondary" className="absolute top-3 right-3">{car.type}</Badge>
+             <Badge variant="secondary" className="absolute top-3 left-3">{car.type}</Badge>
+             <Badge 
+                className={cn("absolute top-3 right-3", availabilityStyles[car.availability])}
+             >
+                {car.availability}
+            </Badge>
           </div>
         </Link>
       </CardHeader>
@@ -80,6 +96,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
             {car.name}
           </Link>
         </CardTitle>
+        <p className="text-sm text-muted-foreground mb-3">{car.brand} &middot; {car.year}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
@@ -88,10 +105,6 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           <div className="flex items-center gap-2">
             <Fuel className="w-4 h-4 text-primary" />
             <span>{car.fuel}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Gauge className="w-4 h-4 text-primary" />
-            <span>Unlimited Mileage</span>
           </div>
           <div className="flex items-center gap-2">
             <Cog className="w-4 h-4 text-primary" />
@@ -104,8 +117,8 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           <span className="text-2xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
           <span className="text-sm text-muted-foreground">/day</span>
         </div>
-        <Button asChild>
-          <Link href={`/browse/${car.id}`}>Book Now</Link>
+        <Button asChild disabled={!isAvailable}>
+          <Link href={`/browse/${car.id}`}>{isAvailable ? 'Book Now' : 'Not Available'}</Link>
         </Button>
       </CardFooter>
     </Card>

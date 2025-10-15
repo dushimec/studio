@@ -7,13 +7,27 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle2, Users, Fuel, Cog, Gauge } from 'lucide-react';
+import { CheckCircle2, Users, Fuel, Cog, Gauge, Calendar, Tag, ShieldCheck, ShieldX } from 'lucide-react';
+import type { Car } from '@/lib/types';
 
 type CarDetailsPageProps = {
   params: {
     id: string;
   };
 };
+
+const getAvailabilityProps = (availability: Car['availability']) => {
+    switch (availability) {
+        case 'Available':
+            return { icon: ShieldCheck, text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
+        case 'Booked':
+            return { icon: ShieldX, text: 'Booked', color: 'text-red-500', bgColor: 'bg-red-500/10' };
+        case 'Maintenance':
+            return { icon: Cog, text: 'Under Maintenance', color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' };
+        default:
+            return { icon: ShieldCheck, text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
+    }
+}
 
 export default function CarDetailsPage({ params }: CarDetailsPageProps) {
   const car = findCarById(params.id);
@@ -23,6 +37,7 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
   }
 
   const carImages = car.images.map(imgId => PlaceHolderImages.find(p => p.id === imgId)).filter(Boolean);
+  const availability = getAvailabilityProps(car.availability);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -59,8 +74,17 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
         </div>
         
         <div>
-          <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.name}</h1>
-          <Badge variant="outline" className="text-lg">{car.type}</Badge>
+          <div className='flex justify-between items-start'>
+            <div>
+              <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.name}</h1>
+              <p className="text-lg text-muted-foreground">{car.brand} - {car.year}</p>
+            </div>
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
+              <availability.icon className="w-5 h-5" />
+              <span className="font-semibold">{availability.text}</span>
+            </div>
+          </div>
+          <Badge variant="outline" className="text-md mt-2">{car.type}</Badge>
           <p className="mt-4 text-lg text-muted-foreground">{car.description}</p>
           
           <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
@@ -92,7 +116,9 @@ export default function CarDetailsPage({ params }: CarDetailsPageProps) {
                 <span className="text-3xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
                 <span className="text-sm text-muted-foreground"> / day</span>
               </div>
-              <Button size="lg" className="text-lg">Continue to Book</Button>
+              <Button size="lg" className="text-lg" disabled={car.availability !== 'Available'}>
+                {car.availability === 'Available' ? 'Continue to Book' : 'Not Available'}
+              </Button>
             </CardContent>
           </Card>
         </div>

@@ -1,14 +1,15 @@
 import type { Car, Booking, Location } from './types';
 
 // Approximate conversion rate: 1 USD = 1300 RWF
-// Prices have been updated to reflect this.
 
 export const cars: Car[] = [
   {
     id: '1',
     name: 'Stark SUV 2024',
+    brand: 'Cadillac',
+    year: 2024,
     type: 'SUV',
-    pricePerDay: 110500, // 85 * 1300
+    pricePerDay: 110500,
     seats: 5,
     fuel: 'Gasoline',
     transmission: 'Automatic',
@@ -16,12 +17,15 @@ export const cars: Car[] = [
     images: ['car-suv-1', 'car-suv-2'],
     description: 'Experience the perfect blend of luxury and performance with the Stark SUV. Ideal for family trips or navigating city streets in style.',
     rentalCompany: 'Apex Rentals',
+    availability: 'Available',
   },
   {
     id: '2',
     name: 'Orion Sedan',
+    brand: 'Volkswagen',
+    year: 2023,
     type: 'Sedan',
-    pricePerDay: 91000, // 70 * 1300
+    pricePerDay: 91000,
     seats: 5,
     fuel: 'Hybrid',
     transmission: 'Automatic',
@@ -29,12 +33,15 @@ export const cars: Car[] = [
     images: ['car-sedan-1', 'car-sedan-2'],
     description: 'The Orion Sedan offers a smooth, efficient ride with modern amenities. Perfect for business trips or a comfortable commute.',
     rentalCompany: 'Starlight Drives',
+    availability: 'Booked',
   },
   {
     id: '3',
     name: 'Pulsar Hatchback',
+    brand: 'Honda',
+    year: 2025,
     type: 'Hatchback',
-    pricePerDay: 71500, // 55 * 1300
+    pricePerDay: 71500,
     seats: 4,
     fuel: 'Gasoline',
     transmission: 'Manual',
@@ -42,12 +49,15 @@ export const cars: Car[] = [
     images: ['car-hatchback-1', 'car-hatchback-2'],
     description: 'A zippy and economical choice for city driving. The Pulsar Hatchback is easy to park and fun to drive.',
     rentalCompany: 'City Wheels',
+    availability: 'Available',
   },
   {
     id: '4',
     name: 'Comet Convertible',
+    brand: 'BMW',
+    year: 2024,
     type: 'Convertible',
-    pricePerDay: 156000, // 120 * 1300
+    pricePerDay: 156000,
     seats: 2,
     fuel: 'Gasoline',
     transmission: 'Automatic',
@@ -55,12 +65,15 @@ export const cars: Car[] = [
     images: ['car-convertible-1', 'car-convertible-2'],
     description: 'Feel the wind in your hair with the Comet Convertible. The ultimate car for a scenic coastal drive or a weekend getaway.',
     rentalCompany: 'Apex Rentals',
+    availability: 'Maintenance',
   },
   {
     id: '5',
     name: 'Titan Truck',
+    brand: 'Ford',
+    year: 2022,
     type: 'Truck',
-    pricePerDay: 123500, // 95 * 1300
+    pricePerDay: 123500,
     seats: 5,
     fuel: 'Gasoline',
     transmission: 'Automatic',
@@ -68,12 +81,15 @@ export const cars: Car[] = [
     images: ['car-truck-1', 'car-truck-2'],
     description: 'For heavy-duty needs or off-road adventures, the Titan Truck delivers power and reliability.',
     rentalCompany: 'Rugged Rides',
+    availability: 'Available',
   },
   {
     id: '6',
     name: 'Galaxy SUV',
+    brand: 'Geely',
+    year: 2024,
     type: 'SUV',
-    pricePerDay: 117000, // 90 * 1300
+    pricePerDay: 117000,
     seats: 7,
     fuel: 'Hybrid',
     transmission: 'Automatic',
@@ -81,6 +97,7 @@ export const cars: Car[] = [
     images: ['car-suv-2', 'car-suv-1'],
     description: 'The spacious Galaxy SUV is perfect for large families or groups, offering comfort and versatility for any journey.',
     rentalCompany: 'Starlight Drives',
+    availability: 'Available',
   },
 ];
 
@@ -90,7 +107,7 @@ export const bookings: Booking[] = [
     carId: '2',
     startDate: new Date('2024-08-10'),
     endDate: new Date('2024-08-15'),
-    totalPrice: 455000, // 350 * 1300
+    totalPrice: 455000,
     status: 'Upcoming',
   },
   {
@@ -98,7 +115,7 @@ export const bookings: Booking[] = [
     carId: '5',
     startDate: new Date('2024-06-20'),
     endDate: new Date('2024-06-25'),
-    totalPrice: 617500, // 475 * 1300
+    totalPrice: 617500,
     status: 'Completed',
   },
   {
@@ -106,7 +123,7 @@ export const bookings: Booking[] = [
     carId: '1',
     startDate: new Date('2024-09-01'),
     endDate: new Date('2024-09-03'),
-    totalPrice: 221000, // 170 * 1300
+    totalPrice: 221000,
     status: 'Upcoming',
   },
 ];
