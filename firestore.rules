@@ -1,0 +1,89 @@
+/**
+ * @fileoverview Firestore Security Rules for AutoNomad Car Rental.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a user-ownership model for bookings, while allowing public read access to car and location data.
+ *
+ * Data Structure:
+ * - /locations/{locationId}: Stores location information; publicly readable.
+ * - /cars/{carId}: Stores car details; publicly readable.
+ * - /users/{userId}: Stores user profiles; only accessible by the user themselves.
+ * - /users/{userId}/bookings/{bookingId}: Stores booking information; only accessible by the user who created the booking.
+ *
+ * Key Security Decisions:
+ * - Public Read Access for Cars and Locations: Allows unauthenticated users to view available cars and locations, enhancing the user experience.
+ * - User-Owned Bookings: Enforces strict ownership for bookings, ensuring that only the authenticated user can manage their bookings.
+ * - No User Listing: Prevents listing all users to protect user privacy.
+ *
+ * Denormalization for Authorization:
+ *  - Bookings are stored under `/users/{userId}/bookings/{bookingId}`. This allows for path-based rules and avoids needing complex rules to validate ownership.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Allows public read access to location data.
+     * @path /locations/{locationId}
+     * @allow (get, list) Unauthenticated user can retrieve location data.
+     * @deny (create, update, delete) No one can create, update, or delete locations through the client.
+     * @principle Public read access for car and location data.
+     */
+    match /locations/{locationId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to car data.
+     * @path /cars/{carId}
+     * @allow (get, list) Unauthenticated user can retrieve car data.
+     * @deny (create, update, delete) No one can create, update, or delete cars through the client.
+     * @principle Public read access for car and location data.
+     */
+    match /cars/{carId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Controls access to user profile data.
+     * @path /users/{userId}
+     * @allow (create) User can create their own profile if the userId matches their auth UID.
+     * @allow (get, update, delete) User can get, update, and delete their own profile if authenticated.
+     * @deny (get, update, delete) User cannot access another user's profile.
+     * @deny (list) Listing all users is prohibited.
+     * @principle Enforces document ownership for user profiles.
+     */
+    match /users/{userId} {
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
+      allow get, update, delete: if isSignedIn() && isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow list: if false;
+    }
+
+    /**
+     * @description Controls access to booking data for a specific user.
+     * @path /users/{userId}/bookings/{bookingId}
+     * @allow (create) User can create a booking under their user ID if authenticated.
+     * @allow (get, update, delete, list) User can get, update, delete, and list their own bookings if authenticated.
+     * @deny (get, update, delete, list) User cannot access another user's bookings.
+     * @principle Enforces document ownership for bookings.
+     */
+    match /users/{userId}/bookings/{bookingId} {
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
+      allow get, update, delete, list: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+        return isSignedIn() && isOwner(userId) && resource != null;
+    }
+  }
+}

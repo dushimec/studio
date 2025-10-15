@@ -1,0 +1,282 @@
+{
+  "entities": {
+    "Car": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Car",
+      "type": "object",
+      "description": "Represents a car available for rent.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the car."
+        },
+        "make": {
+          "type": "string",
+          "description": "The make of the car (e.g., Toyota)."
+        },
+        "model": {
+          "type": "string",
+          "description": "The model of the car (e.g., Camry)."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year the car was manufactured."
+        },
+        "type": {
+          "type": "string",
+          "description": "The car type (e.g., sedan, SUV)."
+        },
+        "rentalRate": {
+          "type": "number",
+          "description": "The daily rental rate for the car."
+        },
+        "locationId": {
+          "type": "string",
+          "description": "Reference to Location. (Relationship: Location 1:N Car)"
+        },
+        "imageURL": {
+          "type": "string",
+          "description": "URL for the car's image."
+        },
+        "available": {
+          "type": "boolean",
+          "description": "Flag indicating if the car is currently available for rent."
+        },
+        "description": {
+          "type": "string",
+          "description": "A comprehensive description of the car and it's features"
+        }
+      },
+      "required": [
+        "id",
+        "make",
+        "model",
+        "year",
+        "type",
+        "rentalRate",
+        "locationId",
+        "imageURL",
+        "available",
+        "description"
+      ]
+    },
+    "Location": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Location",
+      "type": "object",
+      "description": "Represents a rental location.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the location."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the location is situated."
+        },
+        "address": {
+          "type": "string",
+          "description": "The full street address of the location."
+        },
+        "zipCode": {
+          "type": "string",
+          "description": "The postal zip code of the location."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Latitude coordinate of the rental location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Longitude coordinate of the rental location."
+        }
+      },
+      "required": [
+        "id",
+        "city",
+        "address",
+        "zipCode",
+        "latitude",
+        "longitude"
+      ]
+    },
+    "Booking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Booking",
+      "type": "object",
+      "description": "Represents a car rental booking.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the booking."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Booking)"
+        },
+        "carId": {
+          "type": "string",
+          "description": "Reference to Car. (Relationship: Car 1:N Booking)"
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date of the rental period.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The end date of the rental period.",
+          "format": "date-time"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "The total price of the rental."
+        },
+        "bookingDate": {
+          "type": "string",
+          "description": "The date when the booking was made.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the booking (e.g., confirmed, cancelled)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "carId",
+        "startDate",
+        "endDate",
+        "totalPrice",
+        "bookingDate",
+        "status"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the car rental service.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the user."
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of the user."
+        },
+        "driverLicenseNumber": {
+          "type": "string",
+          "description": "The driver's license number of the user."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "address",
+        "driverLicenseNumber"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/locations/{locationId}",
+        "definition": {
+          "entityName": "Location",
+          "schema": {
+            "$ref": "#/backend/entities/Location"
+          },
+          "description": "Stores information about rental locations. `locationId` is the document ID.",
+          "params": [
+            {
+              "name": "locationId",
+              "description": "The unique identifier for the location."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cars/{carId}",
+        "definition": {
+          "entityName": "Car",
+          "schema": {
+            "$ref": "#/backend/entities/Car"
+          },
+          "description": "Stores car details. `carId` is the document ID.",
+          "params": [
+            {
+              "name": "carId",
+              "description": "The unique identifier for the car."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. `userId` is the Firebase Authentication UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication UID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": {
+            "$ref": "#/backend/entities/Booking"
+          },
+          "description": "Stores booking information for each user. `userId` links to the user, and `bookingId` is the document ID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication UID of the user who owns the booking."
+            },
+            {
+              "name": "bookingId",
+              "description": "The unique identifier for the booking."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to provide a secure, scalable, and easily maintainable database for the AutoNomad car rental application. The key principle is Authorization Independence, achieved through denormalization. This avoids complex `get()` calls in security rules, making the rules more robust and easier to debug, while enabling atomic operations.\n\n*   **Locations:** Locations are stored in a top-level `/locations` collection. Cars store `locationId`\n*   **Cars:** Cars are stored in a top-level `/cars` collection, ensuring they can be queried efficiently. Cars store `locationId` to efficiently query for cars by location without collection group queries.\n*   **Users:** User data is stored in `/users/{userId}`.  This provides a clear path-based ownership model for user-related data. Each user has their own document.\n*   **Bookings:** Bookings are stored under `/users/{userId}/bookings/{bookingId}`. This structure establishes clear ownership (User 1:N Bookings) and avoids needing complex rules to validate ownership.\n\n\nThis structure supports the required QAPs (Rules are not Filters):\n\n*   Secure listing of cars and locations is supported by the segregation of these entities into their own collections. Rules can be written to allow unauthenticated reads on these collections with appropriate field-level security to prevent unauthorized data access or modification.\n*   User-owned data (bookings) are secured via path-based rules, allowing only the authenticated user to access their own bookings."
+  }
+}
