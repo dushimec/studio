@@ -18,21 +18,15 @@ import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { doc, collection } from 'firebase/firestore';
+import { doc, collection, serverTimestamp } from 'firebase/firestore';
 import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const getAvailabilityProps = (availability: Car['availability']) => {
-    switch (availability) {
-        case 'Available':
-            return { icon: 'verified_user', text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
-        case 'Booked':
-            return { icon: 'lock', text: 'Booked', color: 'text-red-500', bgColor: 'bg-red-500/10' };
-        case 'Maintenance':
-            return { icon: 'build', text: 'Under Maintenance', color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' };
-        default:
-            return { icon: 'verified_user', text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
+const getAvailabilityProps = (available: Car['available']) => {
+    if (available) {
+        return { icon: 'verified_user', text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
     }
+    return { icon: 'lock', text: 'Booked', color: 'text-red-500', bgColor: 'bg-red-500/10' };
 }
 
 export default function CarDetailsPage() {
@@ -60,24 +54,25 @@ export default function CarDetailsPage() {
     
     setIsBooking(true);
 
-    const newBooking: Omit<Booking, 'id'> = {
+    const newBooking: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'> = {
       carId: car.id,
-      userId: user.uid,
+      customerId: user.uid,
+      ownerId: car.ownerId,
       startDate: date.from.toISOString(),
       endDate: date.to.toISOString(),
       totalPrice,
-      status: 'Upcoming',
+      status: 'pending',
     };
     
-    const bookingsRef = collection(firestore, 'users', user.uid, 'bookings');
-    addDocumentNonBlocking(bookingsRef, newBooking)
+    const bookingsRef = collection(firestore, 'bookings');
+    addDocumentNonBlocking(bookingsRef, { ...newBooking, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
         .then(() => {
             const carDocRef = doc(firestore, 'cars', car.id);
-            setDocumentNonBlocking(carDocRef, { availability: 'Booked' }, { merge: true });
+            setDocumentNonBlocking(carDocRef, { available: false }, { merge: true });
 
             toast({
-                title: "Booking Successful!",
-                description: `Your booking for the ${car.name} has been confirmed.`,
+                title: "Booking Request Sent!",
+                description: `Your request for the ${car.brand} ${car.model} has been sent for approval.`,
             });
             router.push('/booking');
         })
@@ -85,7 +80,7 @@ export default function CarDetailsPage() {
              toast({
                 variant: "destructive",
                 title: "Booking Failed",
-                description: e.message || "Could not save your booking.",
+                description: e.message || "Could not save your booking request.",
             });
         })
         .finally(() => {
@@ -102,10 +97,10 @@ export default function CarDetailsPage() {
   }
 
   const carImages = car.images;
-  const availability = getAvailabilityProps(car.availability);
+  const availability = getAvailabilityProps(car.available);
 
   const renderBookingButton = () => {
-    if (car.availability !== 'Available') {
+    if (!car.available) {
       return <Button size="lg" className="text-lg" disabled>Not Available</Button>;
     }
     if (user) {
@@ -126,12 +121,12 @@ export default function CarDetailsPage() {
         <div>
           <Carousel className="w-full rounded-lg overflow-hidden shadow-lg">
             <CarouselContent>
-              {carImages.length > 0 ? carImages.map((imgUrl, index) => (
+              {carImages && carImages.length > 0 ? carImages.map((imgUrl, index) => (
                 <CarouselItem key={index}>
                   <div className="relative aspect-[4/3]">
                     <Image
                       src={imgUrl}
-                      alt={`${car.name} view ${index + 1}`}
+                      alt={`${car.brand} ${car.model} view ${index + 1}`}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -154,15 +149,14 @@ export default function CarDetailsPage() {
         <div>
           <div className='flex justify-between items-start'>
             <div>
-              <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.name}</h1>
-              <p className="text-lg text-muted-foreground">{car.brand} - {car.year}</p>
+              <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.brand} {car.model}</h1>
+              <p className="text-lg text-muted-foreground">{car.year}</p>
             </div>
             <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
               <span className="material-symbols-outlined text-lg">{availability.icon}</span>
               <span className="font-semibold">{availability.text}</span>
             </div>
           </div>
-          <Badge variant="outline" className="text-md mt-2">{car.type}</Badge>
           <p className="mt-4 text-lg text-muted-foreground">{car.description}</p>
           
           <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
@@ -172,7 +166,7 @@ export default function CarDetailsPage() {
             </div>
             <div className="p-4 bg-card rounded-lg border">
               <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">local_gas_station</span>
-              <p className="font-semibold">{car.fuel}</p>
+              <p className="font-semibold">{car.fuelType}</p>
             </div>
             <div className="p-4 bg-card rounded-lg border">
               <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">settings</span>
@@ -190,7 +184,7 @@ export default function CarDetailsPage() {
               <CardTitle>Start Your Booking</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
-               {car.availability === 'Available' && user && (
+               {car.available && user && (
                  <div className="grid gap-2">
                     <label className="text-sm font-medium">Select Dates</label>
                     <Popover>

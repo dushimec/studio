@@ -18,8 +18,9 @@ import Link from "next/link"
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useFirestore } from "@/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc } from "firebase/firestore";
+import { doc, serverTimestamp } from "firebase/firestore";
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import type { User } from "@/lib/types";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -38,14 +39,18 @@ export default function SignupPage() {
         const user = userCredential.user;
         await updateProfile(user, { displayName: fullName });
         
-        // Create user document in Firestore
         const userRef = doc(firestore, "users", user.uid);
-        // Default role is 'user'. Can be changed in an admin dashboard.
-        setDocumentNonBlocking(userRef, {
-          id: user.uid,
-          name: fullName,
-          email: user.email,
-          role: 'user' 
+        
+        const newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'> = {
+            fullName: fullName,
+            email: user.email!,
+            role: 'customer', // Default role
+        };
+
+        setDocumentNonBlocking(userRef, { 
+            ...newUser, 
+            createdAt: serverTimestamp(), 
+            updatedAt: serverTimestamp() 
         }, {});
 
         toast({

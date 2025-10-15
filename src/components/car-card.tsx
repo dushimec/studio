@@ -42,8 +42,8 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
       if (shouldGenerateImage) {
         try {
           const result = await getCarImage({
-            carName: car.name,
-            carType: car.type,
+            carName: `${car.brand} ${car.model}`,
+            carType: car.fuelType, // This is not a direct mapping, but best effort
             carDescription: car.description,
           });
           setImageUrl(result.imageUrl);
@@ -84,12 +84,11 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
   }
 
   const availabilityStyles = {
-    Available: 'bg-green-500/20 text-green-400 border-green-500/30',
-    Booked: 'bg-red-500/20 text-red-400 border-red-500/30',
-    Maintenance: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    true: 'bg-green-500/20 text-green-400 border-green-500/30',
+    false: 'bg-red-500/20 text-red-400 border-red-500/30',
   };
   
-  const isAvailable = car.availability === 'Available';
+  const isAvailable = car.available;
 
   return (
     <Card className={cn(
@@ -104,7 +103,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
             ) : imageUrl ? (
               <Image
                 src={imageUrl}
-                alt={car.name}
+                alt={`${car.brand} ${car.model}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -115,11 +114,10 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
                 <span className="material-symbols-outlined text-4xl text-muted-foreground">directions_car</span>
               </div>
             )}
-             <Badge variant="secondary" className="absolute top-3 left-3">{car.type}</Badge>
              <Badge 
-                className={cn("absolute top-3 right-3", availabilityStyles[car.availability])}
+                className={cn("absolute top-3 right-3", availabilityStyles[isAvailable.toString()])}
              >
-                {car.availability}
+                {isAvailable ? 'Available' : 'Booked'}
             </Badge>
           </div>
         </Link>
@@ -127,10 +125,10 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
       <CardContent className="flex-grow p-4">
         <CardTitle className="text-xl mb-2">
           <Link href={`/browse/${car.id}`} className="hover:text-primary transition-colors">
-            {car.name}
+            {car.brand} {car.model}
           </Link>
         </CardTitle>
-        <p className="text-sm text-muted-foreground mb-3">{car.brand} &middot; {car.year}</p>
+        <p className="text-sm text-muted-foreground mb-3">{car.year}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-lg text-primary">group</span>
@@ -138,7 +136,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-lg text-primary">local_gas_station</span>
-            <span>{car.fuel}</span>
+            <span>{car.fuelType}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-lg text-primary">settings</span>

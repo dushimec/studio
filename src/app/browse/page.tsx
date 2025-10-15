@@ -25,7 +25,7 @@ export default function BrowsePage() {
   const [filteredCars, setFilteredCars] = useState<Car[] | null>(null);
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
-  const [carType, setCarType] = useState('all');
+  const [fuelType, setFuelType] = useState('all');
   const [brand, setBrand] = useState('all');
   const [seats, setSeats] = useState('all');
   const [priceRange, setPriceRange] = useState([0, 200000]);
@@ -42,10 +42,13 @@ export default function BrowsePage() {
     let cars = [...allCars];
 
     if (searchTerm) {
-      cars = cars.filter(car => car.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      cars = cars.filter(car => 
+        car.brand.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        car.model.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-    if (carType !== 'all') {
-      cars = cars.filter(car => car.type === carType);
+    if (fuelType !== 'all') {
+      cars = cars.filter(car => car.fuelType === fuelType);
     }
     if (brand !== 'all') {
         cars = cars.filter(car => car.brand === brand);
@@ -61,7 +64,7 @@ export default function BrowsePage() {
     }
 
     setFilteredCars(cars);
-  }, [searchTerm, carType, brand, seats, priceRange, sortOrder, allCars]);
+  }, [searchTerm, fuelType, brand, seats, priceRange, sortOrder, allCars]);
 
 
   return (
@@ -81,21 +84,20 @@ export default function BrowsePage() {
               <label className="text-sm font-medium">Search by name</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground">search</span>
-                <Input placeholder="e.g., Stark SUV" className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                <Input placeholder="e.g., Toyota RAV4" className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Car Type</label>
-              <Select value={carType} onValueChange={setCarType}>
+              <label className="text-sm font-medium">Fuel Type</label>
+              <Select value={fuelType} onValueChange={setFuelType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="SUV">SUV</SelectItem>
-                  <SelectItem value="Sedan">Sedan</SelectItem>
-                  <SelectItem value="Hatchback">Hatchback</SelectItem>
-                  <SelectItem value="Convertible">Convertible</SelectItem>
-                  <SelectItem value="Truck">Truck</SelectItem>
+                  <SelectItem value="Gasoline">Gasoline</SelectItem>
+                  <SelectItem value="Diesel">Diesel</SelectItem>
+                  <SelectItem value="Hybrid">Hybrid</SelectItem>
+                  <SelectItem value="Electric">Electric</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -1,30 +1,65 @@
 
+
 export type Car = {
   id: string;
-  name: string;
-  brand: string;
-  year: number;
-  type: 'SUV' | 'Sedan' | 'Hatchback' | 'Convertible' | 'Truck';
-  pricePerDay: number;
-  seats: number;
-  fuel: 'Gasoline' | 'Electric' | 'Hybrid';
-  transmission: 'Automatic' | 'Manual';
-  features: string[];
-  images: string[];
-  description: string;
-  rentalCompany: string;
-  availability: 'Available' | 'Booked' | 'Maintenance';
   ownerId: string;
+  brand: string;
+  model: string;
+  year: number;
+  pricePerDay: number;
+  fuelType: 'Gasoline' | 'Electric' | 'Hybrid' | 'Diesel';
+  transmission: 'Automatic' | 'Manual';
+  seats: number;
+  images: string[];
+  location: string;
+  available: boolean;
+  availabilityDates?: { start: string; end: string }[];
+  description: string;
+  features: string[];
 };
 
 export type Booking = {
   id: string;
   carId: string;
-  userId: string;
+  customerId: string;
+  ownerId: string;
   startDate: string;
   endDate: string;
   totalPrice: number;
-  status: 'Upcoming' | 'Active' | 'Completed' | 'Cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type User = {
+  id: string; // Corresponds to Firebase Auth UID
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  role: 'customer' | 'owner' | 'admin';
+  profileImage?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Notification = {
+    id: string;
+    userId: string;
+    title: string;
+    message: string;
+    type: 'booking_update' | 'system_alert';
+    read: boolean;
+    createdAt: string;
+};
+
+export type Review = {
+    id: string;
+    bookingId: string;
+    carId: string;
+    userId: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
 };
 
 export type Location = {
@@ -33,10 +68,3 @@ export type Location = {
     position: [number, number];
     carIds: string[];
 };
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'owner' | 'admin';
-}

@@ -17,12 +17,13 @@ function BookingCard({ booking }: { booking: Booking }) {
     const carRef = useMemoFirebase(() => doc(firestore, 'cars', booking.carId), [firestore, booking.carId]);
     const { data: car, isLoading } = useDoc<Car>(carRef);
     
-    const getBadgeVariant = (status: string): "default" | "secondary" | "outline" | "destructive" => {
+    const getBadgeVariant = (status: Booking['status']): "default" | "secondary" | "outline" | "destructive" => {
         switch (status) {
-            case 'Upcoming': return 'default';
-            case 'Active': return 'secondary';
-            case 'Completed': return 'outline';
-            case 'Cancelled': return 'destructive';
+            case 'pending': return 'default';
+            case 'approved': return 'secondary';
+            case 'completed': return 'outline';
+            case 'rejected':
+            case 'cancelled': return 'destructive';
             default: return 'default';
         }
     };
@@ -55,7 +56,7 @@ function BookingCard({ booking }: { booking: Booking }) {
                 <div className="relative aspect-video rounded-md overflow-hidden">
                     <Image 
                         src={carImage} 
-                        alt={car.name} 
+                        alt={`${car.brand} ${car.model}`} 
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 25vw"
@@ -64,9 +65,8 @@ function BookingCard({ booking }: { booking: Booking }) {
             </div>
             <div className="md:col-span-6">
                 <CardHeader className="p-0">
-                    <Badge variant={getBadgeVariant(booking.status)} className="w-fit mb-2">{booking.status}</Badge>
-                    <CardTitle className="text-xl">{car.name}</CardTitle>
-                    <CardDescription>{car.rentalCompany}</CardDescription>
+                    <Badge variant={getBadgeVariant(booking.status)} className="w-fit mb-2 capitalize">{booking.status}</Badge>
+                    <CardTitle className="text-xl">{car.brand} {car.model}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0 mt-2">
                     <p className="text-sm text-muted-foreground">
@@ -76,7 +76,7 @@ function BookingCard({ booking }: { booking: Booking }) {
             </div>
             <div className="md:col-span-3 text-left md:text-right">
                 <p className="text-2xl font-bold mb-2">{booking.totalPrice.toLocaleString()} RWF</p>
-                {booking.status === 'Upcoming' && <Button variant="outline" size="sm">Manage</Button>}
+                {(booking.status === 'pending' || booking.status === 'approved') && <Button variant="outline" size="sm">Manage</Button>}
             </div>
         </Card>
     );
@@ -89,7 +89,7 @@ export default function BookingsPage() {
 
   const bookingsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
-    return collection(firestore, 'users', user.uid, 'bookings');
+    return query(collection(firestore, 'bookings'), where('customerId', '==', user.uid));
   }, [user, firestore]);
 
   const { data: bookings, isLoading } = useCollection<Booking>(bookingsQuery);

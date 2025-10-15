@@ -27,21 +27,21 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DashboardLayout } from '@/components/dashboard-layout';
-import { collection, doc, query, where } from 'firebase/firestore';
+import { collection, doc, query, where, serverTimestamp } from 'firebase/firestore';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
 const carFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
   brand: z.string().min(1, 'Brand is required'),
+  model: z.string().min(1, 'Model is required'),
   year: z.coerce.number().min(1900, 'Invalid year'),
-  type: z.enum(['SUV', 'Sedan', 'Hatchback', 'Convertible', 'Truck']),
   pricePerDay: z.coerce.number().min(0, 'Price must be positive'),
-  seats: z.coerce.number().min(1, 'At least 1 seat'),
-  fuel: z.enum(['Gasoline', 'Electric', 'Hybrid']),
+  fuelType: z.enum(['Gasoline', 'Diesel', 'Electric', 'Hybrid']),
   transmission: z.enum(['Automatic', 'Manual']),
+  seats: z.coerce.number().min(1, 'At least 1 seat'),
+  location: z.string().min(1, 'Location is required'),
   description: z.string().min(1, 'Description is required'),
-  availability: z.enum(['Available', 'Booked', 'Maintenance']),
+  available: z.boolean().default(true),
   features: z.string().optional(),
   images: z.any().optional(),
 });
@@ -64,16 +64,16 @@ function ManageVehicleDialog({
     const { register, handleSubmit, control, formState: { errors } } = useForm<CarFormValues>({
         resolver: zodResolver(carFormSchema),
         defaultValues: {
-            name: car?.name || '',
             brand: car?.brand || '',
+            model: car?.model || '',
             year: car?.year || new Date().getFullYear(),
-            type: car?.type || 'Sedan',
             pricePerDay: car?.pricePerDay || 0,
             seats: car?.seats || 4,
-            fuel: car?.fuel || 'Gasoline',
+            fuelType: car?.fuelType || 'Gasoline',
             transmission: car?.transmission || 'Automatic',
             description: car?.description || '',
-            availability: car?.availability || 'Available',
+            location: car?.location || '',
+            available: car?.available ?? true,
             features: car?.features?.join(', ') || '',
             images: null,
         }
@@ -82,40 +82,29 @@ function ManageVehicleDialog({
     const onSubmit = (data: CarFormValues) => {
         const featuresArray = data.features ? data.features.split(',').map(f => f.trim()) : [];
         
-        const carData: Omit<Car, 'id' | 'images' | 'rentalCompany'> = {
-            name: data.name,
-            brand: data.brand,
-            year: data.year,
-            type: data.type,
-            pricePerDay: data.pricePerDay,
-            seats: data.seats,
-            fuel: data.fuel,
-            transmission: data.transmission,
-            description: data.description,
-            availability: data.availability,
-            features: featuresArray,
-            ownerId: ownerId,
-        };
-
-        const carToSave: Omit<Car, 'id' | 'images'> = {
-            ...carData,
-            rentalCompany: car?.rentalCompany || 'My Fleet',
-        };
-
+        // In a real app, you would upload to a service like Cloudinary here
+        // and get back the URLs. For now, we'll use object URLs for local preview.
         const imageFiles = data.images as FileList | null;
         let imageUrls: string[] = car?.images || [];
-
         if (imageFiles && imageFiles.length > 0) {
             imageUrls = Array.from(imageFiles).map(file => URL.createObjectURL(file));
-             // In a real app, you'd upload to a service like Cloudinary here
+             // In a real app, replace the above with:
+             // const uploadedImageUrls = await uploadFilesToCloudinary(imageFiles);
+             // imageUrls = uploadedImageUrls;
         }
         
-        const finalCar = { ...carToSave, images: imageUrls };
+        const carData = {
+            ...data,
+            features: featuresArray,
+            images: imageUrls,
+            ownerId: ownerId,
+            updatedAt: serverTimestamp(),
+        };
 
         if (isEditMode && car) {
-            setDocumentNonBlocking(doc(firestore, 'cars', car.id), finalCar, { merge: true });
+            setDocumentNonBlocking(doc(firestore, 'cars', car.id), carData, { merge: true });
         } else {
-            addDocumentNonBlocking(collection(firestore, 'cars'), finalCar);
+            addDocumentNonBlocking(collection(firestore, 'cars'), { ...carData, createdAt: serverTimestamp() });
         }
         
         setOpen(false);
@@ -141,14 +130,14 @@ function ManageVehicleDialog({
                 <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" {...register('name')} />
-                            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
-                        </div>
-                         <div>
                             <Label htmlFor="brand">Brand</Label>
                             <Input id="brand" {...register('brand')} />
                             {errors.brand && <p className="text-red-500 text-xs mt-1">{errors.brand.message}</p>}
+                        </div>
+                        <div>
+                            <Label htmlFor="model">Model</Label>
+                            <Input id="model" {...register('model')} />
+                            {errors.model && <p className="text-red-500 text-xs mt-1">{errors.model.message}</p>}
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
@@ -169,28 +158,20 @@ function ManageVehicleDialog({
                         {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
                     </div>
                     
-                    <div>
-                        <Label htmlFor="features">Features (comma-separated)</Label>
-                        <Input id="features" {...register('features')} placeholder="e.g., GPS, Bluetooth, Sunroof" />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="location">Location</Label>
+                            <Input id="location" {...register('location')} placeholder="e.g. Kigali"/>
+                            {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>}
+                        </div>
+                        <div>
+                            <Label htmlFor="features">Features (comma-separated)</Label>
+                            <Input id="features" {...register('features')} placeholder="e.g., GPS, Bluetooth" />
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
                         <div>
-                            <Label>Type</Label>
-                            <Controller name="type" control={control} render={({ field }) => (
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="SUV">SUV</SelectItem>
-                                        <SelectItem value="Sedan">Sedan</SelectItem>
-                                        <SelectItem value="Hatchback">Hatchback</SelectItem>
-                                        <SelectItem value="Convertible">Convertible</SelectItem>
-                                        <SelectItem value="Truck">Truck</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )} />
-                        </div>
-                         <div>
                             <Label>Transmission</Label>
                             <Controller name="transmission" control={control} render={({ field }) => (
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -204,36 +185,22 @@ function ManageVehicleDialog({
                         </div>
                         <div>
                             <Label>Fuel Type</Label>
-                            <Controller name="fuel" control={control} render={({ field }) => (
+                            <Controller name="fuelType" control={control} render={({ field }) => (
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Gasoline">Gasoline</SelectItem>
+                                        <SelectItem value="Diesel">Diesel</SelectItem>
                                         <SelectItem value="Hybrid">Hybrid</SelectItem>
                                         <SelectItem value="Electric">Electric</SelectItem>
                                     </SelectContent>
                                 </Select>
                             )} />
                         </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label htmlFor="seats">Seats</Label>
                             <Input id="seats" type="number" {...register('seats')} />
                             {errors.seats && <p className="text-red-500 text-xs mt-1">{errors.seats.message}</p>}
-                        </div>
-                        <div>
-                            <Label>Availability</Label>
-                            <Controller name="availability" control={control} render={({ field }) => (
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Available">Available</SelectItem>
-                                        <SelectItem value="Booked">Booked</SelectItem>
-                                        <SelectItem value="Maintenance">Maintenance</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )} />
                         </div>
                     </div>
 
@@ -241,7 +208,7 @@ function ManageVehicleDialog({
                         <Label htmlFor="images">Car Images</Label>
                         <Input id="images" type="file" multiple {...register('images')} />
                         <p className="text-xs text-muted-foreground mt-1">
-                            {isEditMode ? "Uploading new images will replace all existing ones." : "Select one or more images to upload."}
+                            {isEditMode ? "Uploading new images will replace all existing ones." : "Select one or more images."}
                         </p>
                         {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message as string}</p>}
                     </div>
@@ -273,20 +240,19 @@ export default function DashboardPage() {
   const { data: ownerCars, isLoading: carsLoading } = useCollection<Car>(carsQuery);
 
   const bookingsQuery = useMemoFirebase(() => {
-    if (!ownerCars || ownerCars.length === 0) return null;
-    const ownerCarIds = ownerCars.map(c => c.id);
-    return query(collection(firestore, 'bookings'), where('carId', 'in', ownerCarIds));
-  }, [ownerCars, firestore]);
+    if (!user || !firestore) return null;
+    return query(collection(firestore, 'bookings'), where('ownerId', '==', user.uid));
+  }, [user, firestore]);
   const { data: ownerBookings, isLoading: bookingsLoading } = useCollection<Booking>(bookingsQuery);
 
   const totalEarnings = useMemo(() => {
     if (!ownerBookings) return 0;
-    return ownerBookings.filter(b => b.status === 'Completed').reduce((sum, b) => sum + b.totalPrice, 0);
+    return ownerBookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.totalPrice, 0);
   }, [ownerBookings]);
 
   const activeBookings = useMemo(() => {
     if (!ownerBookings) return 0;
-    return ownerBookings.filter(b => b.status === 'Active' || b.status === 'Upcoming').length;
+    return ownerBookings.filter(b => ['pending', 'approved'].includes(b.status)).length;
   }, [ownerBookings]);
 
   const userProfile = { name: user?.displayName || 'Owner', role: 'owner' };
@@ -303,17 +269,8 @@ export default function DashboardPage() {
     );
   }
   
-  const getBadgeVariant = (status: Car['availability']): "default" | "secondary" | "outline" | "destructive" => {
-    switch (status) {
-      case 'Available':
-        return 'default';
-      case 'Booked':
-        return 'secondary';
-      case 'Maintenance':
-        return 'destructive';
-      default:
-        return 'default';
-    }
+  const getBadgeVariant = (available: Car['available']): "default" | "secondary" | "outline" | "destructive" => {
+    return available ? 'default' : 'secondary';
   };
   
   const navItems = userProfile.role === 'admin'
@@ -394,9 +351,9 @@ export default function DashboardPage() {
                         </TableRow>
                     ) : ownerCars && ownerCars.length > 0 ? ownerCars.map(car => (
                       <TableRow key={car.id}>
-                        <TableCell className="font-medium">{car.name}</TableCell>
+                        <TableCell className="font-medium">{car.brand} {car.model}</TableCell>
                         <TableCell>
-                          <Badge variant={getBadgeVariant(car.availability)}>{car.availability}</Badge>
+                          <Badge variant={getBadgeVariant(car.available)}>{car.available ? 'Available' : 'Unavailable'}</Badge>
                         </TableCell>
                         <TableCell className="text-right">{car.pricePerDay.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{ownerBookings?.filter(b => b.carId === car.id).length || 0}</TableCell>
@@ -430,14 +387,14 @@ export default function DashboardPage() {
                         return (
                             <div key={booking.id} className="flex items-center">
                                 <div className="flex-grow">
-                                    <p className="font-semibold">{car?.name}</p>
+                                    <p className="font-semibold">{car?.brand} {car?.model}</p>
                                     <p className="text-sm text-muted-foreground">
                                         {format(new Date(booking.startDate), 'MMM d')} - {format(new Date(booking.endDate), 'MMM d, yyyy')}
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="font-semibold text-sm">{booking.totalPrice.toLocaleString()} RWF</p>
-                                    <Badge variant={booking.status === "Completed" ? "outline" : "default"}>{booking.status}</Badge>
+                                    <Badge variant={booking.status === "completed" ? "outline" : "default"}>{booking.status}</Badge>
                                 </div>
                             </div>
                         )

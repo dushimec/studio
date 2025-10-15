@@ -1,282 +1,124 @@
+
 {
   "entities": {
-    "Car": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Car",
-      "type": "object",
-      "description": "Represents a car available for rent.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the car."
-        },
-        "make": {
-          "type": "string",
-          "description": "The make of the car (e.g., Toyota)."
-        },
-        "model": {
-          "type": "string",
-          "description": "The model of the car (e.g., Camry)."
-        },
-        "year": {
-          "type": "number",
-          "description": "The year the car was manufactured."
-        },
-        "type": {
-          "type": "string",
-          "description": "The car type (e.g., sedan, SUV)."
-        },
-        "rentalRate": {
-          "type": "number",
-          "description": "The daily rental rate for the car."
-        },
-        "locationId": {
-          "type": "string",
-          "description": "Reference to Location. (Relationship: Location 1:N Car)"
-        },
-        "imageURL": {
-          "type": "string",
-          "description": "URL for the car's image."
-        },
-        "available": {
-          "type": "boolean",
-          "description": "Flag indicating if the car is currently available for rent."
-        },
-        "description": {
-          "type": "string",
-          "description": "A comprehensive description of the car and it's features"
-        }
-      },
-      "required": [
-        "id",
-        "make",
-        "model",
-        "year",
-        "type",
-        "rentalRate",
-        "locationId",
-        "imageURL",
-        "available",
-        "description"
-      ]
-    },
-    "Location": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Location",
-      "type": "object",
-      "description": "Represents a rental location.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the location."
-        },
-        "city": {
-          "type": "string",
-          "description": "The city where the location is situated."
-        },
-        "address": {
-          "type": "string",
-          "description": "The full street address of the location."
-        },
-        "zipCode": {
-          "type": "string",
-          "description": "The postal zip code of the location."
-        },
-        "latitude": {
-          "type": "number",
-          "description": "Latitude coordinate of the rental location."
-        },
-        "longitude": {
-          "type": "number",
-          "description": "Longitude coordinate of the rental location."
-        }
-      },
-      "required": [
-        "id",
-        "city",
-        "address",
-        "zipCode",
-        "latitude",
-        "longitude"
-      ]
-    },
-    "Booking": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Booking",
-      "type": "object",
-      "description": "Represents a car rental booking.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the booking."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Booking)"
-        },
-        "carId": {
-          "type": "string",
-          "description": "Reference to Car. (Relationship: Car 1:N Booking)"
-        },
-        "startDate": {
-          "type": "string",
-          "description": "The start date of the rental period.",
-          "format": "date-time"
-        },
-        "endDate": {
-          "type": "string",
-          "description": "The end date of the rental period.",
-          "format": "date-time"
-        },
-        "totalPrice": {
-          "type": "number",
-          "description": "The total price of the rental."
-        },
-        "bookingDate": {
-          "type": "string",
-          "description": "The date when the booking was made.",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "description": "The current status of the booking (e.g., confirmed, cancelled)."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "carId",
-        "startDate",
-        "endDate",
-        "totalPrice",
-        "bookingDate",
-        "status"
-      ]
-    },
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
       "description": "Represents a user of the car rental service.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user."
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The first name of the user."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The last name of the user."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address of the user.",
-          "format": "email"
-        },
-        "phone": {
-          "type": "string",
-          "description": "The phone number of the user."
-        },
-        "address": {
-          "type": "string",
-          "description": "The address of the user."
-        },
-        "driverLicenseNumber": {
-          "type": "string",
-          "description": "The driver's license number of the user."
-        }
+        "id": { "type": "string", "description": "Unique user ID (from Firebase Auth)" },
+        "fullName": { "type": "string", "description": "User’s full name" },
+        "email": { "type": "string", "format": "email", "description": "User’s email address" },
+        "phoneNumber": { "type": "string", "description": "Contact phone number" },
+        "role": { "type": "string", "enum": ["customer", "owner", "admin"], "description": "User role" },
+        "profileImage": { "type": "string", "description": "Profile image URL" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of account creation" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update" }
       },
-      "required": [
-        "id",
-        "firstName",
-        "lastName",
-        "email",
-        "phone",
-        "address",
-        "driverLicenseNumber"
-      ]
+      "required": ["id", "fullName", "email", "role", "createdAt", "updatedAt"]
+    },
+    "Car": {
+      "title": "Car",
+      "type": "object",
+      "description": "Represents a car available for rent.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique car ID" },
+        "ownerId": { "type": "string", "description": "Reference to the user (owner)" },
+        "brand": { "type": "string", "description": "Car brand" },
+        "model": { "type": "string", "description": "Car model" },
+        "year": { "type": "number", "description": "Year of manufacture" },
+        "pricePerDay": { "type": "number", "description": "Rental price per day" },
+        "fuelType": { "type": "string", "enum": ["Petrol", "Diesel", "Electric"], "description": "Fuel type" },
+        "transmission": { "type": "string", "enum": ["Automatic", "Manual"], "description": "Transmission type" },
+        "seats": { "type": "number", "description": "Number of seats" },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "List of car image URLs" },
+        "location": { "type": "string", "description": "Location of the car" },
+        "available": { "type": "boolean", "description": "Whether the car is currently available" },
+        "availabilityDates": { "type": "array", "items": { "type": "object", "properties": { "start": {"type": "string", "format": "date-time"}, "end": {"type": "string", "format": "date-time"} } } },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of car addition" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update" }
+      },
+      "required": ["id", "ownerId", "brand", "model", "year", "pricePerDay", "fuelType", "transmission", "seats", "images", "location", "available", "createdAt", "updatedAt"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "type": "object",
+      "description": "Represents a car rental booking.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique booking ID" },
+        "carId": { "type": "string", "description": "Reference to car document" },
+        "customerId": { "type": "string", "description": "Reference to user document" },
+        "ownerId": { "type": "string", "description": "Reference to car owner" },
+        "startDate": { "type": "string", "format": "date-time", "description": "Start date of rental" },
+        "endDate": { "type": "string", "format": "date-time", "description": "End date of rental" },
+        "totalPrice": { "type": "number", "description": "Total cost of the booking" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "completed", "cancelled"], "description": "Booking status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of booking creation" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of last update" }
+      },
+      "required": ["id", "carId", "customerId", "ownerId", "startDate", "endDate", "totalPrice", "status", "createdAt", "updatedAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification for a user.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique notification ID" },
+        "userId": { "type": "string", "description": "Reference to the target user" },
+        "title": { "type": "string", "description": "Short title of the message" },
+        "message": { "type": "string", "description": "Full message body" },
+        "type": { "type": "string", "enum": ["booking_update", "system_alert"], "description": "Type of notification" },
+        "read": { "type": "boolean", "description": "Whether the user has read the notification" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of notification creation" }
+      },
+      "required": ["id", "userId", "title", "message", "type", "read", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "type": "object",
+      "description": "Represents a review for a car rental.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique review ID" },
+        "bookingId": { "type": "string", "description": "Reference to the related booking" },
+        "carId": { "type": "string", "description": "Reference to the reviewed car" },
+        "userId": { "type": "string", "description": "Who wrote the review" },
+        "rating": { "type": "number", "description": "Rating from 1 to 5" },
+        "comment": { "type": "string", "description": "Optional text feedback" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of review creation" }
+      },
+      "required": ["id", "bookingId", "carId", "userId", "rating", "createdAt"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password", "anonymous"]
   },
   "firestore": {
-    "structure": [
+    "collections": [
       {
-        "path": "/locations/{locationId}",
-        "definition": {
-          "entityName": "Location",
-          "schema": {
-            "$ref": "#/backend/entities/Location"
-          },
-          "description": "Stores information about rental locations. `locationId` is the document ID.",
-          "params": [
-            {
-              "name": "locationId",
-              "description": "The unique identifier for the location."
-            }
-          ]
-        }
+        "path": "/users",
+        "description": "Stores user profiles. The document ID is the Firebase Auth UID.",
+        "schema": { "$ref": "#/entities/User" }
       },
       {
-        "path": "/cars/{carId}",
-        "definition": {
-          "entityName": "Car",
-          "schema": {
-            "$ref": "#/backend/entities/Car"
-          },
-          "description": "Stores car details. `carId` is the document ID.",
-          "params": [
-            {
-              "name": "carId",
-              "description": "The unique identifier for the car."
-            }
-          ]
-        }
+        "path": "/cars",
+        "description": "Stores all car listings.",
+        "schema": { "$ref": "#/entities/Car" }
       },
       {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profiles. `userId` is the Firebase Authentication UID.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The Firebase Authentication UID of the user."
-            }
-          ]
-        }
+        "path": "/bookings",
+        "description": "Stores all bookings for all users and cars.",
+        "schema": { "$ref": "#/entities/Booking" }
       },
       {
-        "path": "/users/{userId}/bookings/{bookingId}",
-        "definition": {
-          "entityName": "Booking",
-          "schema": {
-            "$ref": "#/backend/entities/Booking"
-          },
-          "description": "Stores booking information for each user. `userId` links to the user, and `bookingId` is the document ID.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The Firebase Authentication UID of the user who owns the booking."
-            },
-            {
-              "name": "bookingId",
-              "description": "The unique identifier for the booking."
-            }
-          ]
-        }
+        "path": "/notifications",
+        "description": "Stores notifications for users.",
+        "schema": { "$ref": "#/entities/Notification" }
+      },
+      {
+        "path": "/reviews",
+        "description": "Stores reviews for car rentals.",
+        "schema": { "$ref": "#/entities/Review" }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to provide a secure, scalable, and easily maintainable database for the AutoNomad car rental application. The key principle is Authorization Independence, achieved through denormalization. This avoids complex `get()` calls in security rules, making the rules more robust and easier to debug, while enabling atomic operations.\n\n*   **Locations:** Locations are stored in a top-level `/locations` collection. Cars store `locationId`\n*   **Cars:** Cars are stored in a top-level `/cars` collection, ensuring they can be queried efficiently. Cars store `locationId` to efficiently query for cars by location without collection group queries.\n*   **Users:** User data is stored in `/users/{userId}`.  This provides a clear path-based ownership model for user-related data. Each user has their own document.\n*   **Bookings:** Bookings are stored under `/users/{userId}/bookings/{bookingId}`. This structure establishes clear ownership (User 1:N Bookings) and avoids needing complex rules to validate ownership.\n\n\nThis structure supports the required QAPs (Rules are not Filters):\n\n*   Secure listing of cars and locations is supported by the segregation of these entities into their own collections. Rules can be written to allow unauthenticated reads on these collections with appropriate field-level security to prevent unauthorized data access or modification.\n*   User-owned data (bookings) are secured via path-based rules, allowing only the authenticated user to access their own bookings."
+    ]
   }
 }
