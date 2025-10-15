@@ -40,10 +40,9 @@ const carFormSchema = z.object({
   seats: z.coerce.number().min(1, 'At least 1 seat'),
   fuel: z.enum(['Gasoline', 'Electric', 'Hybrid']),
   transmission: z.enum(['Automatic', 'Manual']),
-  features: z.string(),
-  images: z.string().min(1, 'At least one image URL is required'),
   description: z.string().min(1, 'Description is required'),
   availability: z.enum(['Available', 'Booked', 'Maintenance']),
+  images: z.any(),
 });
 
 type CarFormValues = z.infer<typeof carFormSchema>;
@@ -75,19 +74,27 @@ function ManageVehicleDialog({
             seats: car?.seats || 4,
             fuel: car?.fuel || 'Gasoline',
             transmission: car?.transmission || 'Automatic',
-            features: car?.features.join(', ') || '',
-            images: car?.images.join(', ') || '',
             description: car?.description || '',
             availability: car?.availability || 'Available',
+            images: [],
         }
     });
 
     const onSubmit = (data: CarFormValues) => {
         const carToSave: Car = {
             id: car?.id || `car-${Date.now()}`,
-            ...data,
-            features: data.features.split(',').map(f => f.trim()).filter(f => f),
-            images: data.images.split(',').map(f => f.trim()).filter(f => f),
+            name: data.name,
+            brand: data.brand,
+            year: data.year,
+            type: data.type,
+            pricePerDay: data.pricePerDay,
+            seats: data.seats,
+            fuel: data.fuel,
+            transmission: data.transmission,
+            description: data.description,
+            availability: data.availability,
+            features: [],
+            images: [],
             rentalCompany: car?.rentalCompany || 'My Fleet',
             ownerId: ownerId,
         };
@@ -207,14 +214,9 @@ function ManageVehicleDialog({
                     </div>
 
                     <div>
-                        <Label htmlFor="features">Features (comma-separated)</Label>
-                        <Input id="features" {...register('features')} />
-                    </div>
-                    
-                    <div>
-                        <Label htmlFor="images">Image URLs (comma-separated)</Label>
-                        <Input id="images" {...register('images')} />
-                        {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message}</p>}
+                        <Label htmlFor="images">Car Images</Label>
+                        <Input id="images" type="file" multiple {...register('images')} />
+                        {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message as string}</p>}
                     </div>
 
                     <DialogFooter className="sm:justify-between pt-4">
@@ -304,7 +306,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout navItems={navItems}>
-      <div className="py-4 sm:py-6 lg:py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
               <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
