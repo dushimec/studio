@@ -1,410 +1,125 @@
-
 'use client';
 
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import type { Car, Booking } from '@/lib/types';
+import type { Car, Booking, User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import React, { useMemo } from 'react';
-import { format } from 'date-fns';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import React from 'react';
 import { DashboardLayout } from '@/components/dashboard-layout';
-import { collection, doc, query, where, serverTimestamp } from 'firebase/firestore';
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-
-
-const carFormSchema = z.object({
-  brand: z.string().min(1, 'Brand is required'),
-  model: z.string().min(1, 'Model is required'),
-  year: z.coerce.number().min(1900, 'Invalid year'),
-  pricePerDay: z.coerce.number().min(0, 'Price must be positive'),
-  fuelType: z.enum(['Gasoline', 'Diesel', 'Electric', 'Hybrid']),
-  transmission: z.enum(['Automatic', 'Manual']),
-  seats: z.coerce.number().min(1, 'At least 1 seat'),
-  location: z.string().min(1, 'Location is required'),
-  description: z.string().min(1, 'Description is required'),
-  available: z.boolean().default(true),
-  features: z.string().optional(),
-  images: z.any().optional(),
-});
-
-type CarFormValues = z.infer<typeof carFormSchema>;
-
-function ManageVehicleDialog({ 
-    car, 
-    trigger,
-    ownerId,
-} : { 
-    car?: Car, 
-    trigger: React.ReactNode, 
-    ownerId: string,
-}) {
-    const firestore = useFirestore();
-    const [open, setOpen] = React.useState(false);
-    const isEditMode = !!car;
-
-    const { register, handleSubmit, control, formState: { errors } } = useForm<CarFormValues>({
-        resolver: zodResolver(carFormSchema),
-        defaultValues: {
-            brand: car?.brand || '',
-            model: car?.model || '',
-            year: car?.year || new Date().getFullYear(),
-            pricePerDay: car?.pricePerDay || 0,
-            seats: car?.seats || 4,
-            fuelType: car?.fuelType || 'Gasoline',
-            transmission: car?.transmission || 'Automatic',
-            description: car?.description || '',
-            location: car?.location || '',
-            available: car?.available ?? true,
-            features: car?.features?.join(', ') || '',
-            images: null,
-        }
-    });
-
-    const onSubmit = (data: CarFormValues) => {
-        const featuresArray = data.features ? data.features.split(',').map(f => f.trim()) : [];
-        
-        // In a real app, you would upload to a service like Cloudinary here
-        // and get back the URLs. For now, we'll use object URLs for local preview.
-        const imageFiles = data.images as FileList | null;
-        let imageUrls: string[] = car?.images || [];
-        if (imageFiles && imageFiles.length > 0) {
-            imageUrls = Array.from(imageFiles).map(file => URL.createObjectURL(file));
-             // In a real app, replace the above with:
-             // const uploadedImageUrls = await uploadFilesToCloudinary(imageFiles);
-             // imageUrls = uploadedImageUrls;
-        }
-        
-        const carData = {
-            ...data,
-            features: featuresArray,
-            images: imageUrls,
-            ownerId: ownerId,
-            updatedAt: serverTimestamp(),
-        };
-
-        if (isEditMode && car) {
-            setDocumentNonBlocking(doc(firestore, 'cars', car.id), carData, { merge: true });
-        } else {
-            addDocumentNonBlocking(collection(firestore, 'cars'), { ...carData, createdAt: serverTimestamp() });
-        }
-        
-        setOpen(false);
-    };
-
-    const handleDelete = () => {
-        if (car) {
-            deleteDocumentNonBlocking(doc(firestore, 'cars', car.id));
-            setOpen(false);
-        }
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{trigger}</DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>{isEditMode ? 'Manage Vehicle' : 'Add New Vehicle'}</DialogTitle>
-                    <DialogDescription>
-                        {isEditMode ? 'Update the details of your vehicle.' : 'Fill in the details to add a new vehicle to your fleet.'}
-                    </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="brand">Brand</Label>
-                            <Input id="brand" {...register('brand')} />
-                            {errors.brand && <p className="text-red-500 text-xs mt-1">{errors.brand.message}</p>}
-                        </div>
-                        <div>
-                            <Label htmlFor="model">Model</Label>
-                            <Input id="model" {...register('model')} />
-                            {errors.model && <p className="text-red-500 text-xs mt-1">{errors.model.message}</p>}
-                        </div>
-                    </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="year">Year</Label>
-                            <Input id="year" type="number" {...register('year')} />
-                            {errors.year && <p className="text-red-500 text-xs mt-1">{errors.year.message}</p>}
-                        </div>
-                         <div>
-                            <Label htmlFor="pricePerDay">Price/Day (RWF)</Label>
-                            <Input id="pricePerDay" type="number" {...register('pricePerDay')} />
-                            {errors.pricePerDay && <p className="text-red-500 text-xs mt-1">{errors.pricePerDay.message}</p>}
-                        </div>
-                    </div>
-                    <div>
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" {...register('description')} />
-                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="location">Location</Label>
-                            <Input id="location" {...register('location')} placeholder="e.g. Kigali"/>
-                            {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>}
-                        </div>
-                        <div>
-                            <Label htmlFor="features">Features (comma-separated)</Label>
-                            <Input id="features" {...register('features')} placeholder="e.g., GPS, Bluetooth" />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <Label>Transmission</Label>
-                            <Controller name="transmission" control={control} render={({ field }) => (
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Automatic">Automatic</SelectItem>
-                                        <SelectItem value="Manual">Manual</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )} />
-                        </div>
-                        <div>
-                            <Label>Fuel Type</Label>
-                            <Controller name="fuelType" control={control} render={({ field }) => (
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Gasoline">Gasoline</SelectItem>
-                                        <SelectItem value="Diesel">Diesel</SelectItem>
-                                        <SelectItem value="Hybrid">Hybrid</SelectItem>
-                                        <SelectItem value="Electric">Electric</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            )} />
-                        </div>
-                        <div>
-                            <Label htmlFor="seats">Seats</Label>
-                            <Input id="seats" type="number" {...register('seats')} />
-                            {errors.seats && <p className="text-red-500 text-xs mt-1">{errors.seats.message}</p>}
-                        </div>
-                    </div>
-
-                    <div>
-                        <Label htmlFor="images">Car Images</Label>
-                        <Input id="images" type="file" multiple {...register('images')} />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {isEditMode ? "Uploading new images will replace all existing ones." : "Select one or more images."}
-                        </p>
-                        {errors.images && <p className="text-red-500 text-xs mt-1">{errors.images.message as string}</p>}
-                    </div>
-
-                    <DialogFooter className="sm:justify-between pt-4">
-                        {isEditMode && <Button type="button" variant="destructive" onClick={handleDelete}>Delete Vehicle</Button>}
-                        {!isEditMode && <div />}
-                        <div className="flex gap-2">
-                           <DialogClose asChild>
-                                <Button type="button" variant="secondary">Cancel</Button>
-                           </DialogClose>
-                            <Button type="submit">Save</Button>
-                        </div>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    )
-}
+import { collection, query, where } from 'firebase/firestore';
+import { useAuthWithProfile } from '@/hooks/use-auth-with-profile';
+import { OwnerDashboard } from '@/components/owner-dashboard';
+import { CustomerDashboard } from '@/components/customer-dashboard';
+import { AdminDashboard } from '@/components/admin-dashboard';
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const { user, isUserLoading, userProfile, isProfileLoading } = useAuthWithProfile();
   const firestore = useFirestore();
 
-  const carsQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
+  // Data fetching for Owner
+  const ownerCarsQuery = useMemoFirebase(() => {
+    if (!user || !firestore || userProfile?.role !== 'owner') return null;
     return query(collection(firestore, 'cars'), where('ownerId', '==', user.uid));
-  }, [user, firestore]);
-  const { data: ownerCars, isLoading: carsLoading } = useCollection<Car>(carsQuery);
+  }, [user, firestore, userProfile]);
+  const { data: ownerCars, isLoading: carsLoading } = useCollection<Car>(ownerCarsQuery);
 
-  const bookingsQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
+  const ownerBookingsQuery = useMemoFirebase(() => {
+    if (!user || !firestore || userProfile?.role !== 'owner') return null;
     return query(collection(firestore, 'bookings'), where('ownerId', '==', user.uid));
-  }, [user, firestore]);
-  const { data: ownerBookings, isLoading: bookingsLoading } = useCollection<Booking>(bookingsQuery);
+  }, [user, firestore, userProfile]);
+  const { data: ownerBookings, isLoading: bookingsLoading } = useCollection<Booking>(ownerBookingsQuery);
 
-  const totalEarnings = useMemo(() => {
-    if (!ownerBookings) return 0;
-    return ownerBookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.totalPrice, 0);
-  }, [ownerBookings]);
+  // Data fetching for Customer
+  const customerBookingsQuery = useMemoFirebase(() => {
+    if (!user || !firestore || userProfile?.role !== 'customer') return null;
+    return query(collection(firestore, 'bookings'), where('customerId', '==', user.uid));
+  }, [user, firestore, userProfile]);
+  const { data: customerBookings, isLoading: customerBookingsLoading } = useCollection<Booking>(customerBookingsQuery);
 
-  const activeBookings = useMemo(() => {
-    if (!ownerBookings) return 0;
-    return ownerBookings.filter(b => ['pending', 'approved'].includes(b.status)).length;
-  }, [ownerBookings]);
+  // Data fetching for Admin
+  const allUsersQuery = useMemoFirebase(() => {
+    if (!firestore || userProfile?.role !== 'admin') return null;
+    return collection(firestore, 'users');
+  }, [firestore, userProfile]);
+  const { data: allUsers, isLoading: usersLoading } = useCollection<User>(allUsersQuery);
 
-  const userProfile = { name: user?.displayName || 'Owner', role: 'owner' };
+  const allCarsQuery = useMemoFirebase(() => {
+    if (!firestore || userProfile?.role !== 'admin') return null;
+    return collection(firestore, 'cars');
+  }, [firestore, userProfile]);
+  const { data: allCars, isLoading: allCarsLoading } = useCollection<Car>(allCarsQuery);
 
-  if (!user) { // Simplified check for loading/logged out state
+  const allBookingsQuery = useMemoFirebase(() => {
+    if (!firestore || userProfile?.role !== 'admin') return null;
+    return collection(firestore, 'bookings');
+  }, [firestore, userProfile]);
+  const { data: allBookings, isLoading: allBookingsLoading } = useCollection<Booking>(allBookingsQuery);
+
+
+  if (isUserLoading || isProfileLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-lg text-muted-foreground">Loading your dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">You must be logged in as an owner to view this page.</p>
+        <p className="text-muted-foreground mb-6">You must be logged in to view the dashboard.</p>
         <Button asChild>
           <Link href="/login">Login</Link>
         </Button>
       </div>
     );
   }
-  
-  const getBadgeVariant = (available: Car['available']): "default" | "secondary" | "outline" | "destructive" => {
-    return available ? 'default' : 'secondary';
-  };
-  
-  const navItems = userProfile.role === 'admin'
-    ? [
-        { href: '/admin', label: 'Admin', icon: 'shield_person' },
-      ]
-    : [
-        { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-      ];
 
+  const navItems = [
+      { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  ];
+
+  if (userProfile?.role === 'admin') {
+      navItems.push({ href: '/admin', label: 'Admin', icon: 'shield_person' });
+  }
+
+  const renderDashboard = () => {
+    switch (userProfile?.role) {
+      case 'owner':
+        return <OwnerDashboard 
+                    user={user} 
+                    ownerCars={ownerCars} 
+                    ownerBookings={ownerBookings} 
+                    carsLoading={carsLoading} 
+                    bookingsLoading={bookingsLoading} 
+                />;
+      case 'customer':
+        return <CustomerDashboard 
+                  user={user}
+                  bookings={customerBookings} 
+                  isLoading={customerBookingsLoading} 
+                />;
+      case 'admin':
+        return <AdminDashboard 
+                  users={allUsers}
+                  cars={allCars}
+                  bookings={allBookings}
+                  loading={usersLoading || allCarsLoading || allBookingsLoading}
+                />;
+      default:
+        return (
+          <div className="container mx-auto px-4 py-12 text-center">
+            <h1 className="text-3xl font-bold mb-4">Role not assigned</h1>
+            <p className="text-muted-foreground mb-6">Your user role has not been assigned. Please contact support.</p>
+          </div>
+        );
+    }
+  };
 
   return (
     <DashboardLayout navItems={navItems}>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-            <h1 className="text-4xl font-headline font-bold mb-2">Owner Dashboard</h1>
-            <p className="text-lg text-muted-foreground">Welcome back, {user.displayName}. Here's an overview of your fleet.</p>
-        </div>
-         <ManageVehicleDialog
-            trigger={<Button>Add Vehicle</Button>}
-            ownerId={user.uid}
-         />
-      </div>
-      
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">payments</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEarnings.toLocaleString()} RWF</div>
-            <p className="text-xs text-muted-foreground">From completed bookings</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active & Upcoming Bookings</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">event_available</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeBookings}</div>
-            <p className="text-xs text-muted-foreground">Across all vehicles</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-            <span className="material-symbols-outlined text-muted-foreground">directions_car</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{ownerCars?.length ?? 0}</div>
-            <p className="text-xs text-muted-foreground">In your fleet</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid gap-8 md:grid-cols-3">
-        {/* My Vehicles Table */}
-        <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">My Vehicles</h2>
-             <Card>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Vehicle</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Price/Day (RWF)</TableHead>
-                      <TableHead className="text-right">Total Bookings</TableHead>
-                       <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {carsLoading ? (
-                        <TableRow>
-                            <TableCell colSpan={5} className="text-center h-24">Loading your vehicles...</TableCell>
-                        </TableRow>
-                    ) : ownerCars && ownerCars.length > 0 ? ownerCars.map(car => (
-                      <TableRow key={car.id}>
-                        <TableCell className="font-medium">{car.brand} {car.model}</TableCell>
-                        <TableCell>
-                          <Badge variant={getBadgeVariant(car.available)}>{car.available ? 'Available' : 'Unavailable'}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">{car.pricePerDay.toLocaleString()}</TableCell>
-                        <TableCell className="text-right">{ownerBookings?.filter(b => b.carId === car.id).length || 0}</TableCell>
-                        <TableCell className="text-right">
-                          <ManageVehicleDialog 
-                            car={car}
-                            trigger={<Button variant="outline" size="sm">Manage</Button>}
-                            ownerId={user.uid}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center h-24">You have no vehicles listed.</TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-            </Card>
-        </div>
-
-        {/* Recent Bookings */}
-        <div className="md:col-span-1">
-            <h2 className="text-2xl font-bold mb-4">Recent Bookings</h2>
-            <Card>
-                <CardContent className="p-4 space-y-4">
-                    {bookingsLoading ? (
-                        <p className="text-sm text-muted-foreground text-center py-8">Loading bookings...</p>
-                    ) : ownerBookings && ownerBookings.length > 0 ? ownerBookings.slice(0, 5).map(booking => {
-                        const car = ownerCars?.find(c => c.id === booking.carId);
-                        return (
-                            <div key={booking.id} className="flex items-center">
-                                <div className="flex-grow">
-                                    <p className="font-semibold">{car?.brand} {car?.model}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        {format(new Date(booking.startDate), 'MMM d')} - {format(new Date(booking.endDate), 'MMM d, yyyy')}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-semibold text-sm">{booking.totalPrice.toLocaleString()} RWF</p>
-                                    <Badge variant={booking.status === "completed" ? "outline" : "default"}>{booking.status}</Badge>
-                                </div>
-                            </div>
-                        )
-                    }) : (
-                        <p className="text-sm text-muted-foreground text-center py-8">No bookings for your vehicles yet.</p>
-                     )}
-                </CardContent>
-            </Card>
-        </div>
-      </div>
+      {renderDashboard()}
     </DashboardLayout>
   );
 }

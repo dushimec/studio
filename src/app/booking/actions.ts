@@ -13,6 +13,16 @@ const BookingSchema = z.object({
   totalPrice: z.number(),
 });
 
+function getDatesInRange(startDate: Date, endDate: Date): string[] {
+    const dates: string[] = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        dates.push(currentDate.toISOString().split('T')[0]);
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+}
+
 export async function submitBooking(bookingData: any) {
   const parsedData = BookingSchema.parse(bookingData);
 
@@ -26,6 +36,9 @@ export async function submitBooking(bookingData: any) {
     }
 
     const carData = carDoc.data();
+
+    const unavailableDates = getDatesInRange(new Date(parsedData.startDate), new Date(parsedData.endDate));
+
     const newBooking = {
       ...parsedData,
       status: 'pending',
@@ -34,7 +47,7 @@ export async function submitBooking(bookingData: any) {
 
     transaction.set(bookingRef, newBooking);
     transaction.update(carRef, {
-      // Add logic to handle unavailable dates
+      unavailableDates: FieldValue.arrayUnion(...unavailableDates),
     });
 
     return { id: bookingRef.id, ...newBooking };

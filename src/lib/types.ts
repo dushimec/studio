@@ -13,6 +13,7 @@ export type Car = {
   images: string[];
   location: string;
   available: boolean;
+  unavailabilityReason?: string;
   availabilityDates?: { start: string; end: string }[];
   description: string;
   features: string[];
@@ -32,12 +33,12 @@ export type Booking = {
 };
 
 export type User = {
-  id: string; // Corresponds to Firebase Auth UID
-  fullName: string;
+  uid: string; // Corresponds to Firebase Auth UID
+  displayName: string;
   email: string;
   phoneNumber?: string;
   role: 'customer' | 'owner' | 'admin';
-  profileImage?: string;
+  photoURL?: string;
   createdAt: string;
   updatedAt: string;
 };

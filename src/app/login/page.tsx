@@ -16,9 +16,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser } from "@/firebase";
+import { useAuth } from "@/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useUserProfile } from "@/hooks/use-user-profile";
+import { useAuthWithProfile } from "@/hooks/use-auth-with-profile";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,37 +26,36 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const { user, isUserLoading } = useUser();
-  const { userProfile, isLoading: isProfileLoading } = useUserProfile(user?.uid);
+  const { user, userProfile, isLoading } = useAuthWithProfile();
 
   useEffect(() => {
-    if (!isUserLoading && user && !isProfileLoading && userProfile) {
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${userProfile.fullName}!`,
-      });
+    if (!isLoading && user && userProfile) {
+        toast({
+            title: "Login Successful",
+            description: `Welcome back, ${userProfile.displayName}!`,
+        });
 
-      // Role-based redirection
-      switch (userProfile.role) {
-        case 'admin':
-          router.push('/admin');
-          break;
-        case 'owner':
-          router.push('/dashboard');
-          break;
-        case 'customer':
-        default:
-          router.push('/browse');
-          break;
-      }
+        // Role-based redirection
+        switch (userProfile.role) {
+            case 'admin':
+                router.push('/admin');
+                break;
+            case 'owner':
+                router.push('/dashboard');
+                break;
+            case 'customer':
+            default:
+                router.push('/browse');
+                break;
+        }
     }
-  }, [user, isUserLoading, userProfile, isProfileLoading, router, toast]);
+  }, [user, userProfile, isLoading, router, toast]);
 
   const handleLogin = async () => {
     if (!auth) return;
-    setIsLoading(true);
+    setIsLoggingIn(true);
     signInWithEmailAndPassword(auth, email, password)
       .catch((error) => {
         toast({
@@ -64,9 +63,11 @@ export default function LoginPage() {
           title: "Login Failed",
           description: error.message,
         });
-        setIsLoading(false); // Only stop loading on error, success is handled by useEffect
+        setIsLoggingIn(false);
       });
   };
+
+  const isButtonDisabled = isLoggingIn || isLoading || !email || !password;
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] py-12">
@@ -88,8 +89,8 @@ export default function LoginPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
-          <Button className="w-full" onClick={handleLogin} disabled={isLoading || !email || !password}>
-            {(isLoading || isUserLoading || isProfileLoading) && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
+          <Button className="w-full" onClick={handleLogin} disabled={isButtonDisabled}>
+            {(isLoggingIn || isLoading) && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
             Sign in
           </Button>
            <div className="mt-4 text-center text-sm">

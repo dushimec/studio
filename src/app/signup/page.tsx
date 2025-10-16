@@ -28,7 +28,7 @@ export default function SignupPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const [fullName, setFullName] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -42,12 +42,12 @@ export default function SignupPage() {
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         const user = userCredential.user;
-        await updateProfile(user, { displayName: fullName });
+        await updateProfile(user, { displayName });
         
         const userRef = doc(firestore, "users", user.uid);
         
-        const newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'profileImage'> = {
-            fullName: fullName,
+        const newUser: Omit<User, 'uid' | 'createdAt' | 'updatedAt' | 'photoURL'> = {
+            displayName: displayName,
             email: user.email!,
             phoneNumber: phoneNumber,
             role: role,
@@ -55,6 +55,7 @@ export default function SignupPage() {
 
         setDocumentNonBlocking(userRef, { 
             ...newUser, 
+            uid: user.uid,
             createdAt: serverTimestamp(), 
             updatedAt: serverTimestamp() 
         }, { merge: false });
@@ -88,8 +89,8 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent className="grid gap-4">
            <div className="grid gap-2">
-              <Label htmlFor="full-name">Full name</Label>
-              <Input id="full-name" placeholder="John Doe" required value={fullName} onChange={e => setFullName(e.target.value)} />
+              <Label htmlFor="display-name">Display Name</Label>
+              <Input id="display-name" placeholder="John Doe" required value={displayName} onChange={e => setDisplayName(e.target.value)} />
             </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
@@ -117,7 +118,7 @@ export default function SignupPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
-          <Button className="w-full" onClick={handleSignup} disabled={isLoading || !fullName || !email || !password}>
+          <Button className="w-full" onClick={handleSignup} disabled={isLoading || !displayName || !email || !password}>
             {isLoading && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
             Create account
           </Button>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Logo } from '@/components/logo';
-import { useUser, useAuth } from '@/firebase';
+import { useAuth } from '@/firebase';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +20,8 @@ import {
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
-import { useUserProfile } from '@/hooks/use-user-profile';
+import { useAuthWithProfile } from '@/hooks/use-auth-with-profile';
+import { Input } from '../ui/input';
 
 const baseNavLinks = [
   { href: '/browse', label: 'Browse Cars' },
@@ -34,8 +34,7 @@ export default function Header() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
-  const { user, isUserLoading } = useUser();
-  const { userProfile, isLoading: isProfileLoading } = useUserProfile(user?.uid);
+  const { user, userProfile, isLoading } = useAuthWithProfile();
   const auth = useAuth();
 
   const handleLogout = () => {
@@ -47,21 +46,21 @@ export default function Header() {
       router.push('/login');
     })
   }
-
+  
   const getNavLinks = () => {
       if (!user) {
           return baseNavLinks;
       }
       
-      if (isProfileLoading || !userProfile) {
-          return []; // Or a loading state
+      if (isLoading || !userProfile) {
+          return [];
       }
 
       switch (userProfile.role) {
           case 'admin':
-              return [{ href: '/admin', label: 'Admin' }];
+              return [{ href: '/dashboard', label: 'Admin Dashboard' }];
           case 'owner':
-              return [{ href: '/dashboard', label: 'Dashboard' }];
+              return [{ href: '/dashboard', label: 'Owner Dashboard' }];
           case 'customer':
           default:
               return [
@@ -81,9 +80,11 @@ export default function Header() {
       : names[0].substring(0, 2);
   }
 
+  const showSearchBar = !user || userProfile?.role === 'customer';
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center px-4 sm:px-6 lg:px-8">
+      <div className="container flex h-16 items-center px-4 sm:px-6 lg:px-8">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden">
@@ -91,7 +92,7 @@ export default function Header() {
               <span className="sr-only">Toggle Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
+          <SheetContent side="left" className="pr-0 sm:max-w-xs">
             <SheetTitle className="sr-only">Menu</SheetTitle>
             <div className="p-4">
               <Logo />
@@ -123,6 +124,15 @@ export default function Header() {
               <Logo />
           </div>
           
+          {showSearchBar && (
+            <div className="flex flex-1 items-center justify-center">
+                <div className="relative w-full max-w-md">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">search</span>
+                <Input placeholder="Search for cars..." className="pl-10" />
+                </div>
+            </div>
+          )}
+          
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             {navLinks.map((link) => (
               <Link
@@ -138,28 +148,33 @@ export default function Header() {
             ))}
           </nav>
           
-          <div className="flex flex-1 items-center justify-end space-x-2">
-            { (isUserLoading || (user && isProfileLoading)) ? (
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+          <div className="flex items-center justify-end space-x-2">
+
+            { isLoading ? (
+              <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
             ) : user ? (
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                       <AvatarFallback>{getInitials(userProfile?.fullName)}</AvatarFallback>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className="h-9 w-9">
+                       <AvatarFallback>{getInitials(userProfile?.displayName)}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{userProfile?.fullName}</p>
+                      <p className="text-sm font-medium leading-none">{userProfile?.displayName}</p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                   <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                    <span className="material-symbols-outlined mr-2 h-4 w-4">dashboard</span>
+                    Dashboard
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <span className="material-symbols-outlined mr-2 h-4 w-4">logout</span>
                     Log out
