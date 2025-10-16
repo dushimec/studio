@@ -8,19 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import type { Car, Booking } from '@/lib/types';
+import type { Car } from '@/lib/types';
 import Link from 'next/link';
-import { useState } from 'react';
-import type { DateRange } from 'react-day-picker';
-import { format, differenceInCalendarDays } from 'date-fns';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { Calendar } from '@/components/ui/calendar';
-import { useToast } from '@/hooks/use-toast';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { doc, collection, serverTimestamp } from 'firebase/firestore';
-import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { BookingForm } from '@/components/booking-form';
 
 const getAvailabilityProps = (available: Car['available']) => {
     if (available) {
@@ -36,57 +29,10 @@ export default function CarDetailsPage() {
   const carRef = useMemoFirebase(() => doc(firestore, 'cars', id), [firestore, id]);
   const { data: car, isLoading: isCarLoading } = useDoc<Car>(carRef);
   const { user } = useUser();
-  const router = useRouter();
-  const { toast } = useToast();
 
-  const [date, setDate] = useState<DateRange | undefined>();
-  const [isBooking, setIsBooking] = useState(false);
-  
   if (!isCarLoading && !car) {
     notFound();
   }
-  
-  const numberOfDays = date?.from && date?.to ? differenceInCalendarDays(date.to, date.from) + 1 : 0;
-  const totalPrice = numberOfDays * (car?.pricePerDay || 0);
-
-  const handleBooking = () => {
-    if (!user || !date?.from || !date?.to || !car) return;
-    
-    setIsBooking(true);
-
-    const newBooking: Omit<Booking, 'id' | 'createdAt' | 'updatedAt'> = {
-      carId: car.id,
-      customerId: user.uid,
-      ownerId: car.ownerId,
-      startDate: date.from.toISOString(),
-      endDate: date.to.toISOString(),
-      totalPrice,
-      status: 'pending',
-    };
-    
-    const bookingsRef = collection(firestore, 'bookings');
-    addDocumentNonBlocking(bookingsRef, { ...newBooking, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-        .then(() => {
-            const carDocRef = doc(firestore, 'cars', car.id);
-            setDocumentNonBlocking(carDocRef, { available: false }, { merge: true });
-
-            toast({
-                title: "Booking Request Sent!",
-                description: `Your request for the ${car.brand} ${car.model} has been sent for approval.`,
-            });
-            router.push('/booking');
-        })
-        .catch((e) => {
-             toast({
-                variant: "destructive",
-                title: "Booking Failed",
-                description: e.message || "Could not save your booking request.",
-            });
-        })
-        .finally(() => {
-            setIsBooking(false);
-        });
-  };
 
   if (isCarLoading) {
     return <CarDetailsSkeleton />;
@@ -98,22 +44,6 @@ export default function CarDetailsPage() {
 
   const carImages = car.images;
   const availability = getAvailabilityProps(car.available);
-
-  const renderBookingButton = () => {
-    if (!car.available) {
-      return <Button size="lg" className="text-lg" disabled>Not Available</Button>;
-    }
-    if (user) {
-      return <Button size="lg" className="text-lg" onClick={handleBooking} disabled={!date?.from || !date?.to || isBooking}>
-         {isBooking ? <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span> : 'Book Now'}
-      </Button>;
-    }
-    return (
-      <Button size="lg" className="text-lg" asChild>
-        <Link href="/login">Login to Book</Link>
-      </Button>
-    );
-  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -152,9 +82,11 @@ export default function CarDetailsPage() {
               <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.brand} {car.model}</h1>
               <p className="text-lg text-muted-foreground">{car.year}</p>
             </div>
-            <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
-              <span className="material-symbols-outlined text-lg">{availability.icon}</span>
-              <span className="font-semibold">{availability.text}</span>
+            <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
+                    <span className="material-symbols-outlined text-lg">{availability.icon}</span>
+                    <span className="font-semibold">{availability.text}</span>
+                </div>
             </div>
           </div>
           <p className="mt-4 text-lg text-muted-foreground">{car.description}</p>
@@ -184,64 +116,16 @@ export default function CarDetailsPage() {
               <CardTitle>Start Your Booking</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
-               {car.available && user && (
-                 <div className="grid gap-2">
-                    <label className="text-sm font-medium">Select Dates</label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                        <Button
-                            id="date"
-                            variant="outline"
-                            className={cn(
-                            'w-full justify-start text-left font-normal h-12',
-                            !date && 'text-muted-foreground'
-                            )}
-                        >
-                            <span className="material-symbols-outlined mr-2 h-4 w-4">calendar_month</span>
-                            {date?.from ? (
-                            date.to ? (
-                                <>
-                                {format(date.from, 'LLL dd, y')} -{' '}
-                                {format(date.to, 'LLL dd, y')}
-                                </>
-                            ) : (
-                                format(date.from, 'LLL dd, y')
-                            )
-                            ) : (
-                            <span>Pick your dates</span>
-                            )}
-                        </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            initialFocus
-                            mode="range"
-                            defaultMonth={date?.from}
-                            selected={date}
-                            onSelect={setDate}
-                            numberOfMonths={2}
-                            disabled={(day) => day < new Date(new Date().setHours(0,0,0,0))}
-                        />
-                        </PopoverContent>
-                    </Popover>
+              {car.available && user ? (
+                <BookingForm />
+              ) : (
+                <div className='flex flex-col items-center justify-center h-48'>
+                  <p className='text-muted-foreground mb-4'>Please log in to book this car.</p>
+                  <Button asChild>
+                    <Link href="/login">Login</Link>
+                  </Button>
                 </div>
               )}
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Price per day</p>
-                  <span className="text-xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
-                </div>
-                {numberOfDays > 0 && (
-                   <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Total for {numberOfDays} day(s)</p>
-                        <span className="text-3xl font-bold">{totalPrice.toLocaleString()} RWF</span>
-                   </div>
-                )}
-              </div>
-               <div className="pt-2">
-                 {renderBookingButton()}
-               </div>
             </CardContent>
           </Card>
         </div>

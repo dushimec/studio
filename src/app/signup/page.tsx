@@ -21,6 +21,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, serverTimestamp } from "firebase/firestore";
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import type { User } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [role, setRole] = useState<'customer' | 'owner'>('customer');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async () => {
@@ -43,14 +46,13 @@ export default function SignupPage() {
         
         const userRef = doc(firestore, "users", user.uid);
         
-        // Using Omit to create a user object that excludes fields managed by the database
-        const newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'> = {
+        const newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'profileImage'> = {
             fullName: fullName,
             email: user.email!,
-            role: 'customer', // Assign 'customer' role by default
+            phoneNumber: phoneNumber,
+            role: role,
         };
 
-        // Use the non-blocking firestore update
         setDocumentNonBlocking(userRef, { 
             ...newUser, 
             createdAt: serverTimestamp(), 
@@ -92,6 +94,22 @@ export default function SignupPage() {
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="phone-number">Phone Number</Label>
+            <Input id="phone-number" placeholder="+1234567890" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="role">Role</Label>
+            <Select onValueChange={(value: 'customer' | 'owner') => setRole(value)} defaultValue={role}>
+                <SelectTrigger id="role">
+                    <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="customer">Customer</SelectItem>
+                    <SelectItem value="owner">Owner</SelectItem>
+                </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
