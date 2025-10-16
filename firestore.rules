@@ -9,6 +9,7 @@
  * - /bookings/{bookingId}: Stores car rental bookings.
  * - /notifications/{notificationId}: Stores notifications for users.
  * - /reviews/{reviewId}: Stores reviews for car rentals.
+ * - /locations/{locationId}: Stores map location data.
  *
  * Key Security Decisions:
  * - User profiles are strictly owned by the authenticated user. Only the user can read/write their own profile.
@@ -16,6 +17,7 @@
  * - Car listings, bookings, notifications, and reviews can only be created, updated, or deleted by an authenticated user
  *   who is the owner of the specific resource. This assumes that the resources each have a field like `ownerId` or
  *   `userId` that matches the authenticated user's `uid`.
+ * - Location data is publicly readable for use in maps, but can only be written by authenticated users.
  *
  * Denormalization for Authorization:
  *   The rules rely on each document having an `ownerId` or `userId` field to determine ownership for write operations.
@@ -130,6 +132,18 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update: if isSignedIn() && isExistingOwner(resource.data.userId);
       allow delete: if isSignedIn() && isExistingOwner(resource.data.userId);
+    }
+
+    /**
+     * @description Controls access to location documents. Allows public reads, but restricts writes to authenticated users.
+     * @path /databases/{database}/documents/locations/{locationId}
+     * @allow (read) Any user can read location data.
+     * @allow (write) Authenticated users can write location data.
+     * @principle Public read access with authenticated-only writes.
+     */
+    match /locations/{locationId} {
+      allow read: if true;
+      allow write: if isSignedIn();
     }
   }
 
