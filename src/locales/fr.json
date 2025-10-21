@@ -206,7 +206,8 @@
   "404 - Page Not Found": "404 - Page introuvable",
   "The page you are looking for does not exist.": "La page que vous recherchez n'existe pas.",
   "Go to Homepage": "Aller à la page d'accueil",
-  "hero.title.brand": "We Go",
+  "hero.title.we": "We ",
+  "hero.title.go": "Go",
   "hero.title.rest": " - Votre voyage, votre voiture.",
   "We Go is an online platform that allows people in Rwanda to easily rent cars for travel, business, or tourism. We connect car owners directly with customers, making car rental simple, safe, and reliable.": "We Go est une plateforme en ligne qui permet aux Rwandais de louer facilement des voitures pour leurs déplacements, leurs affaires ou leur tourisme. Nous mettons directement en relation les propriétaires de voitures avec les clients, ce qui rend la location de voitures simple, sûre et fiable.",
   "How It Works": "Comment ça marche",
@@ -232,3 +233,5 @@
   "Clear Availability": "Disponibilité claire",
   "See which cars are available in real-time, so you can plan your trip without any guesswork.": "Voyez quelles voitures sont disponibles en temps réel, afin que vous puissiez planifier votre voyage sans aucune conjecture."
 }
+
+    

@@ -206,7 +206,8 @@
   "404 - Page Not Found": "404 - Page Not Found",
   "The page you are looking for does not exist.": "The page you are looking for does not exist.",
   "Go to Homepage": "Go to Homepage",
-  "hero.title.brand": "We Go",
+  "hero.title.we": "We ",
+  "hero.title.go": "Go",
   "hero.title.rest": " - Your Journey, Your Car.",
   "We Go is an online platform that allows people in Rwanda to easily rent cars for travel, business, or tourism. We connect car owners directly with customers, making car rental simple, safe, and reliable.": "We Go is an online platform that allows people in Rwanda to easily rent cars for travel, business, or tourism. We connect car owners directly with customers, making car rental simple, safe, and reliable.",
   "How It Works": "How It Works",
@@ -232,3 +233,5 @@
   "Clear Availability": "Clear Availability",
   "See which cars are available in real-time, so you can plan your trip without any guesswork.": "See which cars are available in real-time, so you can plan your trip without any guesswork."
 }
+
+    
