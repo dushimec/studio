@@ -12,7 +12,6 @@ import { doc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useTranslation } from 'react-i18next';
-import { OwnerSidebar } from './owner-sidebar';
 
 export function OwnerDashboard({ ownerCars, ownerBookings, carsLoading, bookingsLoading, user }: { ownerCars: Car[] | null, ownerBookings: Booking[] | null, carsLoading: boolean, bookingsLoading: boolean, user: any }) {
   const firestore = useFirestore();
@@ -38,9 +37,7 @@ export function OwnerDashboard({ ownerCars, ownerBookings, carsLoading, bookings
   };
 
   return (
-    <div className="flex min-h-screen">
-      <OwnerSidebar />
-      <main className="flex-1 p-8">
+    <>
         <div className="flex justify-between items-center mb-8">
           <div>
               <h1 className="text-4xl font-headline font-bold mb-2">{t('Owner Dashboard')}</h1>
@@ -165,7 +162,6 @@ export function OwnerDashboard({ ownerCars, ownerBookings, carsLoading, bookings
               </Table>
           </Card>
         </div>
-      </main>
-    </div>
+    </>
   );
 }
