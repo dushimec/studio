@@ -31,7 +31,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white">
           <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 animate-fade-in-up">
-            {t('We Go - Your Journey, Your Car.')}
+            <span className="text-primary">{t('hero.title.brand')}</span>{t('hero.title.rest')}
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mb-8 animate-fade-in-up animation-delay-300">
             {t('We Go is an online platform that allows people in Rwanda to easily rent cars for travel, business, or tourism. We connect car owners directly with customers, making car rental simple, safe, and reliable.')}
