@@ -24,6 +24,11 @@ export type Booking = {
   carId: string;
   customerId: string;
   ownerId: string;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  pickupLocation: string;
+  dropoffLocation: string;
   startDate: string;
   endDate: string;
   totalPrice: number;

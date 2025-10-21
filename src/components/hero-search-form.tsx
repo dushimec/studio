@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { Calendar } from '@/components/ui/calendar';
 import type { DateRange } from 'react-day-picker';
 
 export function HeroSearchForm() {
+  const { t } = useTranslation();
   const [date, setDate] = useState<DateRange | undefined>();
   const [keyword, setKeyword] = useState('');
   const router = useRouter();
@@ -34,12 +36,12 @@ export function HeroSearchForm() {
     <div className="p-4 bg-background/80 backdrop-blur-sm rounded-lg shadow-2xl">
       <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
         <div className="md:col-span-5">
-          <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">Location or Car Name</label>
+          <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">{t('Location or Car Name')}</label>
           <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground">search</span>
-            <Input 
-              id="location" 
-              placeholder="e.g., Kigali or Stark SUV" 
+            <Input
+              id="location"
+              placeholder={t('e.g., Kigali or Stark SUV')}
               className="pl-10 h-12"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
@@ -47,7 +49,7 @@ export function HeroSearchForm() {
           </div>
         </div>
         <div className="md:col-span-5">
-          <label className="block text-sm font-medium text-foreground mb-1">Pickup & Return</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t('Pickup & Return')}</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -69,7 +71,7 @@ export function HeroSearchForm() {
                     format(date.from, 'LLL dd, y')
                   )
                 ) : (
-                  <span>Pick your dates</span>
+                  <span>{t('Pick your dates')}</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -88,7 +90,7 @@ export function HeroSearchForm() {
         <div className="md:col-span-2">
           <Button type="submit" size="lg" className="w-full h-12 text-base">
             <span className="material-symbols-outlined mr-2 h-5 w-5">search</span>
-            Search
+            {t('Search')}
           </Button>
         </div>
       </form>

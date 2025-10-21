@@ -22,6 +22,7 @@ import { doc, serverTimestamp } from "firebase/firestore";
 import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import type { User } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function SignupPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [role, setRole] = useState<'customer' | 'owner'>('customer');
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleSignup = async () => {
     if (!auth || !firestore) return;
@@ -61,15 +63,15 @@ export default function SignupPage() {
         }, { merge: false });
 
         toast({
-          title: "Account Created",
-          description: "Welcome! You can now log in.",
+          title: t("Account Created"),
+          description: t("Welcome! You can now log in."),
         });
         router.push('/login');
       })
       .catch((error) => {
         toast({
           variant: "destructive",
-          title: "Sign Up Failed",
+          title: t("Sign Up Failed"),
           description: error.message,
         });
       })
@@ -82,50 +84,50 @@ export default function SignupPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] py-12">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Sign Up</CardTitle>
+          <CardTitle className="text-2xl">{t('Sign Up')}</CardTitle>
           <CardDescription>
-            Enter your information to create an account.
+            {t('Enter your information to create an account.')}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
            <div className="grid gap-2">
-              <Label htmlFor="display-name">Display Name</Label>
+              <Label htmlFor="display-name">{t('Display Name')}</Label>
               <Input id="display-name" placeholder="John Doe" required value={displayName} onChange={e => setDisplayName(e.target.value)} />
             </div>
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('Email')}</Label>
             <Input id="email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="phone-number">Phone Number</Label>
+            <Label htmlFor="phone-number">{t('Phone Number')}</Label>
             <Input id="phone-number" placeholder="+1234567890" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t('Role')}</Label>
             <Select onValueChange={(value: 'customer' | 'owner') => setRole(value)} defaultValue={role}>
                 <SelectTrigger id="role">
-                    <SelectValue placeholder="Select a role" />
+                    <SelectValue placeholder={t('Select a role')} />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="customer">Customer</SelectItem>
-                    <SelectItem value="owner">Owner</SelectItem>
+                    <SelectItem value="customer">{t('Customer')}</SelectItem>
+                    <SelectItem value="owner">{t('Owner')}</SelectItem>
                 </SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('Password')}</Label>
             <Input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
           <Button className="w-full" onClick={handleSignup} disabled={isLoading || !displayName || !email || !password}>
             {isLoading && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
-            Create account
+            {t('Create account')}
           </Button>
            <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
+            {t('Already have an account?')}{" "}
             <Link href="/login" className="underline">
-              Login
+              {t('Login')}
             </Link>
           </div>
         </CardFooter>

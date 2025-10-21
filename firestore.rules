@@ -1,3 +1,4 @@
+
 /**
  * @file Firestore Security Rules
  * @description This ruleset enforces a strict user-ownership model for user profiles
@@ -24,6 +25,7 @@
  *   For example, a car document must have an `ownerId` field that matches the user ID of the car's owner.
  *   Similarly, a booking document must have `customerId` for who made the booking and `ownerId` for the car owner.
  */
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -64,8 +66,7 @@ service cloud.firestore {
      * @principle Public read access with owner-only writes, enforces document ownership for writes.
      */
     match /cars/{carId} {
-      allow get: if true;
-      allow list: if true;
+      allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isSignedIn() && isExistingOwner(resource.data.ownerId);
       allow delete: if isSignedIn() && isExistingOwner(resource.data.ownerId);
@@ -87,7 +88,7 @@ service cloud.firestore {
     match /bookings/{bookingId} {
       allow get: if true;
       allow list: if true;
-      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow create: if true;
       allow update: if isSignedIn() && (isExistingOwner(resource.data.customerId) || isExistingOwner(resource.data.ownerId));
       allow delete: if isSignedIn() && isExistingOwner(resource.data.customerId);
     }

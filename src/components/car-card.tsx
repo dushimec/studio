@@ -11,6 +11,10 @@ import { useEffect, useState } from 'react';
 import { getCarImage } from '@/ai/flows/car-image-flow';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { BookingForm } from './booking-form';
+import { useUser } from '@/firebase';
+import { useTranslation } from 'react-i18next';
 
 type CarCardProps = {
   car: CarType | null;
@@ -20,6 +24,8 @@ type CarCardProps = {
 export function CarCard({ car, generateImage = false }: CarCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useUser();
+  const { t } = useTranslation();
   const fallbackImage = 'https://picsum.photos/seed/car-placeholder/800/600';
   
   const hasUserImage = car && car.images && car.images.length > 0;
@@ -117,7 +123,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
              <Badge 
                 className={cn("absolute top-3 right-3", availabilityStyles[isAvailable.toString()])}
              >
-                {isAvailable ? 'Available' : 'Booked'}
+                {isAvailable ? t('Available') : t('Booked')}
             </Badge>
           </div>
         </Link>
@@ -132,7 +138,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-lg text-primary">group</span>
-            <span>{car.seats} Seats</span>
+            <span>{car.seats} {t('Seats')}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-lg text-primary">local_gas_station</span>
@@ -147,11 +153,21 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
       <CardFooter className="p-4 flex items-center justify-between bg-secondary/30">
         <div>
           <span className="text-2xl font-bold">{car.pricePerDay.toLocaleString()} RWF</span>
-          <span className="text-sm text-muted-foreground">/day</span>
+          <span className="text-sm text-muted-foreground">{t('/day')}</span>
         </div>
-        <Button asChild disabled={!isAvailable}>
-          <Link href={`/browse/${car.id}`}>{isAvailable ? 'Book Now' : 'Not Available'}</Link>
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button disabled={!isAvailable}>{isAvailable ? t('Book Now') : t('Not Available')}</Button>
+          </DialogTrigger>
+          {isAvailable && (
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{t('Book')} {car.brand} {car.model}</DialogTitle>
+              </DialogHeader>
+              <BookingForm car={car} user={user} />
+            </DialogContent>
+          )}
+        </Dialog>
       </CardFooter>
     </Card>
   );

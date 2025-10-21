@@ -14,8 +14,9 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookingForm } from '@/components/booking-form';
+import { isCarAvailable } from '@/lib/availability';
 
-const getAvailabilityProps = (available: Car['available']) => {
+const getAvailabilityProps = (available: boolean) => {
     if (available) {
         return { icon: 'verified_user', text: 'Available', color: 'text-green-500', bgColor: 'bg-green-500/10' };
     }
@@ -29,24 +30,28 @@ export default function CarDetailsPage() {
   const carRef = useMemoFirebase(() => doc(firestore, 'cars', id), [firestore, id]);
   const { data: car, isLoading: isCarLoading } = useDoc<Car>(carRef);
   const { user } = useUser();
-
-  if (!isCarLoading && !car) {
-    notFound();
-  }
+  const router = useRouter();
 
   if (isCarLoading) {
     return <CarDetailsSkeleton />;
   }
 
   if (!car) {
-    notFound();
+    return notFound();
   }
 
   const carImages = car.images;
-  const availability = getAvailabilityProps(car.available);
+  const isAvailable = isCarAvailable(car);
+  const availability = getAvailabilityProps(isAvailable);
 
   return (
     <div className="container mx-auto px-4 py-12">
+      <div className="mb-4">
+        <Button variant="outline" onClick={() => router.back()}>
+          <span className="material-symbols-outlined mr-2">arrow_back</span>
+          Go Back
+        </Button>
+      </div>
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         <div>
           <Carousel className="w-full rounded-lg overflow-hidden shadow-lg">
@@ -116,14 +121,11 @@ export default function CarDetailsPage() {
               <CardTitle>Start Your Booking</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
-              {car.available && user ? (
-                <BookingForm />
+              {isAvailable ? (
+                <BookingForm car={car} user={user} />
               ) : (
                 <div className='flex flex-col items-center justify-center h-48'>
-                  <p className='text-muted-foreground mb-4'>Please log in to book this car.</p>
-                  <Button asChild>
-                    <Link href="/login">Login</Link>
-                  </Button>
+                  <p className='text-muted-foreground mb-4'>This car is not available for booking.</p>
                 </div>
               )}
             </CardContent>

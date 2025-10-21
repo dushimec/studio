@@ -35,32 +35,34 @@ import {
 } from '@/firebase/non-blocking-updates';
 import { Switch } from '@/components/ui/switch';
 import ImageUpload from './image-upload';
+import { useTranslation } from 'react-i18next';
 
-const carFormSchema = z.object({
-  brand: z.string().min(1, 'Brand is required'),
-  model: z.string().min(1, 'Model is required'),
-  year: z.coerce.number().min(1900, 'Invalid year'),
-  pricePerDay: z.coerce.number().min(0, 'Price must be positive'),
+const carFormSchema = (t: any) => z.object({
+  brand: z.string().min(1, t('Brand is required')),
+  model: z.string().min(1, t('Model is required')),
+  year: z.coerce.number().min(1900, t('Invalid year')),
+  pricePerDay: z.coerce.number().min(0, t('Price must be positive')),
   fuelType: z.enum(['Gasoline', 'Diesel', 'Electric', 'Hybrid']),
   transmission: z.enum(['Automatic', 'Manual']),
-  seats: z.coerce.number().min(1, 'At least 1 seat'),
-  location: z.string().min(1, 'Location is required'),
-  description: z.string().min(1, 'Description is required'),
+  seats: z.coerce.number().min(1, t('At least 1 seat')),
+  location: z.string().min(1, t('Location is required')),
+  description: z.string().min(1, t('Description is required')),
   available: z.boolean().default(true),
   unavailabilityReason: z.string().optional(),
   features: z.string().optional(),
   images: z.array(z.string()).optional(),
 });
 
-type CarFormValues = z.infer<typeof carFormSchema>;
+type CarFormValues = z.infer<ReturnType<typeof carFormSchema>>;
 
 export function ManageVehicleDialog({ car, trigger, ownerId }: { car?: Car, trigger: React.ReactNode, ownerId: string }) {
   const firestore = useFirestore();
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const isEditMode = !!car;
 
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<CarFormValues>({
-    resolver: zodResolver(carFormSchema),
+    resolver: zodResolver(carFormSchema(t)),
     defaultValues: {
       brand: car?.brand || '',
       model: car?.model || '',
@@ -112,83 +114,83 @@ export function ManageVehicleDialog({ car, trigger, ownerId }: { car?: Car, trig
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? 'Manage Vehicle' : 'Add New Vehicle'}</DialogTitle>
+          <DialogTitle>{isEditMode ? t('Manage Vehicle') : t('Add New Vehicle')}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? 'Update the details of this vehicle.' : 'Fill in the details to add a new vehicle.'}
+            {isEditMode ? t('Update the details of this vehicle.') : t('Fill in the details to add a new vehicle.')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="brand">Brand</Label>
+              <Label htmlFor="brand">{t('Brand')}</Label>
               <Input id="brand" {...register('brand')} />
               {errors.brand && <p className="text-red-500 text-xs mt-1">{errors.brand.message}</p>}
             </div>
             <div>
-              <Label htmlFor="model">Model</Label>
+              <Label htmlFor="model">{t('Model')}</Label>
               <Input id="model" {...register('model')} />
               {errors.model && <p className="text-red-500 text-xs mt-1">{errors.model.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="year">Year</Label>
+              <Label htmlFor="year">{t('Year')}</Label>
               <Input id="year" type="number" {...register('year')} />
               {errors.year && <p className="text-red-500 text-xs mt-1">{errors.year.message}</p>}
             </div>
             <div>
-              <Label htmlFor="pricePerDay">Price/Day (RWF)</Label>
+              <Label htmlFor="pricePerDay">{t('Price/Day (RWF)')}</Label>
               <Input id="pricePerDay" type="number" {...register('pricePerDay')} />
               {errors.pricePerDay && <p className="text-red-500 text-xs mt-1">{errors.pricePerDay.message}</p>}
             </div>
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('Description')}</Label>
             <Textarea id="description" {...register('description')} />
             {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="location">Location</Label>
-              <Input id="location" {...register('location')} placeholder="e.g. Kigali" />
+              <Label htmlFor="location">{t('Location')}</Label>
+              <Input id="location" {...register('location')} placeholder={t('e.g. Kigali')} />
               {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>}
             </div>
             <div>
-              <Label htmlFor="features">Features (comma-separated)</Label>
-              <Input id="features" {...register('features')} placeholder="e.g., GPS, Bluetooth" />
+              <Label htmlFor="features">{t('Features (comma-separated)')}</Label>
+              <Input id="features" {...register('features')} placeholder={t('e.g., GPS, Bluetooth')} />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label>Transmission</Label>
+              <Label>{t('Transmission')}</Label>
               <Controller name="transmission" control={control} render={({ field }) => (
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Automatic">Automatic</SelectItem>
-                    <SelectItem value="Manual">Manual</SelectItem>
+                    <SelectItem value="Automatic">{t('Automatic')}</SelectItem>
+                    <SelectItem value="Manual">{t('Manual')}</SelectItem>
                   </SelectContent>
                 </Select>
               )} />
             </div>
             <div>
-              <Label>Fuel Type</Label>
+              <Label>{t('Fuel Type')}</Label>
               <Controller name="fuelType" control={control} render={({ field }) => (
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Gasoline">Gasoline</SelectItem>
-                    <SelectItem value="Diesel">Diesel</SelectItem>
-                    <SelectItem value="Hybrid">Hybrid</SelectItem>
-                    <SelectItem value="Electric">Electric</SelectItem>
+                    <SelectItem value="Gasoline">{t('Gasoline')}</SelectItem>
+                    <SelectItem value="Diesel">{t('Diesel')}</SelectItem>
+                    <SelectItem value="Hybrid">{t('Hybrid')}</SelectItem>
+                    <SelectItem value="Electric">{t('Electric')}</SelectItem>
                   </SelectContent>
                 </Select>
               )} />
             </div>
             <div>
-              <Label htmlFor="seats">Seats</Label>
+              <Label htmlFor="seats">{t('Seats')}</Label>
               <Input id="seats" type="number" {...register('seats')} />
               {errors.seats && <p className="text-red-500 text-xs mt-1">{errors.seats.message}</p>}
             </div>
@@ -198,18 +200,18 @@ export function ManageVehicleDialog({ car, trigger, ownerId }: { car?: Car, trig
             <Controller name="available" control={control} render={({ field }) => (
               <Switch id="available-switch" checked={field.value} onCheckedChange={field.onChange} />
             )} />
-            <Label htmlFor="available-switch">Available for Rent</Label>
+            <Label htmlFor="available-switch">{t('Available for Rent')}</Label>
           </div>
 
           {!available && (
             <div>
-              <Label htmlFor="unavailabilityReason">Reason for Unavailability</Label>
+              <Label htmlFor="unavailabilityReason">{t('Reason for Unavailability')}</Label>
               <Input id="unavailabilityReason" {...register('unavailabilityReason')} />
             </div>
           )}
 
           <div>
-            <Label>Car Images</Label>
+            <Label>{t('Car Images')}</Label>
             <Controller
               name="images"
               control={control}
@@ -224,13 +226,13 @@ export function ManageVehicleDialog({ car, trigger, ownerId }: { car?: Car, trig
           </div>
 
           <DialogFooter className="sm:justify-between pt-4">
-            {isEditMode && <Button type="button" variant="destructive" onClick={handleDelete}>Delete Vehicle</Button>}
+            {isEditMode && <Button type="button" variant="destructive" onClick={handleDelete}>{t('Delete Vehicle')}</Button>}
             {!isEditMode && <div />}
             <div className="flex gap-2">
               <DialogClose asChild>
-                <Button type="button" variant="secondary">Cancel</Button>
+                <Button type="button" variant="secondary">{t('Cancel')}</Button>
               </DialogClose>
-              <Button type="submit">Save</Button>
+              <Button type="submit">{t('Save')}</Button>
             </div>
           </DialogFooter>
         </form>

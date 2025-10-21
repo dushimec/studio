@@ -1,21 +1,11 @@
-
 'use client';
 
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarInset,
-} from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
 import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
+import { useAuthWithProfile } from '@/hooks/use-auth-with-profile';
+import { OwnerSidebar } from './owner-sidebar';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -28,8 +18,11 @@ type DashboardLayoutProps = {
 
 export function DashboardLayout({ children, navItems = [] }: DashboardLayoutProps) {
   const pathname = usePathname();
-  const { user, isUserLoading } = useUser();
-  
+  const { user, isUserLoading: isUserLoadingAuth } = useUser();
+  const { profile, isLoading: isProfileLoading } = useAuthWithProfile();
+
+  const isUserLoading = isUserLoadingAuth || isProfileLoading;
+
   if (isUserLoading) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -42,11 +35,22 @@ export function DashboardLayout({ children, navItems = [] }: DashboardLayoutProp
     // Or a redirect to login
     return null;
   }
-  
+
+  if (profile?.role === 'owner') {
+    return (
+      <div className="flex min-h-screen">
+        <OwnerSidebar />
+        <main className="flex-1 p-8">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   const defaultNavItems = [
-     { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   ];
-  
+
   const finalNavItems = navItems.length > 0 ? navItems : defaultNavItems;
 
   return (
@@ -83,7 +87,7 @@ export function DashboardLayout({ children, navItems = [] }: DashboardLayoutProp
         </Sidebar>
         <main className="flex-1">
           <div className="p-2 hidden md:block">
-             <SidebarTrigger className="md:hidden" />
+            <SidebarTrigger className="md:hidden" />
           </div>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}

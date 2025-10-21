@@ -11,10 +11,12 @@ import { useAuthWithProfile } from '@/hooks/use-auth-with-profile';
 import { OwnerDashboard } from '@/components/owner-dashboard';
 import { CustomerDashboard } from '@/components/customer-dashboard';
 import { AdminDashboard } from '@/components/admin-dashboard';
+import { useTranslation } from 'react-i18next';
 
 export default function DashboardPage() {
   const { user, isUserLoading, userProfile, isProfileLoading } = useAuthWithProfile();
   const firestore = useFirestore();
+  const { t } = useTranslation();
 
   // Data fetching for Owner
   const ownerCarsQuery = useMemoFirebase(() => {
@@ -59,7 +61,7 @@ export default function DashboardPage() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <p className="text-lg text-muted-foreground">Loading your dashboard...</p>
+        <p className="text-lg text-muted-foreground">{t('Loading your dashboard...')}</p>
       </div>
     );
   }
@@ -67,21 +69,21 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-        <p className="text-muted-foreground mb-6">You must be logged in to view the dashboard.</p>
+        <h1 className="text-3xl font-bold mb-4">{t('Access Denied')}</h1>
+        <p className="text-muted-foreground mb-6">{t('You must be logged in to view the dashboard.')}</p>
         <Button asChild>
-          <Link href="/login">Login</Link>
+          <Link href="/login">{t('Login')}</Link>
         </Button>
       </div>
     );
   }
 
   const navItems = [
-      { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+      { href: '/dashboard', label: t('Dashboard'), icon: 'dashboard' },
   ];
 
   if (userProfile?.role === 'admin') {
-      navItems.push({ href: '/admin', label: 'Admin', icon: 'shield_person' });
+      navItems.push({ href: '/admin', label: t('Admin'), icon: 'shield_person' });
   }
 
   const renderDashboard = () => {
@@ -110,12 +112,16 @@ export default function DashboardPage() {
       default:
         return (
           <div className="container mx-auto px-4 py-12 text-center">
-            <h1 className="text-3xl font-bold mb-4">Role not assigned</h1>
-            <p className="text-muted-foreground mb-6">Your user role has not been assigned. Please contact support.</p>
+            <h1 className="text-3xl font-bold mb-4">{t('Role not assigned')}</h1>
+            <p className="text-muted-foreground mb-6">{t('Your user role has not been assigned. Please contact support.')}</p>
           </div>
         );
     }
   };
+
+  if (userProfile?.role === 'owner') {
+    return renderDashboard();
+  }
 
   return (
     <DashboardLayout navItems={navItems}>

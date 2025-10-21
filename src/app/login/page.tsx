@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useAuthWithProfile } from "@/hooks/use-auth-with-profile";
+import { useTranslation } from "react-i18next";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,14 +28,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { t } = useTranslation();
 
   const { user, userProfile, isLoading } = useAuthWithProfile();
 
   useEffect(() => {
     if (!isLoading && user && userProfile) {
         toast({
-            title: "Login Successful",
-            description: `Welcome back, ${userProfile.displayName}!`,
+            title: t("Login Successful"),
+            description: `${t('Welcome back')}, ${userProfile.displayName}!`,
         });
 
         // Role-based redirection
@@ -51,7 +53,7 @@ export default function LoginPage() {
                 break;
         }
     }
-  }, [user, userProfile, isLoading, router, toast]);
+  }, [user, userProfile, isLoading, router, toast, t]);
 
   const handleLogin = async () => {
     if (!auth) return;
@@ -60,7 +62,7 @@ export default function LoginPage() {
       .catch((error) => {
         toast({
           variant: "destructive",
-          title: "Login Failed",
+          title: t("Login Failed"),
           description: error.message,
         });
         setIsLoggingIn(false);
@@ -73,30 +75,30 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] py-12">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">{t('Login')}</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account.
+            {t('Enter your email below to login to your account.')}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('Email')}</Label>
             <Input id="email" type="email" placeholder="dushime@gmail.com" required value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('Password')}</Label>
             <Input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
           <Button className="w-full" onClick={handleLogin} disabled={isButtonDisabled}>
             {(isLoggingIn || isLoading) && <span className="material-symbols-outlined mr-2 h-4 w-4 animate-spin">progress_activity</span>}
-            Sign in
+            {t('Sign in')}
           </Button>
            <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
+            {t("Don't have an account?")}{" "}
             <Link href="/signup" className="underline">
-              Sign up
+              {t('Sign up')}
             </Link>
           </div>
         </CardFooter>

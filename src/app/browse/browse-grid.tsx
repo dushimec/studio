@@ -16,8 +16,10 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 
 export function BrowseGrid() {
+  const { t } = useTranslation();
   const firestore = useFirestore();
   const carsQuery = useMemoFirebase(() => collection(firestore, 'cars'), [firestore]);
   const { data: allCars, isLoading } = useCollection<Car>(carsQuery);
@@ -70,54 +72,54 @@ export function BrowseGrid() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-headline font-bold mb-2">Browse Our Fleet</h1>
-        <p className="text-lg text-muted-foreground">Find the perfect car for your journey.</p>
+        <h1 className="text-4xl font-headline font-bold mb-2">{t('Browse Our Fleet')}</h1>
+        <p className="text-lg text-muted-foreground">{t('Find the perfect car for your journey.')}</p>
       </div>
 
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Filters Sidebar */}
         <aside className="lg:w-1/4">
           <div className="p-4 bg-card rounded-lg border space-y-6 sticky top-24">
-            <h3 className="text-xl font-semibold">Search & Filter</h3>
+            <h3 className="text-xl font-semibold">{t('Search & Filter')}</h3>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Search by name</label>
+              <label className="text-sm font-medium">{t('Search by name')}</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground">search</span>
-                <Input placeholder="e.g., Toyota RAV4" className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                <Input placeholder={t('e.g., Toyota RAV4')} className="pl-10" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Fuel Type</label>
+              <label className="text-sm font-medium">{t('Fuel Type')}</label>
               <Select value={fuelType} onValueChange={setFuelType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Gasoline">Gasoline</SelectItem>
-                  <SelectItem value="Diesel">Diesel</SelectItem>
-                  <SelectItem value="Hybrid">Hybrid</SelectItem>
-                  <SelectItem value="Electric">Electric</SelectItem>
+                  <SelectItem value="all">{t('All Types')}</SelectItem>
+                  <SelectItem value="Gasoline">{t('Gasoline')}</SelectItem>
+                  <SelectItem value="Diesel">{t('Diesel')}</SelectItem>
+                  <SelectItem value="Hybrid">{t('Hybrid')}</SelectItem>
+                  <SelectItem value="Electric">{t('Electric')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
              <div className="space-y-2">
-              <label className="text-sm font-medium">Brand</label>
+              <label className="text-sm font-medium">{t('Brand')}</label>
               <Select value={brand} onValueChange={setBrand}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {brands.map(b => <SelectItem key={b} value={b}>{b === 'all' ? 'All Brands' : b}</SelectItem>)}
+                  {brands.map(b => <SelectItem key={b} value={b}>{b === 'all' ? t('All Brands') : b}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium">Seats</label>
+                <label className="text-sm font-medium">{t('Seats')}</label>
                 <Select value={seats} onValueChange={setSeats}>
                     <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">Any</SelectItem>
+                        <SelectItem value="all">{t('Any')}</SelectItem>
                         <SelectItem value="2">2+</SelectItem>
                         <SelectItem value="4">4+</SelectItem>
                         <SelectItem value="5">5+</SelectItem>
@@ -127,7 +129,7 @@ export function BrowseGrid() {
             </div>
             
             <div className="space-y-4">
-              <label className="text-sm font-medium">Price Range (RWF/day)</label>
+              <label className="text-sm font-medium">{t('Price Range (RWF/day)')}</label>
               <Slider
                 min={0}
                 max={200000}
@@ -142,13 +144,13 @@ export function BrowseGrid() {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Sort by price</label>
+              <label className="text-sm font-medium">{t('Sort by price')}</label>
               <Select value={sortOrder} onValueChange={setSortOrder}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Relevance</SelectItem>
-                  <SelectItem value="low-to-high">Low to High</SelectItem>
-                  <SelectItem value="high-to-low">High to Low</SelectItem>
+                  <SelectItem value="any">{t('Relevance')}</SelectItem>
+                  <SelectItem value="low-to-high">{t('Low to High')}</SelectItem>
+                  <SelectItem value="high-to-low">{t('High to Low')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -169,8 +171,8 @@ export function BrowseGrid() {
                 </div>
             ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center py-16 border-2 border-dashed rounded-lg">
-                    <h2 className="text-2xl font-semibold mb-2">No Cars Found</h2>
-                    <p className="text-muted-foreground">Try adjusting your filters to find the perfect car.</p>
+                    <h2 className="text-2xl font-semibold mb-2">{t('No Cars Found')}</h2>
+                    <p className="text-muted-foreground">{t('Try adjusting your filters to find the perfect car.')}</p>
                 </div>
             )}
         </main>

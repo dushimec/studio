@@ -1,5 +1,8 @@
 {
   "hosting": {
-    "source": "."
+    "source": ".",
+    "i18n": {
+      "root": "/src/locales"
+    }
   }
 }

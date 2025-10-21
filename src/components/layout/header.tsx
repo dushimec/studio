@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -22,11 +23,12 @@ import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthWithProfile } from '@/hooks/use-auth-with-profile';
 import { Input } from '../ui/input';
+import { useTranslation } from 'react-i18next';
 
-const baseNavLinks = [
-  { href: '/browse', label: 'Browse Cars' },
-  { href: '/recommendations', label: 'Smart Recommendations' },
-  { href: '/map', label: 'Map' },
+const baseNavLinks = (t: any) => [
+  { href: '/browse', label: t('Browse Cars') },
+  { href: '/recommendations', label: t('Smart Recommendations') },
+  { href: '/map', label: t('Map') },
 ];
 
 export default function Header() {
@@ -36,20 +38,26 @@ export default function Header() {
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const { user, userProfile, isLoading } = useAuthWithProfile();
   const auth = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   const handleLogout = () => {
     signOut(auth).then(() => {
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: t("Logged Out"),
+        description: t("You have been successfully logged out."),
       });
       router.push('/login');
     })
   }
   
   const getNavLinks = () => {
+      const links = baseNavLinks(t);
       if (!user) {
-          return baseNavLinks;
+          return links;
       }
       
       if (isLoading || !userProfile) {
@@ -58,14 +66,14 @@ export default function Header() {
 
       switch (userProfile.role) {
           case 'admin':
-              return [{ href: '/dashboard', label: 'Admin Dashboard' }];
+              return [{ href: '/dashboard', label: t('Admin Dashboard') }];
           case 'owner':
-              return [{ href: '/dashboard', label: 'Owner Dashboard' }];
+              return [{ href: '/dashboard', label: t('Owner Dashboard') }];
           case 'customer':
           default:
               return [
-                ...baseNavLinks,
-                { href: '/booking', label: 'My Bookings' }
+                ...links,
+                { href: '/booking', label: t('My Bookings') }
               ];
       }
   }
@@ -89,11 +97,11 @@ export default function Header() {
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden">
               <span className="material-symbols-outlined">menu</span>
-              <span className="sr-only">Toggle Menu</span>
+              <span className="sr-only">{t('Toggle Menu')}</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0 sm:max-w-xs">
-            <SheetTitle className="sr-only">Menu</SheetTitle>
+            <SheetTitle className="sr-only">{t('Menu')}</SheetTitle>
             <div className="p-4">
               <Logo />
             </div>
@@ -128,7 +136,7 @@ export default function Header() {
             <div className="flex flex-1 items-center justify-center">
                 <div className="relative w-full max-w-md">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">search</span>
-                <Input placeholder="Search for cars..." className="pl-10" />
+                <Input placeholder={t('Search for cars...')} className="pl-10" />
                 </div>
             </div>
           )}
@@ -149,6 +157,18 @@ export default function Header() {
           </nav>
           
           <div className="flex items-center justify-end space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <span className="material-symbols-outlined">language</span>
+                  <span className="sr-only">{t('Change language')}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => changeLanguage('en')}>{t('English')}</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => changeLanguage('fr')}>{t('Français')}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             { isLoading ? (
               <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
@@ -173,21 +193,21 @@ export default function Header() {
                   <DropdownMenuSeparator />
                    <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                     <span className="material-symbols-outlined mr-2 h-4 w-4">dashboard</span>
-                    Dashboard
+                    {t('Dashboard')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <span className="material-symbols-outlined mr-2 h-4 w-4">logout</span>
-                    Log out
+                    {t('Log out')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="flex">
                 <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
+                  <Link href="/login">{t('Login')}</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/signup">Sign Up</Link>
+                  <Link href="/signup">{t('Sign Up')}</Link>
                 </Button>
               </div>
             )}
