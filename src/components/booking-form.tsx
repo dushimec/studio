@@ -83,9 +83,16 @@ export function BookingForm({ car, owner, availableDates }: { car: Car, owner: U
         return Math.max(Math.ceil(diff / (1000 * 60 * 60 * 24)), 1);
     }, [pickupDateTime, dropoffDateTime]);
 
-    const totalPrice = useMemo(() => {
+    const baseRate = useMemo(() => {
         return dayCount * car.pricePerDay;
     }, [dayCount, car.pricePerDay]);
+
+    const serviceFee = 5000;
+    const securityDeposit = 20000;
+
+    const totalPrice = useMemo(() => {
+        return baseRate + serviceFee + securityDeposit;
+    }, [baseRate, serviceFee, securityDeposit]);
 
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -210,34 +217,6 @@ export function BookingForm({ car, owner, availableDates }: { car: Car, owner: U
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="pickupLocation"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{t('Pickup Location')}</FormLabel>
-                            <FormControl>
-                                <Input placeholder={t('e.g., Airport')} {...field} />
-                            </FormControl>
-                            <FormDescription>{t('Where you will pick up the car.')}</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="dropoffLocation"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{t('Drop-off Location')}</FormLabel>
-                            <FormControl>
-                                <Input placeholder={t('e.g., Downtown')} {...field} />
-                            </FormControl>
-                            <FormDescription>{t('Where you will return the car.')}</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
@@ -245,7 +224,7 @@ export function BookingForm({ car, owner, availableDates }: { car: Car, owner: U
                         name="pickupDate"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
-                                <FormLabel>{t('Pickup Date')}</FormLabel>
+                                <FormLabel>{t('Start Date')}</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <FormControl>
@@ -299,7 +278,7 @@ export function BookingForm({ car, owner, availableDates }: { car: Car, owner: U
                         name="dropoffDate"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
-                                <FormLabel>{t('Drop-off Date')}</FormLabel>
+                                <FormLabel>{t('End Date')}</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <FormControl>
@@ -338,7 +317,7 @@ export function BookingForm({ car, owner, availableDates }: { car: Car, owner: U
                         name="dropoffTime"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
-                                <FormLabel>{t('Drop-off Time')}</FormLabel>
+                                <FormLabel>{t('Dropoff Time')}</FormLabel>
                                 <FormControl>
                                      <TimePicker value={field.value} onChange={field.onChange} />
                                 </FormControl>
@@ -346,9 +325,39 @@ export function BookingForm({ car, owner, availableDates }: { car: Car, owner: U
                         )}
                     />
                 </div>
+                <FormField
+                    control={form.control}
+                    name="pickupLocation"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('Pickup Location')}</FormLabel>
+                            <FormControl>
+                                <Input placeholder={t('e.g., Airport')} {...field} />
+                            </FormControl>
+                            <FormDescription>{t('Where you will pick up the car.')}</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                <div className="font-bold text-lg">
-                    {t('Total Price')}: {totalPrice.toLocaleString()} RWF ({dayCount} {dayCount > 1 ? t('days') : t('day')})
+                <div>
+                    <h3 className="font-bold text-lg">{t('Pricing Details')}</h3>
+                    <div className="flex justify-between">
+                        <span>{t('Base Rate')} ({dayCount} {dayCount > 1 ? t('days') : t('day')})</span>
+                        <span>{baseRate.toLocaleString()} RWF</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>{t('Service Fee')}</span>
+                        <span>{serviceFee.toLocaleString()} RWF</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>{t('Security Deposit')}</span>
+                        <span>{securityDeposit.toLocaleString()} RWF</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg">
+                        <span>{t('Total')}</span>
+                        <span>{totalPrice.toLocaleString()} RWF</span>
+                    </div>
                 </div>
 
                 <Button type="submit" disabled={isLoading || isUserLoading}>

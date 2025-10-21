@@ -10,11 +10,21 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ value, onChange }: TimePickerProps) {
+  const handleChange = (time: string) => {
+    const [hour, minute] = time.split(':').map(Number);
+    onChange({ hour, minute });
+  };
+
+  const formatTime = (time: { hour: number; minute: number }) => {
+    const pad = (num: number) => String(num).padStart(2, '0');
+    return `${pad(time.hour)}:${pad(time.minute)}`;
+  };
+
   return (
     <div className="flex items-center gap-2">
       <TimeField
-        value={value}
-        onChange={onChange}
+        value={formatTime(value)}
+        onChange={handleChange}
       />
     </div>
   );
