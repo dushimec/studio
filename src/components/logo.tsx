@@ -13,10 +13,10 @@ export function Logo({ className }: { className?: string }) {
       <Image 
         src="https://res.cloudinary.com/drwi9cpdi/image/upload/v1760517967/weGo_mcux3i.jpg" 
         alt="We Go Logo" 
-        width={100} 
-        height={40}
+        width={45} 
+        height={20}
         priority
-        className="rounded-lg"
+        className="rounded-full"
       />
     </Link>
   );
