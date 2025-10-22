@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -89,5 +90,18 @@
   }
   .animation-delay-600 {
     animation-delay: 600ms;
+  }
+
+  @keyframes zoom-in {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.1);
+    }
+  }
+
+  .animate-zoom-in {
+    animation: zoom-in 10s infinite alternate;
   }
 }

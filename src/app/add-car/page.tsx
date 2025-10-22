@@ -9,9 +9,11 @@ export default function AddCarPage() {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <h1 className="text-4xl font-headline font-bold mb-8">{t('Add New Car')}</h1>
-      <ManageVehicleDialog ownerId={user?.uid} />
+      <div className="animate-slide-in-from-bottom">
+        <ManageVehicleDialog ownerId={user?.uid} />
+      </div>
     </div>
   );
 }

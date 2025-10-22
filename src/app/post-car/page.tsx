@@ -80,10 +80,10 @@ export default function PostCarPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl">
+    <div className="container mx-auto py-8 max-w-2xl animate-fade-in">
       <h1 className="text-3xl font-bold mb-6">Post a Car</h1>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 animate-slide-in-from-bottom">
           <FormField
             control={form.control}
             name="make"

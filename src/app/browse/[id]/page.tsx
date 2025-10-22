@@ -45,7 +45,7 @@ export default function CarDetailsPage() {
   const availability = getAvailabilityProps(isAvailable);
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 animate-fade-in">
       <div className="mb-4">
         <Button variant="outline" onClick={() => router.back()}>
           <span className="material-symbols-outlined mr-2">arrow_back</span>
@@ -53,7 +53,7 @@ export default function CarDetailsPage() {
         </Button>
       </div>
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-        <div>
+        <div className="animate-slide-in-from-left">
           <Carousel className="w-full rounded-lg overflow-hidden shadow-lg">
             <CarouselContent>
               {carImages && carImages.length > 0 ? carImages.map((imgUrl, index) => (
@@ -81,7 +81,7 @@ export default function CarDetailsPage() {
           </Carousel>
         </div>
         
-        <div>
+        <div className="animate-slide-in-from-right">
           <div className='flex justify-between items-start'>
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.brand} {car.model}</h1>
@@ -134,7 +134,7 @@ export default function CarDetailsPage() {
       </div>
       
       <div className="mt-16 grid md:grid-cols-2 gap-8 lg:gap-12">
-        <div>
+        <div className="animate-fade-in" style={{animationDelay: '200ms'}}>
           <h2 className="text-2xl font-bold mb-4">Key Features</h2>
           <ul className="space-y-2">
             {car.features.map((feature, i) => (
@@ -145,7 +145,7 @@ export default function CarDetailsPage() {
             ))}
           </ul>
         </div>
-        <div>
+        <div className="animate-fade-in" style={{animationDelay: '400ms'}}>
           <h2 className="text-2xl font-bold mb-4">Rental Policies</h2>
            <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">

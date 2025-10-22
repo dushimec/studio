@@ -71,14 +71,14 @@ export function BrowseGrid() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-in">
         <h1 className="text-4xl font-headline font-bold mb-2">{t('Browse Our Fleet')}</h1>
         <p className="text-lg text-muted-foreground">{t('Find the perfect car for your journey.')}</p>
       </div>
 
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Filters Sidebar */}
-        <aside className="lg:w-1/4">
+        <aside className="lg:w-1/4 animate-slide-in-from-left">
           <div className="p-4 bg-card rounded-lg border space-y-6 sticky top-24">
             <h3 className="text-xl font-semibold">{t('Search & Filter')}</h3>
             
@@ -165,12 +165,14 @@ export function BrowseGrid() {
                 </div>
             ) : filteredCars.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                    {filteredCars.map((car) => (
-                      <CarCard key={car.id} car={car} />
+                    {filteredCars.map((car, i) => (
+                      <div key={car.id} className="animate-fade-in" style={{animationDelay: `${i * 100}ms`}}>
+                        <CarCard car={car} />
+                      </div>
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center py-16 border-2 border-dashed rounded-lg">
+                <div className="flex flex-col items-center justify-center h-full text-center py-16 border-2 border-dashed rounded-lg animate-fade-in">
                     <h2 className="text-2xl font-semibold mb-2">{t('No Cars Found')}</h2>
                     <p className="text-muted-foreground">{t('Try adjusting your filters to find the perfect car.')}</p>
                 </div>

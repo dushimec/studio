@@ -9,6 +9,9 @@ import Link from 'next/link';
 import { collection } from 'firebase/firestore';
 import type { Car } from '@/lib/types';
 import { useTranslation } from 'react-i18next';
+import { useRef } from 'react';
+import { useOnScreen } from '@/hooks/use-on-screen';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -16,6 +19,16 @@ export default function Home() {
   const carsQuery = useMemoFirebase(() => collection(firestore, 'cars'), [firestore]);
   const { data: cars, isLoading } = useCollection<Car>(carsQuery);
   const featuredCars = cars?.slice(0, 3) || [];
+
+  const worksRef = useRef<HTMLDivElement>(null);
+  const featuredRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const whyRef = useRef<HTMLDivElement>(null);
+
+  const isWorksVisible = useOnScreen(worksRef, 0.2);
+  const isFeaturedVisible = useOnScreen(featuredRef, 0.1);
+  const isAboutVisible = useOnScreen(aboutRef, 0.2);
+  const isWhyVisible = useOnScreen(whyRef, 0.2);
 
   return (
     <div className="flex flex-col">
@@ -26,7 +39,7 @@ export default function Home() {
           loop
           muted
           playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
+          className="absolute top-0 left-0 w-full h-full object-cover animate-zoom-in"
         />
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative container mx-auto px-4 h-full flex flex-col items-center justify-center text-center text-white">
@@ -42,25 +55,25 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-background">
+      <section ref={worksRef} className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
-           <h2 className="text-3xl font-bold text-center mb-12">{t('How It Works')}</h2>
+           <h2 className={cn("text-3xl font-bold text-center mb-12 transition-all duration-700", isWorksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>{t('How It Works')}</h2>
            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="flex flex-col items-center">
+              <div className={cn("flex flex-col items-center transition-all duration-700", isWorksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 border-2 border-primary mb-4">
                    <span className="material-symbols-outlined text-4xl text-primary">search</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{t('1. Find Your Car')}</h3>
                 <p className="text-muted-foreground">{t('Visit the website, search for a car, and check if it’s available for your desired dates.')}</p>
               </div>
-              <div className="flex flex-col items-center">
+              <div className={cn("flex flex-col items-center transition-all duration-700 delay-200", isWorksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 border-2 border-primary mb-4">
                   <span className="material-symbols-outlined text-4xl text-primary">calendar_month</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{t('2. Book with Ease')}</h3>
                 <p className="text-muted-foreground">{t('Send a booking request. The car owner or admin will review and approve it.')}</p>
               </div>
-              <div className="flex flex-col items-center">
+              <div className={cn("flex flex-col items-center transition-all duration-700 delay-400", isWorksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 border-2 border-primary mb-4">
                   <span className="material-symbols-outlined text-4xl text-primary">directions_car</span>
                 </div>
@@ -71,9 +84,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-secondary/5">
+      <section ref={featuredRef} className="py-16 md:py-24 bg-secondary/5">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className={cn("text-center mb-12 transition-all duration-700", isFeaturedVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
             <h2 className="text-3xl font-bold">{t('Featured Cars')}</h2>
             <p className="text-muted-foreground mt-2">{t('Check out our most popular cars.')}</p>
           </div>
@@ -81,12 +94,14 @@ export default function Home() {
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => <CarCard key={i} car={null} />)
             ) : (
-              featuredCars.map((car) => (
-                <CarCard key={car.id} car={car} generateImage={true} />
+              featuredCars.map((car, i) => (
+                <div key={car.id} className={cn("transition-all duration-700 group", isFeaturedVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")} style={{transitionDelay: `${i * 200}ms`}}>
+                  <CarCard car={car} generateImage={true} />
+                </div>
               ))
             )}
           </div>
-          <div className="text-center mt-12">
+          <div className={cn("text-center mt-12 transition-all duration-700", isFeaturedVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
             <Button asChild size="lg">
               <Link href="/browse">{t('Browse All Cars')}</Link>
             </Button>
@@ -94,47 +109,47 @@ export default function Home() {
         </div>
       </section>
       
-      <section className="py-16 md:py-24 bg-background">
+      <section ref={aboutRef} className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-12">{t('About Us')}</h2>
+          <h2 className={cn("text-3xl font-bold mb-12 transition-all duration-700", isAboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>{t('About Us')}</h2>
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-            <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+            <div className={cn("flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-all duration-700", isAboutVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8")}>
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
                  <span className="material-symbols-outlined text-4xl text-primary">track_changes</span>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('Our Mission')}</h3>
               <p className="text-muted-foreground">{t('To simplify transportation access in Rwanda by providing a trustworthy online platform where customers can easily find cars for rent and owners can reach more clients.')}</p>
             </div>
-            <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+            <div className={cn("flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-all duration-700 delay-200", isAboutVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8")}>
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
                 <span className="material-symbols-outlined text-4xl text-primary">visibility</span>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('Our Vision')}</h3>
-              <p className="text-muted-foreground">{t('To become Rwanda’s leading and most trusted digital car rental service — making car rentals accessible to anyone, anywhere, anytime.')}</p>
+              <p className={cn("text-muted-foreground transition-all duration-700", isAboutVisible ? "opacity-100" : "opacity-0")}>{t('To become Rwanda’s leading and most trusted digital car rental service — making car rentals accessible to anyone, anywhere, anytime.')}</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-secondary/5">
+      <section ref={whyRef} className="py-16 md:py-24 bg-secondary/5">
         <div className="container mx-auto px-4">
-           <h2 className="text-3xl font-bold text-center mb-12">{t('Why Choose Us?')}</h2>
+           <h2 className={cn("text-3xl font-bold text-center mb-12 transition-all duration-700", isWhyVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>{t('Why Choose Us?')}</h2>
            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+              <div className={cn("flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-all duration-700", isWhyVisible ? "opacity-100 scale-100" : "opacity-0 scale-90")}>
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
                    <span className="material-symbols-outlined text-4xl text-primary">thumb_up</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{t('Simple Booking')}</h3>
                 <p className="text-muted-foreground">{t('Our booking process is fast, straightforward, and can be completed in just a few clicks.')}</p>
               </div>
-              <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-shadow">
+              <div className={cn("flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-all duration-700 delay-200", isWhyVisible ? "opacity-100 scale-100" : "opacity-0 scale-90")}>
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
                   <span className="material-symbols-outlined text-4xl text-primary">verified_user</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{t('Verified Owners')}</h3>
                 <p className="text-muted-foreground">{t('We partner with reliable and verified car owners to ensure your safety and satisfaction.')}</p>
               </div>
-              <div className="flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-.shadow">
+              <div className={cn("flex flex-col items-center p-6 border rounded-lg hover:shadow-lg transition-all duration-700 delay-400", isWhyVisible ? "opacity-100 scale-100" : "opacity-0 scale-90")}>
                 <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
                   <span className="material-symbols-outlined text-4xl text-primary">schedule</span>
                 </div>
@@ -147,5 +162,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

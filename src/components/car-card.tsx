@@ -102,7 +102,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
        !isAvailable && "opacity-60 hover:opacity-80"
     )}>
       <CardHeader className="p-0">
-        <Link href={`/browse/${car.id}`} className="block">
+        <Link href={`/browse/${car.id}`} className="block overflow-hidden">
           <div className="relative h-56 w-full">
             {loading ? (
               <Skeleton className="w-full h-full" />
@@ -111,7 +111,7 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
                 src={imageUrl}
                 alt={`${car.brand} ${car.model}`}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 data-ai-hint={'car image'}
               />
