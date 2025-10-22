@@ -27,7 +27,6 @@ import { useTranslation } from 'react-i18next';
 
 const baseNavLinks = (t: any) => [
   { href: '/browse', label: t('Browse Cars') },
-  { href: '/recommendations', label: t('Smart Recommendations') },
   { href: '/map', label: t('Map') },
 ];
 

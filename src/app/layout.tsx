@@ -10,6 +10,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../i18n';
 import PageTitle from '@/components/layout/PageTitle';
+import { Chatbot } from '@/components/chatbot';
 
 
 export default function RootLayout({
@@ -35,6 +36,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <Toaster />
+            <Chatbot />
           </FirebaseClientProvider>
         </I18nextProvider>
       </body>
