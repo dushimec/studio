@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "source": ". undermined ",
+    "source": ".",
     "i18n": {
       "root": "/src/locales"
     }
