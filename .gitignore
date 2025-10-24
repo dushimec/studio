@@ -1,6 +1,5 @@
-
-serviceAccountKey.json
 .env
+.next
+.vercel
 .env.local
 node_modules
-.next
