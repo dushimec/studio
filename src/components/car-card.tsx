@@ -8,7 +8,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
-import { getCarImage } from '@/ai/flows/car-image-flow';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
@@ -18,10 +17,9 @@ import { useTranslation } from 'react-i18next';
 
 type CarCardProps = {
   car: CarType | null;
-  generateImage?: boolean;
 };
 
-export function CarCard({ car, generateImage = false }: CarCardProps) {
+export function CarCard({ car }: CarCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
@@ -29,42 +27,21 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
   const fallbackImage = 'https://picsum.photos/seed/car-placeholder/800/600';
   
   const hasUserImage = car && car.images && car.images.length > 0;
-  const shouldGenerateImage = generateImage && !hasUserImage && car;
 
   useEffect(() => {
-    async function generate() {
-      if (!car) {
-          setLoading(true);
-          return;
-      }
-      setLoading(true);
-
-      if (hasUserImage) {
-        setImageUrl(car.images[0]);
-        setLoading(false);
+    if (!car) {
+        setLoading(true);
         return;
-      }
-
-      if (shouldGenerateImage) {
-        try {
-          const result = await getCarImage({
-            carName: `${car.brand} ${car.model}`,
-            carType: car.fuelType, // This is not a direct mapping, but best effort
-            carDescription: car.description,
-          });
-          setImageUrl(result.imageUrl);
-        } catch (error) {
-          setImageUrl(fallbackImage);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setImageUrl(fallbackImage);
-        setLoading(false);
-      }
     }
-    generate();
-  }, [car, shouldGenerateImage, hasUserImage, fallbackImage]);
+    setLoading(true);
+
+    if (hasUserImage) {
+      setImageUrl(car.images[0]);
+    } else {
+      setImageUrl(fallbackImage);
+    }
+    setLoading(false);
+  }, [car, hasUserImage, fallbackImage]);
 
   if (!car) {
       return (
@@ -113,7 +90,6 @@ export function CarCard({ car, generateImage = false }: CarCardProps) {
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                data-ai-hint={'car image'}
               />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">

@@ -52,89 +52,36 @@ export default function CarDetailsPage() {
           Go Back
         </Button>
       </div>
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-        <div className="animate-slide-in-from-left">
-          <Carousel className="w-full rounded-lg overflow-hidden shadow-lg">
-            <CarouselContent>
-              {carImages && carImages.length > 0 ? carImages.map((imgUrl, index) => (
-                <CarouselItem key={index}>
-                  <div className="relative aspect-[4/3]">
-                    <Image
-                      src={imgUrl}
-                      alt={`${car.brand} ${car.model} view ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                </CarouselItem>
-              )) : (
-                 <CarouselItem>
-                  <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground">No image available</span>
-                  </div>
-                </CarouselItem>
-              )}
-            </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
-          </Carousel>
-        </div>
-        
-        <div className="animate-slide-in-from-right">
-          <div className='flex justify-between items-start'>
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.brand} {car.model}</h1>
-              <p className="text-lg text-muted-foreground">{car.year}</p>
-            </div>
-            <div className="flex items-center gap-2">
-                <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
-                    <span className="material-symbols-outlined text-lg">{availability.icon}</span>
-                    <span className="font-semibold">{availability.text}</span>
-                </div>
-            </div>
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+        <div className="w-full md:w-1/2">
+          <div className="animate-slide-in-from-left">
+            <Carousel className="w-full rounded-lg overflow-hidden shadow-lg">
+              <CarouselContent>
+                {carImages && carImages.length > 0 ? carImages.map((imgUrl, index) => (
+                  <CarouselItem key={index}>
+                    <div className="relative aspect-[4/3]">
+                      <Image
+                        src={imgUrl}
+                        alt={`${car.brand} ${car.model} view ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                  </CarouselItem>
+                )) : (
+                   <CarouselItem>
+                    <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground">No image available</span>
+                    </div>
+                  </CarouselItem>
+                )}
+              </CarouselContent>
+              <CarouselPrevious className="left-4" />
+              <CarouselNext className="right-4" />
+            </Carousel>
           </div>
-          <p className="mt-4 text-lg text-muted-foreground">{car.description}</p>
-          
-          <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div className="p-4 bg-card rounded-lg border">
-              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">group</span>
-              <p className="font-semibold">{car.seats} Seats</p>
-            </div>
-            <div className="p-4 bg-card rounded-lg border">
-              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">local_gas_station</span>
-              <p className="font-semibold">{car.fuelType}</p>
-            </div>
-            <div className="p-4 bg-card rounded-lg border">
-              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">settings</span>
-              <p className="font-semibold">{car.transmission}</p>
-            </div>
-             <div className="p-4 bg-card rounded-lg border">
-              <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">speed</span>
-              <p className="font-semibold">Unlimited</p>
-              <p className="text-xs text-muted-foreground">Mileage</p>
-            </div>
-          </div>
-          
-          <Card className="bg-secondary/30">
-            <CardHeader>
-              <CardTitle>Start Your Booking</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {isAvailable ? (
-                <BookingForm car={car} user={user} />
-              ) : (
-                <div className='flex flex-col items-center justify-center h-48'>
-                  <p className='text-muted-foreground mb-4'>This car is not available for booking.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="mt-16 grid md:grid-cols-2 gap-8 lg:gap-12">
-        <div className="animate-fade-in" style={{animationDelay: '200ms'}}>
+          <div className="mt-16 animate-fade-in" style={{animationDelay: '200ms'}}>
           <h2 className="text-2xl font-bold mb-4">Key Features</h2>
           <ul className="space-y-2">
             {car.features.map((feature, i) => (
@@ -145,7 +92,7 @@ export default function CarDetailsPage() {
             ))}
           </ul>
         </div>
-        <div className="animate-fade-in" style={{animationDelay: '400ms'}}>
+        <div className="mt-8 animate-fade-in" style={{animationDelay: '400ms'}}>
           <h2 className="text-2xl font-bold mb-4">Rental Policies</h2>
            <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
@@ -167,6 +114,61 @@ export default function CarDetailsPage() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+        </div>
+        </div>
+        
+        <div className="w-full md:w-1/2">
+          <div className="sticky top-24">
+            <div className="animate-slide-in-from-right">
+                <div className='flex justify-between items-start'>
+                    <div>
+                    <h1 className="text-4xl lg:text-5xl font-bold font-headline mb-2">{car.brand} {car.model}</h1>
+                    <p className="text-lg text-muted-foreground">{car.year}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${availability.bgColor} ${availability.color}`}>
+                            <span className="material-symbols-outlined text-lg">{availability.icon}</span>
+                            <span className="font-semibold">{availability.text}</span>
+                        </div>
+                    </div>
+                </div>
+                <p className="mt-4 text-lg text-muted-foreground">{car.description}</p>
+          
+                <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div className="p-4 bg-card rounded-lg border">
+                    <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">group</span>
+                    <p className="font-semibold">{car.seats} Seats</p>
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                    <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">local_gas_station</span>
+                    <p className="font-semibold">{car.fuelType}</p>
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                    <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">settings</span>
+                    <p className="font-semibold">{car.transmission}</p>
+                    </div>
+                    <div className="p-4 bg-card rounded-lg border">
+                    <span className="material-symbols-outlined text-3xl text-primary mb-2 mx-auto">speed</span>
+                    <p className="font-semibold">Unlimited</p>
+                    <p className="text-xs text-muted-foreground">Mileage</p>
+                    </div>
+                </div>
+            </div>
+            <Card className="bg-secondary/30 mt-6">
+                <CardHeader>
+                <CardTitle>Start Your Booking</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                {isAvailable ? (
+                    <BookingForm car={car} user={user} />
+                ) : (
+                    <div className='flex flex-col items-center justify-center h-48'>
+                    <p className='text-muted-foreground mb-4'>This car is not available for booking.</p>
+                    </div>
+                )}
+                </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '../i18n';
 import PageTitle from '@/components/layout/PageTitle';
 import { Chatbot } from '@/components/chatbot';
+import { Suspense } from 'react';
 
 
 export default function RootLayout({
@@ -31,7 +32,9 @@ export default function RootLayout({
         <I18nextProvider i18n={i18n}>
           <FirebaseClientProvider>
             <PageTitle />
-            <Header />
+            <Suspense fallback={<div>Loading...</div>}>
+              <Header />
+            </Suspense>
             <main className="flex-grow">
               {children}
             </main>

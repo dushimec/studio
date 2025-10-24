@@ -45,6 +45,11 @@ export default function Header({ children }: { children: React.ReactNode }) {
   const { user, userProfile, isLoading } = useAuthWithProfile();
   const auth = useAuth();
   const { t, i18n } = useTranslation();
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const authType = searchParams.get('type');
 
@@ -194,7 +199,7 @@ export default function Header({ children }: { children: React.ReactNode }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {isLoading ? (
+              {!isClient || isLoading ? (
                 <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
               ) : user ? (
                 <DropdownMenu>

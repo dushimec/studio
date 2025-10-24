@@ -1,71 +1,52 @@
 'use server';
-/**
- * @fileOverview A smart car rental recommendation AI agent.
- *
- * - getSmartRecommendations - A function that handles the car rental recommendation process.
- * - SmartRecommendationsInput - The input type for the getSmartRecommendations function.
- * - SmartRecommendationsOutput - The return type for the getSmartRecommendations function.
- */
-
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { getAI } from '@/ai/genkit';
+import { z } from 'zod';
 
 const SmartRecommendationsInputSchema = z.object({
-  priceRange: z.string().describe('The desired price range for the car rental in RWF.'),
-  carType: z.string().describe('The preferred type of car (e.g., sedan, SUV, compact).'),
-  features: z.string().describe('Specific features the user is looking for (e.g., GPS, automatic transmission, air conditioning).'),
-  purpose: z.string().describe('The purpose of car rental (e.g. business trip, family trip, vacation)'),
-  location: z.string().describe('The location where the car rental is required, likely in Rwanda.'),
+  priceRange: z.string().describe('The desired price range.'),
+  carType: z.string().describe('The desired car type.'),
+  features: z.string().describe('A list of desired features.'),
+  purpose: z.string().describe('The purpose of the rental.'),
+  location: z.string().describe('The rental location.'),
 });
+
 export type SmartRecommendationsInput = z.infer<typeof SmartRecommendationsInputSchema>;
 
-const SmartRecommendationsOutputSchema = z.object({
-  recommendations: z.array(
-    z.object({
-      carName: z.string().describe('The name of the recommended car.'),
-      rentalCompany: z.string().describe('The rental company offering the car.'),
-      price: z.number().describe('The price per day of the rental in RWF.'),
-      suitabilityScore: z.number().describe('A score indicating how well the car matches the user preferences (0-1).'),
-      reasoning: z.string().describe('Explanation of why the car is recommended'),
-    })
-  ).describe('A list of car rental recommendations based on the user preferences.'),
+const RecommendationSchema = z.object({
+  carName: z.string(),
+  rentalCompany: z.string(),
+  price: z.number(),
+  reasoning: z.string(),
+  suitabilityScore: z.number(),
 });
+
+const SmartRecommendationsOutputSchema = z.object({
+  recommendations: z.array(RecommendationSchema),
+});
+
 export type SmartRecommendationsOutput = z.infer<typeof SmartRecommendationsOutputSchema>;
 
-export async function getSmartRecommendations(input: SmartRecommendationsInput): Promise<SmartRecommendationsOutput> {
-  return smartRecommendationsFlow(input);
+export async function getSmartRecommendations(
+  input: SmartRecommendationsInput
+): Promise<SmartRecommendationsOutput> {
+  // Mock implementation
+  console.log('Generating smart recommendations for:', input);
+  return {
+    recommendations: [
+      {
+        carName: 'Toyota RAV4',
+        rentalCompany: 'Kigali Car Rentals',
+        price: 80000,
+        reasoning: 'Excellent choice for family trips with ample space and great fuel economy. Good for navigating both city and rural roads in Rwanda.',
+        suitabilityScore: 0.9,
+      },
+      {
+        carName: 'Suzuki Swift',
+        rentalCompany: 'Self Drive Rwanda',
+        price: 65000,
+        reasoning: 'A compact and fuel-efficient car, perfect for city driving in Kigali and navigating narrower streets. The requested features are available in the GLX model.',
+        suitabilityScore: 0.8,
+      },
+    ],
+  };
 }
-
-const prompt = ai.definePrompt({
-  name: 'smartRecommendationsPrompt',
-  input: {schema: SmartRecommendationsInputSchema},
-  output: {schema: SmartRecommendationsOutputSchema},
-  prompt: `You are an AI assistant specialized in providing smart car rental recommendations for users in Rwanda.
-
-  Based on the user's specified preferences, provide a list of car rental options that best match their needs.
-  Consider the price range (in RWF), car type, desired features, and rental location within Rwanda.
-  Explain the reasoning behind each recommendation and assign a suitability score.
-
-  Preferences:
-  - Price Range: {{{priceRange}}} RWF
-  - Car Type: {{{carType}}}
-  - Features: {{{features}}}
-  - Purpose: {{{purpose}}}
-  - Location: {{{location}}}
-
-  Provide the recommendations in JSON format.
-  Ensure that the suitabilityScore is between 0 and 1.
-  `,
-});
-
-const smartRecommendationsFlow = ai.defineFlow(
-  {
-    name: 'smartRecommendationsFlow',
-    inputSchema: SmartRecommendationsInputSchema,
-    outputSchema: SmartRecommendationsOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);

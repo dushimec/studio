@@ -19,6 +19,7 @@ import { useUser, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc } from "firebase/firestore"; 
 import { useToast } from '@/hooks/use-toast';
+import ImageUpload from '@/components/image-upload';
 
 const formSchema = z.object({
   make: z.string().min(2, { message: "Make must be at least 2 characters." }),
@@ -26,7 +27,7 @@ const formSchema = z.object({
   year: z.coerce.number().int().min(1900, { message: "Please enter a valid year." }).max(new Date().getFullYear() + 1, { message: "Please enter a valid year."}),
   price: z.coerce.number().positive({ message: "Price must be a positive number."}),
   description: z.string().min(10, { message: "Description must be at least 10 characters."}),
-  image: z.string().url({ message: "Please enter a valid URL."}),
+  images: z.array(z.string()).optional(),
 });
 
 export default function PostCarPage() {
@@ -43,7 +44,7 @@ export default function PostCarPage() {
       year: undefined,
       price: undefined,
       description: "",
-      image: "",
+      images: [],
     },
   });
 
@@ -151,12 +152,16 @@ export default function PostCarPage() {
           />
           <FormField
             control={form.control}
-            name="image"
+            name="images"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Image URL</FormLabel>
+                <FormLabel>Car Images</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., https://example.com/car.jpg" {...field} />
+                <ImageUpload
+                  value={field.value || []}
+                  onChange={(url) => field.onChange([...(field.value || []), url])}
+                  onRemove={(url) => field.onChange([...(field.value || []).filter((currentUrl) => currentUrl !== url)])}
+                />
                 </FormControl>
                 <FormMessage />
               </FormItem>
