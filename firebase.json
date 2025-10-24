@@ -1,8 +1,11 @@
 {
   "hosting": {
-    "source": ".",
+    "source": ". undermined ",
     "i18n": {
       "root": "/src/locales"
     }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }
