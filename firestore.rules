@@ -43,6 +43,7 @@ service cloud.firestore {
 
     match /locations/{locationId} {
       allow get: if true;
+      allow read: if true; 
       allow list: if true;
       allow write: if isSignedIn();
     }
